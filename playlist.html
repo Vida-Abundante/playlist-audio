@@ -9,14 +9,14 @@
   <audio id="player" controls></audio>
   
   <ul>
-    <li><button onclick="playTrack(0)">Audio 1</button></li>
-    <li><button onclick="playTrack(1)">Audio 2</button></li>
+    <li><button onclick="playTrack(0)">Salvación</button></li>
+    <li><button onclick="playTrack(1)">Pecado</button></li>
   </ul>
 
   <script>
     const tracks = [
-      "https://drive.google.com/uc?export=download&id=1u0PjzfRaes8v6IMnIsFN1B2iHwoMhb7k",
-      "https://drive.google.com/uc?export=download&id=1xrqeKOqB7dbVwmjiYSNDPo3__-K8pF2m"
+      "salvacion.mp3", // archivo que subiste con ese nombre
+      "pecado.mp3"     // archivo que subiste con ese nombre
     ];
     const player = document.getElementById("player");
     let current = 0;
