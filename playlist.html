@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Playlist</title>
+</head>
+<body>
+  <h2>Reproductor de Audio</h2>
+  <audio id="player" controls></audio>
+  
+  <ul>
+    <li><button onclick="playTrack(0)">Audio 1</button></li>
+    <li><button onclick="playTrack(1)">Audio 2</button></li>
+  </ul>
+
+  <script>
+    const tracks = [
+      "https://drive.google.com/uc?export=download&id=1u0PjzfRaes8v6IMnIsFN1B2iHwoMhb7k",
+      "https://drive.google.com/uc?export=download&id=1xrqeKOqB7dbVwmjiYSNDPo3__-K8pF2m"
+    ];
+    const player = document.getElementById("player");
+    let current = 0;
+
+    function playTrack(index) {
+      current = index;
+      player.src = tracks[current];
+      player.play();
+    }
+
+    player.addEventListener("ended", () => {
+      current++;
+      if (current < tracks.length) {
+        playTrack(current);
+      }
+    });
+
+    // Reproduce el primero automáticamente al cargar
+    playTrack(0);
+  </script>
+</body>
+</html>
