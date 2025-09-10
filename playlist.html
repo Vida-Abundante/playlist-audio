@@ -3,15 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <title>Mi Playlist</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    h2 {
+      margin-bottom: 20px;
+    }
+    audio {
+      width: 90%;
+      max-width: 400px;
+      margin-bottom: 30px;
+    }
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px; /* separación entre botones */
+    }
+    button {
+      font-size: 24px; /* letras grandes */
+      padding: 20px 40px; /* tamaño del botón */
+      border: none;
+      border-radius: 12px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      width: 80%; /* que ocupen buena parte de la pantalla */
+      max-width: 400px;
+    }
+    button:focus {
+      outline: 3px solid yellow; /* borde visible al enfocarse con TalkBack */
+    }
+  </style>
 </head>
 <body>
   <h2>Reproductor de Audio</h2>
   <audio id="player" controls></audio>
   
-  <ul>
-    <li><button onclick="playTrack(0)">Salvación</button></li>
-    <li><button onclick="playTrack(1)">Pecado</button></li>
-  </ul>
+  <div class="button-container">
+    <button onclick="playTrack(0)">▶ Salvación</button>
+    <button onclick="playTrack(1)">▶ Pecado</button>
+  </div>
 
   <script>
     const tracks = [
