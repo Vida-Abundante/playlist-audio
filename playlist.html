@@ -17,25 +17,32 @@
       max-width: 400px;
       margin-bottom: 30px;
     }
+    .track {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      font-size: 20px;
+      padding: 15px 25px;
+      border: none;
+      border-radius: 10px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      flex: 1;
+      max-width: 120px;
+    }
+    button:focus {
+      outline: 3px solid yellow;
+    }
     .button-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px; /* separación entre botones */
-    }
-    button {
-      font-size: 24px; /* letras grandes */
-      padding: 20px 40px; /* tamaño del botón */
-      border: none;
-      border-radius: 12px;
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
-      width: 80%; /* que ocupen buena parte de la pantalla */
-      max-width: 400px;
-    }
-    button:focus {
-      outline: 3px solid yellow; /* borde visible al enfocarse con TalkBack */
+      gap: 10px;
     }
   </style>
 </head>
@@ -44,8 +51,16 @@
   <audio id="player" controls></audio>
   
   <div class="button-container">
-    <button onclick="playTrack(0)">▶ Salvación</button>
-    <button onclick="playTrack(1)">▶ Pecado</button>
+    <div class="track">
+      <button onclick="prevTrack()">⏮</button>
+      <button onclick="playTrack(0)">▶ Salvación</button>
+      <button onclick="nextTrack()">⏭</button>
+    </div>
+    <div class="track">
+      <button onclick="prevTrack()">⏮</button>
+      <button onclick="playTrack(1)">▶ Pecado</button>
+      <button onclick="nextTrack()">⏭</button>
+    </div>
   </div>
 
   <script>
@@ -62,12 +77,17 @@
       player.play();
     }
 
-    player.addEventListener("ended", () => {
-      current++;
-      if (current < tracks.length) {
-        playTrack(current);
-      }
-    });
+    function nextTrack() {
+      current = (current + 1) % tracks.length;
+      playTrack(current);
+    }
+
+    function prevTrack() {
+      current = (current - 1 + tracks.length) % tracks.length;
+      playTrack(current);
+    }
+
+    player.addEventListener("ended", nextTrack);
 
     // Reproduce el primero automáticamente al cargar
     playTrack(0);
