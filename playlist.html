@@ -12,55 +12,71 @@
     h2 {
       margin-bottom: 20px;
     }
-    audio {
-      width: 90%;
-      max-width: 400px;
+
+    /* Contenedor del reproductor + botones */
+    .player-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
       margin-bottom: 30px;
     }
-    .track {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
+
+    audio {
+      width: 70%;
+      max-width: 400px;
     }
-    button {
-      font-size: 20px;
-      padding: 15px 25px;
+
+    .control-btn {
+      font-size: 28px;
+      padding: 10px 20px;
       border: none;
       border-radius: 10px;
       background-color: #007bff;
       color: white;
       cursor: pointer;
-      flex: 1;
-      max-width: 120px;
     }
-    button:focus {
+
+    .control-btn:focus {
       outline: 3px solid yellow;
     }
+
     .button-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
+      gap: 20px;
+    }
+
+    .track-btn {
+      font-size: 24px;
+      padding: 20px 40px;
+      border: none;
+      border-radius: 12px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      width: 80%;
+      max-width: 400px;
+    }
+
+    .track-btn:focus {
+      outline: 3px solid yellow;
     }
   </style>
 </head>
 <body>
   <h2>Reproductor de Audio</h2>
-  <audio id="player" controls></audio>
-  
+
+  <div class="player-container">
+    <button class="control-btn" onclick="prevTrack()">⏮</button>
+    <audio id="player" controls></audio>
+    <button class="control-btn" onclick="nextTrack()">⏭</button>
+  </div>
+
   <div class="button-container">
-    <div class="track">
-      <button onclick="prevTrack()">⏮</button>
-      <button onclick="playTrack(0)">▶ Salvación</button>
-      <button onclick="nextTrack()">⏭</button>
-    </div>
-    <div class="track">
-      <button onclick="prevTrack()">⏮</button>
-      <button onclick="playTrack(1)">▶ Pecado</button>
-      <button onclick="nextTrack()">⏭</button>
-    </div>
+    <button class="track-btn" onclick="playTrack(0)">▶ Salvación</button>
+    <button class="track-btn" onclick="playTrack(1)">▶ Pecado</button>
   </div>
 
   <script>
