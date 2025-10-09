@@ -13,6 +13,24 @@
       margin-bottom: 20px;
     }
 
+    /* Botón principal grande */
+    #mainPlayPause {
+      font-size: 28px;
+      padding: 25px 50px;
+      border: none;
+      border-radius: 15px;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 30px;
+      width: 80%;
+      max-width: 400px;
+    }
+
+    #mainPlayPause:focus {
+      outline: 3px solid yellow;
+    }
+
     /* Contenedor del reproductor + botones */
     .player-container {
       display: flex;
@@ -68,6 +86,11 @@
 <body>
   <h2>Reproductor de Audio</h2>
 
+  <!-- Botón grande principal -->
+  <button id="mainPlayPause" onclick="togglePlaylist()" aria-label="Reproducir o pausar toda la lista">
+    ▶ Reproducir lista completa
+  </button>
+
   <div class="player-container">
     <button class="control-btn" onclick="prevTrack()">⏮</button>
     <audio id="player" controls></audio>
@@ -85,7 +108,9 @@
       "https://caro1518-creator.github.io/playlist-audio/Pecado.mp3"
     ];
     const player = document.getElementById("player");
+    const mainBtn = document.getElementById("mainPlayPause");
     let current = 0;
+    let playingPlaylist = false;
 
     function playTrack(index) {
       current = index;
@@ -103,10 +128,28 @@
       playTrack(current);
     }
 
-    player.addEventListener("ended", nextTrack);
+    // Modo lista continua
+    function togglePlaylist() {
+      if (!playingPlaylist) {
+        playingPlaylist = true;
+        mainBtn.textContent = "⏸ Pausar lista";
+        playTrack(0);
+      } else {
+        playingPlaylist = false;
+        mainBtn.textContent = "▶ Reproducir lista completa";
+        player.pause();
+      }
+    }
 
-    // Reproduce el primero automáticamente al cargar
-    playTrack(0);
+    // Cuando termina una pista
+    player.addEventListener("ended", () => {
+      if (playingPlaylist) {
+        nextTrack();
+      }
+    });
+
+    // Inicia con la primera pero sin reproducir
+    player.src = tracks[0];
   </script>
 </body>
 </html>
