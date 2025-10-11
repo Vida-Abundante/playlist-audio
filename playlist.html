@@ -13,7 +13,6 @@
       margin-bottom: 20px;
     }
 
-    /* Botón principal grande */
     #mainPlayPause {
       font-size: 28px;
       padding: 25px 50px;
@@ -31,7 +30,6 @@
       outline: 3px solid yellow;
     }
 
-    /* Contenedor del reproductor + botones */
     .player-container {
       display: flex;
       align-items: center;
@@ -98,8 +96,8 @@
   </div>
 
   <div class="button-container">
-    <button class="track-btn" onclick="playTrack(0)">▶ Salvación</button>
-    <button class="track-btn" onclick="playTrack(1)">▶ Pecado</button>
+    <button class="track-btn" id="btn0" onclick="playTrack(0)">▶ Salvación</button>
+    <button class="track-btn" id="btn1" onclick="playTrack(1)">▶ Pecado</button>
   </div>
 
   <script>
@@ -109,13 +107,24 @@
     ];
     const player = document.getElementById("player");
     const mainBtn = document.getElementById("mainPlayPause");
+    const trackButtons = [
+      document.getElementById("btn0"),
+      document.getElementById("btn1")
+    ];
+
     let current = 0;
     let playingPlaylist = false;
 
     function playTrack(index) {
-      current = index;
-      player.src = tracks[current];
-      player.play();
+      if (current === index && !player.paused) {
+        player.pause();
+        updateButtonStates(); // Actualizar íconos
+      } else {
+        current = index;
+        player.src = tracks[current];
+        player.play();
+        updateButtonStates();
+      }
     }
 
     function nextTrack() {
@@ -128,7 +137,6 @@
       playTrack(current);
     }
 
-    // Modo lista continua
     function togglePlaylist() {
       if (!playingPlaylist) {
         playingPlaylist = true;
@@ -141,14 +149,29 @@
       }
     }
 
-    // Cuando termina una pista
     player.addEventListener("ended", () => {
       if (playingPlaylist) {
         nextTrack();
+      } else {
+        updateButtonStates(); // Restaurar icono si terminó una canción manual
       }
     });
 
-    // Inicia con la primera pero sin reproducir
+    player.addEventListener("play", updateButtonStates);
+    player.addEventListener("pause", updateButtonStates);
+
+    function updateButtonStates() {
+      trackButtons.forEach((btn, i) => {
+        if (i === current && !player.paused) {
+          btn.textContent = "⏸ " + btn.textContent.slice(2);
+        } else {
+          const label = i === 0 ? "Salvación" : "Pecado";
+          btn.textContent = "▶ " + label;
+        }
+      });
+    }
+
+    // Iniciar con la primera pista cargada pero sin reproducir
     player.src = tracks[0];
   </script>
 </body>
