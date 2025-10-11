@@ -36,7 +36,7 @@
       align-items: center;
       justify-content: center;
       gap: 20px;
-      margin-bottom: 30px;
+      margin-bottom: 10px;
     }
 
     audio {
@@ -63,6 +63,7 @@
       flex-direction: column;
       align-items: center;
       gap: 20px;
+      margin-top: 30px;
     }
 
     .track-btn {
@@ -79,18 +80,24 @@
     }
 
     .track-btn.active {
-      background-color: #0056b3; /* Color más oscuro para indicar activo */
+      background-color: #0056b3;
     }
 
     .track-btn:focus {
       outline: 3px solid yellow;
+    }
+
+    #nowPlaying {
+      font-size: 18px;
+      color: #333;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
   <h2>Reproductor de Audio</h2>
 
-  <!-- Botón grande principal -->
+  <!-- Botón principal -->
   <button id="mainPlayPause" onclick="togglePlaylist()" aria-label="Reproducir o pausar toda la lista">
     ▶ Reproducir lista completa
   </button>
@@ -100,6 +107,9 @@
     <audio id="player" controls></audio>
     <button class="control-btn" onclick="nextTrack()">⏭</button>
   </div>
+
+  <!-- Texto de pista actual -->
+  <div id="nowPlaying">🎵 Reproduciendo: Nada</div>
 
   <div class="button-container">
     <button class="track-btn" id="btn0" onclick="playSection(0)">▶ Salvación</button>
@@ -125,6 +135,7 @@
 
     const player = document.getElementById("player");
     const mainBtn = document.getElementById("mainPlayPause");
+    const nowPlaying = document.getElementById("nowPlaying");
     const trackButtons = Array.from(document.getElementsByClassName("track-btn"));
 
     let current = 0;
@@ -138,7 +149,6 @@
       const isSameSection = playingSection === index;
       const isPlaying = !player.paused;
 
-      // Si se hace clic en la misma sección que se está reproduciendo
       if (isSameSection && currentList.includes(currentSrc)) {
         if (isPlaying) {
           player.pause();
@@ -148,7 +158,6 @@
         return;
       }
 
-      // Nueva sección
       playingPlaylist = false;
       playingSection = index;
       current = 0;
@@ -161,6 +170,7 @@
       player.play();
       player.dataset.list = JSON.stringify(list);
       player.dataset.index = index;
+      updateNowPlaying(list[index]);
     }
 
     function nextTrack() {
@@ -172,6 +182,7 @@
         waitAndContinueFullPlaylist();
       } else {
         updateButtonStates();
+        updateNowPlaying(""); // Nada
       }
     }
 
@@ -186,7 +197,7 @@
     async function waitAndContinueFullPlaylist() {
       if (waiting) return;
       waiting = true;
-      await new Promise(r => setTimeout(r, 2000)); // pausa de 2s
+      await new Promise(r => setTimeout(r, 2000));
       waiting = false;
       current++;
       if (current < fullPlaylist.length) {
@@ -195,16 +206,18 @@
         playingPlaylist = false;
         mainBtn.textContent = "▶ Reproducir lista completa";
         updateButtonStates();
+        updateNowPlaying("");
       }
     }
 
     function togglePlaylist() {
+      const isPlaying = !player.paused;
       if (!playingPlaylist) {
         playingPlaylist = true;
         playingSection = null;
         mainBtn.textContent = "⏸ Pausar lista";
-        if (player.paused && player.src && player.src.includes(base)) {
-          player.play(); // reanudar
+        if (isPlaying && player.src && player.src.includes(base)) {
+          // Si ya está sonando algo, lo dejamos seguir
         } else {
           current = 0;
           playTrackFromList(fullPlaylist, current);
@@ -213,14 +226,34 @@
         playingPlaylist = false;
         mainBtn.textContent = "▶ Reanudar lista";
         player.pause();
+        updateNowPlaying("");// Limpiar si se pausa
       }
       updateButtonStates();
     }
 
-    player.addEventListener("ended", () => {
-      nextTrack();
-    });
+    function updateNowPlaying(src) {
+      if (!src) {
+        nowPlaying.textContent = "🎵 Reproduciendo: Nada";
+        return;
+      }
 
+      for (let i = 0; i < sections.length; i++) {
+        const list = sections[i].map(name => base + name);
+        const index = list.indexOf(src);
+        if (index !== -1) {
+          nowPlaying.textContent = `🎵 Reproduciendo: ${sectionNames[i]} ${list.length > 1 ? `${index + 1} de ${list.length}` : ""}`;
+          return;
+        }
+      }
+
+      // Si no pertenece a ninguna sección, es parte de la lista completa
+      const index = fullPlaylist.indexOf(src);
+      if (index !== -1) {
+        nowPlaying.textContent = `🎵 Reproduciendo lista completa: Pista ${index + 1} de ${fullPlaylist.length}`;
+      }
+    }
+
+    player.addEventListener("ended", nextTrack);
     player.addEventListener("play", updateButtonStates);
     player.addEventListener("pause", updateButtonStates);
 
@@ -240,7 +273,7 @@
       });
     }
 
-    // Cargar primer audio al iniciar
+    // Inicializar con primer audio cargado
     player.src = base + sections[0][0];
   </script>
 </body>
