@@ -9,6 +9,7 @@
       text-align: center;
       padding: 20px;
     }
+
     h2 {
       margin-bottom: 20px;
     }
@@ -74,6 +75,11 @@
       cursor: pointer;
       width: 80%;
       max-width: 400px;
+      transition: background-color 0.3s;
+    }
+
+    .track-btn.active {
+      background-color: #0056b3; /* Color más oscuro para indicar activo */
     }
 
     .track-btn:focus {
@@ -115,8 +121,6 @@
     ];
 
     const sectionNames = ["Salvación", "Pecado", "La Palabra", "La Oración", "Espíritu Santo"];
-
-    // Crear lista completa en orden
     const fullPlaylist = sections.flat().map(name => base + name);
 
     const player = document.getElementById("player");
@@ -129,11 +133,26 @@
     let waiting = false;
 
     function playSection(index) {
+      const currentList = sections[index].map(name => base + name);
+      const currentSrc = player.src;
+      const isSameSection = playingSection === index;
+      const isPlaying = !player.paused;
+
+      // Si se hace clic en la misma sección que se está reproduciendo
+      if (isSameSection && currentList.includes(currentSrc)) {
+        if (isPlaying) {
+          player.pause();
+        } else {
+          player.play();
+        }
+        return;
+      }
+
+      // Nueva sección
       playingPlaylist = false;
       playingSection = index;
       current = 0;
-      const sectionList = sections[index].map(name => base + name);
-      playTrackFromList(sectionList, 0);
+      playTrackFromList(currentList, 0);
       updateButtonStates();
     }
 
@@ -150,7 +169,6 @@
       if (index + 1 < list.length) {
         playTrackFromList(list, index + 1);
       } else if (playingPlaylist) {
-        // Pausa entre secciones en modo lista completa
         waitAndContinueFullPlaylist();
       } else {
         updateButtonStates();
@@ -168,7 +186,7 @@
     async function waitAndContinueFullPlaylist() {
       if (waiting) return;
       waiting = true;
-      await new Promise(r => setTimeout(r, 2000)); // 2s pausa
+      await new Promise(r => setTimeout(r, 2000)); // pausa de 2s
       waiting = false;
       current++;
       if (current < fullPlaylist.length) {
@@ -196,6 +214,7 @@
         mainBtn.textContent = "▶ Reanudar lista";
         player.pause();
       }
+      updateButtonStates();
     }
 
     player.addEventListener("ended", () => {
@@ -208,15 +227,20 @@
     function updateButtonStates() {
       trackButtons.forEach((btn, i) => {
         const label = sectionNames[i];
-        if (playingSection === i && !player.paused) {
+        const currentList = sections[i].map(name => base + name);
+        const isCurrent = playingSection === i && currentList.includes(player.src);
+
+        if (isCurrent && !player.paused) {
           btn.textContent = "⏸ " + label;
+          btn.classList.add("active");
         } else {
           btn.textContent = "▶ " + label;
+          btn.classList.remove("active");
         }
       });
     }
 
-    // Iniciar con primer audio cargado
+    // Cargar primer audio al iniciar
     player.src = base + sections[0][0];
   </script>
 </body>
