@@ -1,101 +1,44 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reproductor de Enseñanzas</title>
-<style>
-  body {
-    font-family: system-ui, sans-serif;
-    background-color: #ffeef7;
-    color: #2a2a2a;
-    text-align: center;
-    padding: 20px;
+function updateNowPlaying(src) {
+  if (!src) {
+    nowPlaying.textContent = "🎵 Reproduciendo: Nada";
+    return;
   }
-  h1 {
-    color: #1d4ed8;
-  }
-  audio {
-    width: 90%;
-    margin: 20px 0;
-  }
-  button {
-    background-color: #1d4ed8;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    margin: 5px;
-  }
-  button:hover {
-    background-color: #2563eb;
-  }
-  .info {
-    margin-top: 10px;
-    font-weight: bold;
-  }
-</style>
-</head>
-<body>
-  <h1>🎧 Enseñanzas</h1>
 
-  <audio id="player" controls></audio>
-  <div class="info" id="info">Selecciona una sección para comenzar</div>
+  // Normalizar para comparar nombres incluso con tildes o espacios
+  const normalize = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-  <div>
-    <button onclick="playSection('Salvación', ['Salvación.mp3'])">Salvación</button>
-    <button onclick="playSection('Pecado', ['Pecado.mp3'])">Pecado</button>
-    <button onclick="playSection('La Palabra', ['La palabra 1.mp3','La palabra 2.mp3','La palabra 3.mp3'])">La Palabra</button>
-    <button onclick="playSection('La Oración', ['La oración 1.mp3','La oración 2.mp3','La oración 3.mp3','La oración 4.mp3','La oración 5.mp3'])">La Oración</button>
-    <button onclick="playSection('Espíritu Santo', ['Espíritu Santo 1.mp3','Espíritu Santo 2.mp3','Espíritu Santo 3.mp3'])">Espíritu Santo</button>
-  </div>
+  // Buscar en lista completa
+  const idxFull = fullPlaylist.findIndex(url => normalize(url) === normalize(src));
+  if (idxFull !== -1) {
+    // Encontrar sección y posición dentro de ella
+    let sec = 0;
+    let count = 0;
+    for (let i = 0; i < sections.length; i++) {
+      const len = sections[i].length;
+      if (idxFull < count + len) {
+        sec = i;
+        const pos = idxFull - count + 1;
+        const total = sections[sec].length;
+        nowPlaying.textContent = `🎵 Reproduciendo: ${sectionNames[sec]}${total > 1 ? ` ${pos} de ${total}` : ""}`;
+        return;
+      }
+      count += len;
+    }
+  }
 
-<script>
-const player = document.getElementById("player");
-const info = document.getElementById("info");
-let currentSection = "";
-let playlist = [];
-let index = 0;
-let positions = {}; // para recordar la posición al pausar
+  // Buscar en lista de sección
+  const listJson = player.dataset.list || "[]";
+  try {
+    const list = JSON.parse(listJson);
+    const idx = list.findIndex(url => normalize(url) === normalize(src));
+    if (idx !== -1 && player.dataset.mode === "section") {
+      const secIdx = parseInt(player.dataset.section || 0);
+      const total = list.length;
+      nowPlaying.textContent = `🎵 Reproduciendo: ${sectionNames[secIdx]}${total > 1 ? ` ${idx + 1} de ${total}` : ""}`;
+      return;
+    }
+  } catch (e) { /* sin errores visibles */ }
 
-function playSection(section, files) {
-  currentSection = section;
-  playlist = files;
-  index = 0;
-  playCurrent();
+  // Si no encuentra coincidencias
+  nowPlaying.textContent = "🎵 Reproduciendo";
 }
-
-function playCurrent() {
-  const file = playlist[index];
-  player.src = encodeURI(file); // evita problemas con tildes y espacios
-  const savedTime = positions[currentSection + index];
-  if (savedTime) player.currentTime = savedTime;
-  player.play();
-  updateInfo();
-}
-
-function updateInfo() {
-  const total = playlist.length;
-  const number = index + 1;
-  const display = total > 1 ? `${currentSection} ${number} de ${total}` : currentSection;
-  info.textContent = `🎵 Reproduciendo: ${display}`;
-}
-
-// guardar posición cuando se pausa
-player.addEventListener("pause", () => {
-  positions[currentSection + index] = player.currentTime;
-});
-
-// avanzar al siguiente
-player.addEventListener("ended", () => {
-  if (index < playlist.length - 1) {
-    index++;
-    playCurrent();
-  } else {
-    info.textContent = `✅ ${currentSection} completo`;
-  }
-});
-</script>
-</body>
-</html>
