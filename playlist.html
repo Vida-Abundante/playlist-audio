@@ -1,44 +1,435 @@
-function updateNowPlaying(src) {
-  if (!src) {
-    nowPlaying.textContent = "🎵 Reproduciendo: Nada";
-    return;
-  }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Playlist</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
 
-  // Normalizar para comparar nombres incluso con tildes o espacios
-  const normalize = s => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    h2 {
+      margin-bottom: 20px;
+    }
 
-  // Buscar en lista completa
-  const idxFull = fullPlaylist.findIndex(url => normalize(url) === normalize(src));
-  if (idxFull !== -1) {
-    // Encontrar sección y posición dentro de ella
-    let sec = 0;
-    let count = 0;
-    for (let i = 0; i < sections.length; i++) {
-      const len = sections[i].length;
-      if (idxFull < count + len) {
-        sec = i;
-        const pos = idxFull - count + 1;
-        const total = sections[sec].length;
-        nowPlaying.textContent = `🎵 Reproduciendo: ${sectionNames[sec]}${total > 1 ? ` ${pos} de ${total}` : ""}`;
+    #mainPlayPause {
+      font-size: 28px;
+      padding: 25px 50px;
+      border: none;
+      border-radius: 15px;
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 30px;
+      width: 80%;
+      max-width: 400px;
+    }
+
+    #mainPlayPause:focus {
+      outline: 3px solid yellow;
+    }
+
+    .player-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 10px;
+    }
+
+    audio {
+      width: 70%;
+      max-width: 400px;
+    }
+
+    .control-btn {
+      font-size: 28px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+
+    .control-btn:focus {
+      outline: 3px solid yellow;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .track-btn {
+      font-size: 24px;
+      padding: 20px 40px;
+      border: none;
+      border-radius: 12px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      width: 80%;
+      max-width: 400px;
+      transition: background-color 0.3s;
+    }
+
+    .track-btn.active {
+      background-color: #0056b3;
+    }
+
+    .track-btn:focus {
+      outline: 3px solid yellow;
+    }
+
+    #nowPlaying {
+      font-size: 18px;
+      color: #333;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Reproductor de Audio</h2>
+
+  <!-- Botón principal -->
+  <button id="mainPlayPause" aria-label="Reproducir o pausar toda la lista">
+    ▶ Reproducir lista completa
+  </button>
+
+  <div class="player-container">
+    <button class="control-btn" onclick="prevTrack()" aria-label="Pista anterior">⏮</button>
+    <audio id="player" controls></audio>
+    <button class="control-btn" onclick="nextTrack()" aria-label="Siguiente pista">⏭</button>
+  </div>
+
+  <!-- Texto de pista actual -->
+  <div id="nowPlaying">🎵 Reproduciendo: Nada</div>
+
+  <div class="button-container">
+    <button class="track-btn" id="btn0" onclick="playSection(0)">▶ Salvación</button>
+    <button class="track-btn" id="btn1" onclick="playSection(1)">▶ Pecado</button>
+    <button class="track-btn" id="btn2" onclick="playSection(2)">▶ La Palabra</button>
+    <button class="track-btn" id="btn3" onclick="playSection(3)">▶ La Oración</button>
+    <button class="track-btn" id="btn4" onclick="playSection(4)">▶ Espíritu Santo</button>
+  </div>
+
+  <script>
+    const base = "https://caro1518-creator.github.io/playlist-audio/";
+
+    const sections = [
+      ["Salvación.mp3"],
+      ["Pecado.mp3"],
+      ["La palabra 1.mp3", "La palabra 2.mp3", "La palabra 3.mp3"],
+      ["La oración 1.mp3", "La oración 2.mp3", "La oración 3.mp3", "La oración 4.mp3", "La oración 5.mp3"],
+      ["Espíritu Santo 1.mp3", "Espíritu Santo 2.mp3", "Espíritu Santo 3.mp3"]
+    ];
+
+    const sectionNames = ["Salvación", "Pecado", "La Palabra", "La Oración", "Espíritu Santo"];
+
+    // Lista completa (aplanada) y índices finales de cada sección (para saber cuándo aplicar la pausa de 2s)
+    const fullPlaylist = sections.flat().map(name => base + name);
+    const sectionEndIndices = (function() {
+      const ends = [];
+      let idx = -1;
+      for (let i = 0; i < sections.length; i++) {
+        idx += sections[i].length;
+        ends.push(idx);
+      }
+      return ends; // índices de último elemento por sección (0-based, respecto a fullPlaylist)
+    })();
+
+    const player = document.getElementById("player");
+    const mainBtn = document.getElementById("mainPlayPause");
+    const nowPlaying = document.getElementById("nowPlaying");
+    const trackButtons = Array.from(document.getElementsByClassName("track-btn"));
+
+    // Estado de control:
+    // mode: "none" (nada iniciado), "full" (la lista completa fue iniciada), "section" (se está reproduciendo una sección)
+    let mode = "none";
+    // current index para fullPlaylist
+    let fullIndex = 0;
+    // waiting para evitar múltiples esperas
+    let waiting = false;
+
+    // Conectar evento principal al botón grande
+    mainBtn.addEventListener("click", () => {
+      if (mode === "none") {
+        // iniciar lista completa
+        startFullPlaylist();
+      } else {
+        // si estamos en modo 'full' o 'section' -> toggle play/pause de lo que esté sonando ahora
+        togglePlayPauseCurrent();
+      }
+    });
+
+    // Función: iniciar lista completa desde el lugar guardado (si está pausada) o desde el inicio
+    function startFullPlaylist(resume = false) {
+      mode = "full";
+      if (!resume) fullIndex = 0;
+      playFullAt(fullIndex);
+      updateMainButton();
+    }
+
+    function playFullAt(index) {
+      fullIndex = index;
+      playTrackFromList(fullPlaylist, fullIndex);
+      // indicar que el player está usando la lista completa (guárdalo en dataset para prev/next)
+      player.dataset.mode = "full";
+      player.dataset.index = fullIndex;
+      updateMainButton();
+    }
+
+    // Función: reproducir una sección (botón individual)
+    function playSection(sectionIdx) {
+      // Si el usuario hizo click en la misma sección que ya está cargada:
+      const list = sections[sectionIdx].map(n => base + n);
+      const currentSrc = player.src;
+      const isSameSection = (player.dataset.mode === "section" && player.dataset.section == sectionIdx);
+      const isPlaying = !player.paused;
+
+      if (isSameSection) {
+        // toggle play/pause
+        if (isPlaying) player.pause();
+        else player.play();
+        updateMainButton();
         return;
       }
-      count += len;
-    }
-  }
 
-  // Buscar en lista de sección
-  const listJson = player.dataset.list || "[]";
-  try {
-    const list = JSON.parse(listJson);
-    const idx = list.findIndex(url => normalize(url) === normalize(src));
-    if (idx !== -1 && player.dataset.mode === "section") {
-      const secIdx = parseInt(player.dataset.section || 0);
-      const total = list.length;
-      nowPlaying.textContent = `🎵 Reproduciendo: ${sectionNames[secIdx]}${total > 1 ? ` ${idx + 1} de ${total}` : ""}`;
-      return;
+      // Si es una nueva sección a reproducir
+      mode = "section";
+      player.dataset.mode = "section";
+      player.dataset.section = sectionIdx;
+      playTrackFromList(list, 0);
+      updateButtonStates();
+      updateMainButton();
     }
-  } catch (e) { /* sin errores visibles */ }
 
-  // Si no encuentra coincidencias
-  nowPlaying.textContent = "🎵 Reproduciendo";
-}
+    // Reproduce una lista arbitraria (se usa para secciones)
+    function playTrackFromList(list, index) {
+      player.src = list[index];
+      player.play().catch(() => {/* autoplay bloqueado por navegador, el usuario deberá tocar reproducir */});
+      player.dataset.list = JSON.stringify(list);
+      player.dataset.index = index;
+      updateNowPlaying(player.src);
+    }
+
+    // Prev / Next: funcionan sobre la lista actual (full o section)
+    function nextTrack() {
+      const currentMode = player.dataset.mode || (mode === "full" ? "full" : "section");
+      if (currentMode === "full") {
+        // si estamos en full, avanzar fullIndex (con pausa entre secciones cuando corresponde)
+        if (fullIndex < fullPlaylist.length - 1) {
+          // si el siguiente es el comienzo de una nueva sección y el actual es final de sección, esperar 2s
+          const isEndOfSection = sectionEndIndices.includes(fullIndex);
+          if (isEndOfSection) {
+            waitAndPlayFull(fullIndex + 1);
+          } else {
+            playFullAt(fullIndex + 1);
+          }
+        } else {
+          // fin de lista completa
+          finishFullPlaylist();
+        }
+      } else {
+        // lista actual (section)
+        const list = JSON.parse(player.dataset.list || "[]");
+        let i = parseInt(player.dataset.index || 0);
+        if (i + 1 < list.length) {
+          playTrackFromList(list, i + 1);
+        } else {
+          // fin de la sección: dejamos en pausa y limpiamos estado de sección (no cambiar a full)
+          player.pause();
+          updateNowPlaying("");
+          mode = "none";
+          player.dataset.mode = "";
+          updateButtonStates();
+          updateMainButton();
+        }
+      }
+    }
+
+    function prevTrack() {
+      const currentMode = player.dataset.mode || (mode === "full" ? "full" : "section");
+      if (currentMode === "full") {
+        if (fullIndex > 0) playFullAt(fullIndex - 1);
+      } else {
+        const list = JSON.parse(player.dataset.list || "[]");
+        let i = parseInt(player.dataset.index || 0);
+        if (i > 0) playTrackFromList(list, i - 1);
+      }
+    }
+
+    // Espera 2s (si no hay ya una espera en curso) y luego reproduce el índice dado en fullPlaylist
+    async function waitAndPlayFull(nextIdx) {
+      if (waiting) return;
+      waiting = true;
+      updateNowPlaying("⏸ Esperando 2s antes de la siguiente sección...");
+      await new Promise(r => setTimeout(r, 2000));
+      waiting = false;
+      playFullAt(nextIdx);
+    }
+
+    // Play/pause toggle para lo que esté corriendo ahora (usado por el botón principal cuando no estaba en modo 'none')
+    function togglePlayPauseCurrent() {
+      if (!player.src) {
+        // si no hay src cargado, iniciar lista completa
+        startFullPlaylist();
+        return;
+      }
+      if (player.paused) {
+        player.play();
+      } else {
+        player.pause();
+      }
+      updateMainButton();
+    }
+
+    // Al finalizar una pista, manejamos la transición
+    player.addEventListener("ended", () => {
+      const currentMode = player.dataset.mode || (mode === "full" ? "full" : "section");
+      if (currentMode === "full") {
+        // Si el índice actual es el final de la lista => terminar; si es final de sección => esperar 2s y continuar, si no => continuar
+        const idx = fullIndex;
+        if (idx >= fullPlaylist.length - 1) {
+          finishFullPlaylist();
+        } else {
+          // Si el track que terminó era el final de una sección => espera 2s
+          const isEndOfSection = sectionEndIndices.includes(idx);
+          if (isEndOfSection) {
+            waitAndPlayFull(idx + 1);
+          } else {
+            playFullAt(idx + 1);
+          }
+        }
+      } else {
+        // sección: avanzar dentro de la sección si hay más
+        const list = JSON.parse(player.dataset.list || "[]");
+        let i = parseInt(player.dataset.index || 0);
+        if (i + 1 < list.length) {
+          playTrackFromList(list, i + 1);
+        } else {
+          // sección terminada
+          mode = "none";
+          player.dataset.mode = "";
+          updateNowPlaying("");
+          updateButtonStates();
+          updateMainButton();
+        }
+      }
+    });
+
+    // Al play/pause actualizamos estado de botones/textos
+    player.addEventListener("play", () => {
+      // si estamos en full y player.src coincide con un elemento en fullPlaylist -> ajustar fullIndex
+      if (player.dataset.mode === "full") {
+        const idx = fullPlaylist.indexOf(player.src);
+        if (idx !== -1) fullIndex = idx;
+      }
+      updateButtonStates();
+      updateMainButton();
+      updateNowPlaying(player.src);
+    });
+    player.addEventListener("pause", () => {
+      updateButtonStates();
+      updateMainButton();
+      if (!player.src) updateNowPlaying("");
+    });
+
+    // Reproduce en la lista completa en index dado
+    function playFullListFrom(index) {
+      mode = "full";
+      player.dataset.mode = "full";
+      playFullAt(index);
+    }
+
+    // Función para terminar la lista completa
+    function finishFullPlaylist() {
+      mode = "none";
+      player.dataset.mode = "";
+      player.pause();
+      updateMainButton();
+      updateButtonStates();
+      updateNowPlaying("");
+    }
+
+    // Actualizar el texto del botón principal según modo y estado
+    function updateMainButton() {
+      if (mode === "none") {
+        mainBtn.textContent = "▶ Reproducir lista completa";
+      } else if (mode === "full") {
+        mainBtn.textContent = player.paused ? "▶ Reanudar lista completa" : "⏸ Pausar lista completa";
+      } else if (mode === "section") {
+        mainBtn.textContent = player.paused ? "▶ Reanudar" : "⏸ Pausar";
+      }
+    }
+
+    // Muestra en pantalla qué se está reproduciendo
+    function updateNowPlaying(src) {
+      if (!src) {
+        nowPlaying.textContent = "🎵 Reproduciendo: Nada";
+        return;
+      }
+
+      // Si source está en fullPlaylist
+      const idxFull = fullPlaylist.indexOf(src);
+      if (idxFull !== -1) {
+        // encontrar a qué sección pertenece
+        let sec = 0;
+        let cum = 0;
+        for (let i = 0; i < sections.length; i++) {
+          const len = sections[i].length;
+          if (idxFull < cum + len) {
+            sec = i;
+            const pos = idxFull - cum + 1;
+            nowPlaying.textContent = `🎵 Reproduciendo: ${sectionNames[sec]} ${sections[sec].length > 1 ? `(${pos} de ${sections[sec].length})` : ""}`;
+            return;
+          }
+          cum += len;
+        }
+      }
+
+      // Si está en una sección (player.dataset.list)
+      const listJson = player.dataset.list || "[]";
+      try {
+        const list = JSON.parse(listJson);
+        const idx = list.indexOf(src);
+        if (idx !== -1 && player.dataset.mode === "section") {
+          const secIdx = parseInt(player.dataset.section || 0);
+          nowPlaying.textContent = `🎵 Reproduciendo: ${sectionNames[secIdx]} ${list.length > 1 ? `(${idx+1} de ${list.length})` : ""}`;
+          return;
+        }
+      } catch (e) { /* ignore */ }
+
+      // fallback
+      nowPlaying.textContent = "🎵 Reproduciendo";
+    }
+
+    // Actualizar clases y texto de botones de sección
+    function updateButtonStates() {
+      trackButtons.forEach((btn, i) => {
+        const label = sectionNames[i];
+        const isActive = (player.dataset.mode === "section" && parseInt(player.dataset.section || -1) === i && !player.paused);
+        if (isActive) {
+          btn.textContent = "⏸ " + label;
+          btn.classList.add("active");
+        } else {
+          btn.textContent = "▶ " + label;
+          btn.classList.remove("active");
+        }
+      });
+    }
+
+    // Inicializar: cargar el primer audio (opcional)
+    player.src = base + sections[0][0];
+    player.dataset.mode = ""; // inicialmente vacío
+    updateMainButton();
+    updateButtonStates();
+  </script>
+</body>
+</html>
