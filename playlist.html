@@ -96,65 +96,110 @@
   </div>
 
   <div class="button-container">
-    <button class="track-btn" id="btn0" onclick="playTrack(0)">▶ Salvación</button>
-    <button class="track-btn" id="btn1" onclick="playTrack(1)">▶ Pecado</button>
+    <button class="track-btn" id="btn0" onclick="playSection(0)">▶ Salvación</button>
+    <button class="track-btn" id="btn1" onclick="playSection(1)">▶ Pecado</button>
+    <button class="track-btn" id="btn2" onclick="playSection(2)">▶ La Palabra</button>
+    <button class="track-btn" id="btn3" onclick="playSection(3)">▶ La Oración</button>
+    <button class="track-btn" id="btn4" onclick="playSection(4)">▶ Espíritu Santo</button>
   </div>
 
   <script>
-    const tracks = [
-      "https://caro1518-creator.github.io/playlist-audio/Salvacion.mp3",
-      "https://caro1518-creator.github.io/playlist-audio/Pecado.mp3"
+    const base = "https://caro1518-creator.github.io/playlist-audio/";
+
+    const sections = [
+      ["Salvación.mp3"],
+      ["Pecado.mp3"],
+      ["La palabra 1.mp3", "La palabra 2.mp3", "La palabra 3.mp3"],
+      ["La oración 1.mp3", "La oración 2.mp3", "La oración 3.mp3", "La oración 4.mp3", "La oración 5.mp3"],
+      ["Espíritu Santo 1.mp3", "Espíritu Santo 2.mp3", "Espíritu Santo 3.mp3"]
     ];
+
+    const sectionNames = ["Salvación", "Pecado", "La Palabra", "La Oración", "Espíritu Santo"];
+
+    // Crear lista completa en orden
+    const fullPlaylist = sections.flat().map(name => base + name);
+
     const player = document.getElementById("player");
     const mainBtn = document.getElementById("mainPlayPause");
-    const trackButtons = [
-      document.getElementById("btn0"),
-      document.getElementById("btn1")
-    ];
+    const trackButtons = Array.from(document.getElementsByClassName("track-btn"));
 
     let current = 0;
     let playingPlaylist = false;
+    let playingSection = null;
+    let waiting = false;
 
-    function playTrack(index) {
-      if (current === index && !player.paused) {
-        player.pause();
-        updateButtonStates(); // Actualizar íconos
+    function playSection(index) {
+      playingPlaylist = false;
+      playingSection = index;
+      current = 0;
+      const sectionList = sections[index].map(name => base + name);
+      playTrackFromList(sectionList, 0);
+      updateButtonStates();
+    }
+
+    function playTrackFromList(list, index) {
+      player.src = list[index];
+      player.play();
+      player.dataset.list = JSON.stringify(list);
+      player.dataset.index = index;
+    }
+
+    function nextTrack() {
+      const list = JSON.parse(player.dataset.list || "[]");
+      let index = parseInt(player.dataset.index || 0);
+      if (index + 1 < list.length) {
+        playTrackFromList(list, index + 1);
+      } else if (playingPlaylist) {
+        // Pausa entre secciones en modo lista completa
+        waitAndContinueFullPlaylist();
       } else {
-        current = index;
-        player.src = tracks[current];
-        player.play();
         updateButtonStates();
       }
     }
 
-    function nextTrack() {
-      current = (current + 1) % tracks.length;
-      playTrack(current);
+    function prevTrack() {
+      const list = JSON.parse(player.dataset.list || "[]");
+      let index = parseInt(player.dataset.index || 0);
+      if (index > 0) {
+        playTrackFromList(list, index - 1);
+      }
     }
 
-    function prevTrack() {
-      current = (current - 1 + tracks.length) % tracks.length;
-      playTrack(current);
+    async function waitAndContinueFullPlaylist() {
+      if (waiting) return;
+      waiting = true;
+      await new Promise(r => setTimeout(r, 2000)); // 2s pausa
+      waiting = false;
+      current++;
+      if (current < fullPlaylist.length) {
+        playTrackFromList(fullPlaylist, current);
+      } else {
+        playingPlaylist = false;
+        mainBtn.textContent = "▶ Reproducir lista completa";
+        updateButtonStates();
+      }
     }
 
     function togglePlaylist() {
       if (!playingPlaylist) {
         playingPlaylist = true;
+        playingSection = null;
         mainBtn.textContent = "⏸ Pausar lista";
-        playTrack(0);
+        if (player.paused && player.src && player.src.includes(base)) {
+          player.play(); // reanudar
+        } else {
+          current = 0;
+          playTrackFromList(fullPlaylist, current);
+        }
       } else {
         playingPlaylist = false;
-        mainBtn.textContent = "▶ Reproducir lista completa";
+        mainBtn.textContent = "▶ Reanudar lista";
         player.pause();
       }
     }
 
     player.addEventListener("ended", () => {
-      if (playingPlaylist) {
-        nextTrack();
-      } else {
-        updateButtonStates(); // Restaurar icono si terminó una canción manual
-      }
+      nextTrack();
     });
 
     player.addEventListener("play", updateButtonStates);
@@ -162,17 +207,17 @@
 
     function updateButtonStates() {
       trackButtons.forEach((btn, i) => {
-        if (i === current && !player.paused) {
-          btn.textContent = "⏸ " + btn.textContent.slice(2);
+        const label = sectionNames[i];
+        if (playingSection === i && !player.paused) {
+          btn.textContent = "⏸ " + label;
         } else {
-          const label = i === 0 ? "Salvación" : "Pecado";
           btn.textContent = "▶ " + label;
         }
       });
     }
 
-    // Iniciar con la primera pista cargada pero sin reproducir
-    player.src = tracks[0];
+    // Iniciar con primer audio cargado
+    player.src = base + sections[0][0];
   </script>
 </body>
 </html>
