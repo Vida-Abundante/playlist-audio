@@ -369,46 +369,33 @@
       }
     }
 
-    // Muestra en pantalla qué se está reproduciendo
-    function updateNowPlaying(src) {
-      if (!src) {
-        nowPlaying.textContent = "🎵 Reproduciendo: Nada";
+// Muestra en pantalla qué se está reproduciendo
+function updateNowPlaying(src) {
+  if (!src) {
+    nowPlaying.textContent = "🎵 Reproduciendo: Nada";
+    return;
+  }
+
+  // Limpiar parámetros innecesarios (a veces el navegador agrega ?v=...)
+  const cleanSrc = decodeURIComponent(src.split("?")[0]);
+
+  // Buscar en fullPlaylist
+  for (let s = 0, index = 0; s < sections.length; s++) {
+    const section = sections[s];
+    for (let i = 0; i < section.length; i++, index++) {
+      const expectedSrc = base + section[i];
+      if (cleanSrc.endsWith(section[i])) {
+        const label = sectionNames[s];
+        const pos = section.length > 1 ? ` (${i + 1} de ${section.length})` : "";
+        nowPlaying.textContent = `🎵 Reproduciendo: ${label}${pos}`;
         return;
       }
-
-      // Si source está en fullPlaylist
-      const idxFull = fullPlaylist.indexOf(src);
-      if (idxFull !== -1) {
-        // encontrar a qué sección pertenece
-        let sec = 0;
-        let cum = 0;
-        for (let i = 0; i < sections.length; i++) {
-          const len = sections[i].length;
-          if (idxFull < cum + len) {
-            sec = i;
-            const pos = idxFull - cum + 1;
-            nowPlaying.textContent = `🎵 Reproduciendo: ${sectionNames[sec]} ${sections[sec].length > 1 ? `(${pos} de ${sections[sec].length})` : ""}`;
-            return;
-          }
-          cum += len;
-        }
-      }
-
-      // Si está en una sección (player.dataset.list)
-      const listJson = player.dataset.list || "[]";
-      try {
-        const list = JSON.parse(listJson);
-        const idx = list.indexOf(src);
-        if (idx !== -1 && player.dataset.mode === "section") {
-          const secIdx = parseInt(player.dataset.section || 0);
-          nowPlaying.textContent = `🎵 Reproduciendo: ${sectionNames[secIdx]} ${list.length > 1 ? `(${idx+1} de ${list.length})` : ""}`;
-          return;
-        }
-      } catch (e) { /* ignore */ }
-
-      // fallback
-      nowPlaying.textContent = "🎵 Reproduciendo";
     }
+  }
+
+  nowPlaying.textContent = "🎵 Reproduciendo";
+}
+
 
     // Actualizar clases y texto de botones de sección
     function updateButtonStates() {
@@ -433,3 +420,4 @@
   </script>
 </body>
 </html>
+
