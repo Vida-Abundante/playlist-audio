@@ -117,6 +117,10 @@
     <button class="track-btn" id="btn2" onclick="playSection(2)">▶ La Palabra</button>
     <button class="track-btn" id="btn3" onclick="playSection(3)">▶ La Oración</button>
     <button class="track-btn" id="btn4" onclick="playSection(4)">▶ Espíritu Santo</button>
+    <button class="track-btn" id="btn4" onclick="playSection(4)">▶ Bautismo</button>
+    <button class="track-btn" id="btn4" onclick="playSection(4)">▶ La Mayordomía</button>
+    <button class="track-btn" id="btn4" onclick="playSection(4)">▶ Evangelismo</button>
+    <button class="track-btn" id="btn4" onclick="playSection(4)">▶ La Visión de la iglesia</button>
   </div>
 
   <script>
@@ -127,10 +131,14 @@
       ["Pecado.mp3"],
       ["La palabra 1.mp3", "La palabra 2.mp3", "La palabra 3.mp3"],
       ["La oración 1.mp3", "La oración 2.mp3", "La oración 3.mp3", "La oración 4.mp3", "La oración 5.mp3"],
-      ["Espíritu Santo 1.mp3", "Espíritu Santo 2.mp3", "Espíritu Santo 3.mp3"]
+      ["Espíritu Santo 1.mp3", "Espíritu Santo 2.mp3", "Espíritu Santo 3.mp3"],
+      ["Bautismo 1.mp3", "Bautismo 2.mp3"],
+      ["Mayordomía 1.mp3", "Mayordomía 2.mp3"],
+      ["Evangelismo.mp3"],
+      ["Visión de la iglesia.mp3"]
     ];
 
-    const sectionNames = ["Salvación", "Pecado", "La Palabra", "La Oración", "Espíritu Santo"];
+    const sectionNames = ["Salvación", "Pecado", "La Palabra", "La Oración", "Espíritu Santo","Bautismo","Mayordomía","Evangelismo","Visión de la iglesia"];
 
     // Lista completa (aplanada) y índices finales de cada sección (para saber cuándo aplicar la pausa de 2s)
     const fullPlaylist = sections.flat().map(name => base + name);
@@ -420,4 +428,5 @@ function updateNowPlaying(src) {
   </script>
 </body>
 </html>
+
 
