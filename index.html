@@ -27,6 +27,10 @@
       margin: 0;
     }
 
+    .hidden {
+      display: none;
+    }
+
     h1 {
       margin-top: 0.5rem;
       color: #3a2a2a;
@@ -38,7 +42,7 @@
 
     .btn-navegador {
       display: inline-block;
-      background-color: #d8b6c6;
+      background-color: #83bde3;
       color: white;
       border: none;
       border-radius: 10px;
@@ -63,16 +67,22 @@
     #instruccion {
       display: none;
       margin-top: 1.5rem;
-      font-size: 0.95rem;
-      color: #444;
+      font-size: 1rem;
+      color: #222;
     }
 
-    #instruccion video {
+    #instruccion h4 {
+      margin: 0.8rem 0;
+      line-height: 1.5;
+    }
+
+    #instruccion video, 
+    #instruccion img {
       width: 90%;
       max-width: 320px;
-      border-radius: 10px;
-      margin-top: 0.8rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      margin-top: 1rem;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
     }
 
     #main {
@@ -92,10 +102,6 @@
       margin-bottom: 30px;
       width: 80%;
       max-width: 400px;
-    }
-
-    #mainPlayPause:focus {
-      outline: 3px solid yellow;
     }
 
     .player-container {
@@ -154,27 +160,27 @@
 
     /* Loader */
     #loader {
-      display: none;
+      display: flex;
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
       background-color: #fffafc;
-      display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       z-index: 999;
+      font-size: 1.2rem;
     }
   </style>
 </head>
 
 <body class="hidden">
   <button class="btn-navegador" onclick="mostrarInstruccion()">📱 Ver como aplicación</button>
+
   <div id="main">
     <h1>Mi Playlist – Vida Abundante</h1>
     <h2>Reproductor de Audio</h2>
 
-    <!-- Botón principal -->
     <button id="mainPlayPause">▶ Reproducir lista completa</button>
 
     <div class="player-container">
@@ -200,34 +206,33 @@
 
   <!-- Instrucciones de instalación -->
   <div id="instruccion">
-    <h4>Para usarla como APP, abrí el menú del navegador ( ⋮ ) y elegí <b>“Agregar a pantalla de inicio”</b></h4>
-    <video src="InstruccionInstalar.mp4" controls autoplay muted loop playsinline></video>
+    <h4>📲 Para usarla como app:</h4>
+    <h4>Abre el menú del navegador → <b>⋮</b> y elegí <b>“Agregar a pantalla de inicio”</b>.</h4>
+    <img src="InstruccionInstalar.jpeg" alt="Cómo agregar a pantalla de inicio">
     <h4>Así podrás abrirla desde tu pantalla como una aplicación 💖</h4>
   </div>
 
   <div id="loader"><p>Abriendo...</p></div>
 
+  <!-- Script de instalación -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js');
       }
 
-      const appSheetURL = "https://vida-abundante.github.io/playlist-audio/";
-
       const esAppInstalada =
         window.matchMedia('(display-mode: standalone)').matches ||
         window.navigator.standalone === true;
 
-     if (esAppInstalada) {
-  // Ya instalada: mostrar directamente la app sin loader
-  document.getElementById("loader").style.display = "none";
-  document.body.classList.remove("hidden");
-} else {
-  // No instalada: mostrar normalmente
-  document.body.classList.remove("hidden");
-}
+      const loader = document.getElementById("loader");
+      const body = document.body;
 
+      // Ocultamos el loader y mostramos el contenido directamente
+      loader.style.display = "none";
+      body.classList.remove("hidden");
+
+      // Mostrar las instrucciones
       window.mostrarInstruccion = () => {
         document.getElementById("main").style.display = "none";
         document.getElementById("instruccion").style.display = "block";
@@ -235,9 +240,8 @@
     });
   </script>
 
-  <!-- 🎧 Tu script original del reproductor -->
+  <!-- 🎧 Script del reproductor -->
   <script>
-    <script>
     const base = "https://vida-abundante.github.io/playlist-audio/";
 
     const sections = [
@@ -252,18 +256,18 @@
       ["Visión de la iglesia.mp3"]
     ];
 
-    const sectionNames = ["Salvación", "Pecado", "La Palabra", "La Oración", "Espíritu Santo","Bautismo","Mayordomía","Evangelismo","Visión de la iglesia"];
+    const sectionNames = ["Salvación", "Pecado", "La Palabra", "La Oración", "Espíritu Santo", "Bautismo", "Mayordomía", "Evangelismo", "Visión de la iglesia"];
 
-    // Lista completa (aplanada) y índices finales de cada sección (para saber cuándo aplicar la pausa de 2s)
     const fullPlaylist = sections.flat().map(name => base + name);
-    const sectionEndIndices = (function() {
+
+    const sectionEndIndices = (() => {
       const ends = [];
       let idx = -1;
       for (let i = 0; i < sections.length; i++) {
         idx += sections[i].length;
         ends.push(idx);
       }
-      return ends; // índices de último elemento por sección (0-based, respecto a fullPlaylist)
+      return ends;
     })();
 
     const player = document.getElementById("player");
@@ -271,26 +275,18 @@
     const nowPlaying = document.getElementById("nowPlaying");
     const trackButtons = Array.from(document.getElementsByClassName("track-btn"));
 
-    // Estado de control:
-    // mode: "none" (nada iniciado), "full" (la lista completa fue iniciada), "section" (se está reproduciendo una sección)
     let mode = "none";
-    // current index para fullPlaylist
     let fullIndex = 0;
-    // waiting para evitar múltiples esperas
     let waiting = false;
 
-    // Conectar evento principal al botón grande
     mainBtn.addEventListener("click", () => {
       if (mode === "none") {
-        // iniciar lista completa
         startFullPlaylist();
       } else {
-        // si estamos en modo 'full' o 'section' -> toggle play/pause de lo que esté sonando ahora
         togglePlayPauseCurrent();
       }
     });
 
-    // Función: iniciar lista completa desde el lugar guardado (si está pausada) o desde el inicio
     function startFullPlaylist(resume = false) {
       mode = "full";
       if (!resume) fullIndex = 0;
@@ -301,29 +297,23 @@
     function playFullAt(index) {
       fullIndex = index;
       playTrackFromList(fullPlaylist, fullIndex);
-      // indicar que el player está usando la lista completa (guárdalo en dataset para prev/next)
       player.dataset.mode = "full";
       player.dataset.index = fullIndex;
       updateMainButton();
     }
 
-    // Función: reproducir una sección (botón individual)
     function playSection(sectionIdx) {
-      // Si el usuario hizo click en la misma sección que ya está cargada:
       const list = sections[sectionIdx].map(n => base + n);
       const currentSrc = player.src;
       const isSameSection = (player.dataset.mode === "section" && player.dataset.section == sectionIdx);
       const isPlaying = !player.paused;
 
       if (isSameSection) {
-        // toggle play/pause
-        if (isPlaying) player.pause();
-        else player.play();
+        if (isPlaying) player.pause(); else player.play();
         updateMainButton();
         return;
       }
 
-      // Si es una nueva sección a reproducir
       mode = "section";
       player.dataset.mode = "section";
       player.dataset.section = sectionIdx;
@@ -332,47 +322,27 @@
       updateMainButton();
     }
 
-    // Reproduce una lista arbitraria (se usa para secciones)
     function playTrackFromList(list, index) {
       player.src = list[index];
-      player.play().catch(() => {/* autoplay bloqueado por navegador, el usuario deberá tocar reproducir */});
+      player.play().catch(() => {});
       player.dataset.list = JSON.stringify(list);
       player.dataset.index = index;
       updateNowPlaying(player.src);
     }
 
-    // Prev / Next: funcionan sobre la lista actual (full o section)
     function nextTrack() {
       const currentMode = player.dataset.mode || (mode === "full" ? "full" : "section");
       if (currentMode === "full") {
-        // si estamos en full, avanzar fullIndex (con pausa entre secciones cuando corresponde)
         if (fullIndex < fullPlaylist.length - 1) {
-          // si el siguiente es el comienzo de una nueva sección y el actual es final de sección, esperar 2s
           const isEndOfSection = sectionEndIndices.includes(fullIndex);
-          if (isEndOfSection) {
-            waitAndPlayFull(fullIndex + 1);
-          } else {
-            playFullAt(fullIndex + 1);
-          }
-        } else {
-          // fin de lista completa
-          finishFullPlaylist();
-        }
+          if (isEndOfSection) waitAndPlayFull(fullIndex + 1);
+          else playFullAt(fullIndex + 1);
+        } else finishFullPlaylist();
       } else {
-        // lista actual (section)
         const list = JSON.parse(player.dataset.list || "[]");
         let i = parseInt(player.dataset.index || 0);
-        if (i + 1 < list.length) {
-          playTrackFromList(list, i + 1);
-        } else {
-          // fin de la sección: dejamos en pausa y limpiamos estado de sección (no cambiar a full)
-          player.pause();
-          updateNowPlaying("");
-          mode = "none";
-          player.dataset.mode = "";
-          updateButtonStates();
-          updateMainButton();
-        }
+        if (i + 1 < list.length) playTrackFromList(list, i + 1);
+        else finishSection();
       }
     }
 
@@ -387,168 +357,94 @@
       }
     }
 
-    // Espera 2s (si no hay ya una espera en curso) y luego reproduce el índice dado en fullPlaylist
     async function waitAndPlayFull(nextIdx) {
       if (waiting) return;
       waiting = true;
-      updateNowPlaying("⏸ Esperando 2s antes de la siguiente sección...");
+      updateNowPlaying("⏸ Esperando 2s...");
       await new Promise(r => setTimeout(r, 2000));
       waiting = false;
       playFullAt(nextIdx);
     }
 
-    // Play/pause toggle para lo que esté corriendo ahora (usado por el botón principal cuando no estaba en modo 'none')
     function togglePlayPauseCurrent() {
-      if (!player.src) {
-        // si no hay src cargado, iniciar lista completa
-        startFullPlaylist();
-        return;
-      }
-      if (player.paused) {
-        player.play();
-      } else {
-        player.pause();
-      }
+      if (!player.src) { startFullPlaylist(); return; }
+      if (player.paused) player.play(); else player.pause();
       updateMainButton();
     }
 
-    // Al finalizar una pista, manejamos la transición
     player.addEventListener("ended", () => {
       const currentMode = player.dataset.mode || (mode === "full" ? "full" : "section");
       if (currentMode === "full") {
-        // Si el índice actual es el final de la lista => terminar; si es final de sección => esperar 2s y continuar, si no => continuar
         const idx = fullIndex;
-        if (idx >= fullPlaylist.length - 1) {
-          finishFullPlaylist();
-        } else {
-          // Si el track que terminó era el final de una sección => espera 2s
+        if (idx >= fullPlaylist.length - 1) finishFullPlaylist();
+        else {
           const isEndOfSection = sectionEndIndices.includes(idx);
-          if (isEndOfSection) {
-            waitAndPlayFull(idx + 1);
-          } else {
-            playFullAt(idx + 1);
-          }
+          if (isEndOfSection) waitAndPlayFull(idx + 1);
+          else playFullAt(idx + 1);
         }
       } else {
-        // sección: avanzar dentro de la sección si hay más
         const list = JSON.parse(player.dataset.list || "[]");
         let i = parseInt(player.dataset.index || 0);
-        if (i + 1 < list.length) {
-          playTrackFromList(list, i + 1);
-        } else {
-          // sección terminada
-          mode = "none";
-          player.dataset.mode = "";
-          updateNowPlaying("");
-          updateButtonStates();
-          updateMainButton();
-        }
+        if (i + 1 < list.length) playTrackFromList(list, i + 1);
+        else finishSection();
       }
     });
 
-    // Al play/pause actualizamos estado de botones/textos
-    player.addEventListener("play", () => {
-      // si estamos en full y player.src coincide con un elemento en fullPlaylist -> ajustar fullIndex
-      if (player.dataset.mode === "full") {
-        const idx = fullPlaylist.indexOf(player.src);
-        if (idx !== -1) fullIndex = idx;
-      }
-      updateButtonStates();
-      updateMainButton();
-      updateNowPlaying(player.src);
-    });
-    player.addEventListener("pause", () => {
-      updateButtonStates();
-      updateMainButton();
-      if (!player.src) updateNowPlaying("");
-    });
+    player.addEventListener("play", () => { updateButtonStates(); updateMainButton(); updateNowPlaying(player.src); });
+    player.addEventListener("pause", () => { updateButtonStates(); updateMainButton(); });
 
-    // Reproduce en la lista completa en index dado
-    function playFullListFrom(index) {
-      mode = "full";
-      player.dataset.mode = "full";
-      playFullAt(index);
-    }
-
-    // Función para terminar la lista completa
     function finishFullPlaylist() {
       mode = "none";
-      player.dataset.mode = "";
       player.pause();
       updateMainButton();
       updateButtonStates();
       updateNowPlaying("");
     }
 
-    // Actualizar el texto del botón principal según modo y estado
+    function finishSection() {
+      mode = "none";
+      player.pause();
+      player.dataset.mode = "";
+      updateNowPlaying("");
+      updateButtonStates();
+      updateMainButton();
+    }
+
     function updateMainButton() {
-      if (mode === "none") {
-        mainBtn.textContent = "▶ Reproducir lista completa";
-      } else if (mode === "full") {
-        mainBtn.textContent = player.paused ? "▶ Reanudar lista completa" : "⏸ Pausar lista completa";
-      } else if (mode === "section") {
-        mainBtn.textContent = player.paused ? "▶ Reanudar" : "⏸ Pausar";
-      }
+      if (mode === "none") mainBtn.textContent = "▶ Reproducir lista completa";
+      else if (mode === "full") mainBtn.textContent = player.paused ? "▶ Reanudar lista completa" : "⏸ Pausar lista completa";
+      else if (mode === "section") mainBtn.textContent = player.paused ? "▶ Reanudar" : "⏸ Pausar";
     }
 
-// Muestra en pantalla qué se está reproduciendo
-function updateNowPlaying(src) {
-  if (!src) {
-    nowPlaying.textContent = "🎵 Reproduciendo: Nada";
-    return;
-  }
-
-  // Limpiar parámetros innecesarios (a veces el navegador agrega ?v=...)
-  const cleanSrc = decodeURIComponent(src.split("?")[0]);
-
-  // Buscar en fullPlaylist
-  for (let s = 0, index = 0; s < sections.length; s++) {
-    const section = sections[s];
-    for (let i = 0; i < section.length; i++, index++) {
-      const expectedSrc = base + section[i];
-      if (cleanSrc.endsWith(section[i])) {
-        const label = sectionNames[s];
-        const pos = section.length > 1 ? ` (${i + 1} de ${section.length})` : "";
-        nowPlaying.textContent = `🎵 Reproduciendo: ${label}${pos}`;
-        return;
+    function updateNowPlaying(src) {
+      if (!src) { nowPlaying.textContent = "🎵 Reproduciendo: Nada"; return; }
+      const cleanSrc = decodeURIComponent(src.split("?")[0]);
+      for (let s = 0; s < sections.length; s++) {
+        const section = sections[s];
+        for (let i = 0; i < section.length; i++) {
+          if (cleanSrc.endsWith(section[i])) {
+            const label = sectionNames[s];
+            const pos = section.length > 1 ? ` (${i + 1} de ${section.length})` : "";
+            nowPlaying.textContent = `🎵 Reproduciendo: ${label}${pos}`;
+            return;
+          }
+        }
       }
+      nowPlaying.textContent = "🎵 Reproduciendo";
     }
-  }
 
-  nowPlaying.textContent = "🎵 Reproduciendo";
-}
-
-
-    // Actualizar clases y texto de botones de sección
     function updateButtonStates() {
       trackButtons.forEach((btn, i) => {
         const label = sectionNames[i];
         const isActive = (player.dataset.mode === "section" && parseInt(player.dataset.section || -1) === i && !player.paused);
-        if (isActive) {
-          btn.textContent = "⏸ " + label;
-          btn.classList.add("active");
-        } else {
-          btn.textContent = "▶ " + label;
-          btn.classList.remove("active");
-        }
+        btn.textContent = (isActive ? "⏸ " : "▶ ") + label;
+        btn.classList.toggle("active", isActive);
       });
     }
 
-    // Inicializar: cargar el primer audio (opcional)
     player.src = base + sections[0][0];
-    player.dataset.mode = ""; // inicialmente vacío
     updateMainButton();
     updateButtonStates();
   </script>
-  </script>
 </body>
 </html>
-
- 
-
-
-
-
-
-
-
