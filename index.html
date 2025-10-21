@@ -232,8 +232,6 @@
       loader.style.display = "none";
       body.classList.remove("hidden");
 
-const esAppInstalada = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
 // Buscar el botón "Ver como aplicación" y ocultarlo si la app está instalada
 const btnAplicacion = document.querySelector(".btn-navegador");
 if (esAppInstalada) {
@@ -456,5 +454,6 @@ if (esAppInstalada) {
   </script>
 </body>
 </html>
+
 
 
