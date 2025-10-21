@@ -216,10 +216,12 @@
 
   <!-- Script de instalación -->
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {     
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('service-worker.js');
       }
+
+  
 
       const esAppInstalada =
         window.matchMedia('(display-mode: standalone)').matches ||
@@ -397,7 +399,11 @@ if (esAppInstalada) {
     });
 
     player.addEventListener("play", () => { updateButtonStates(); updateMainButton(); updateNowPlaying(player.src); });
-    player.addEventListener("pause", () => { updateButtonStates(); updateMainButton(); });
+   player.addEventListener("pause", () => {
+  updateButtonStates();
+  updateMainButton();
+  guardarProgreso();
+});
 
     function finishFullPlaylist() {
       mode = "none";
@@ -448,12 +454,57 @@ if (esAppInstalada) {
       });
     }
 
-    player.src = base + sections[0][0];
+function guardarProgreso() {
+  const modo = player.dataset.mode || mode;
+  const index = player.dataset.index || 0;
+  const time = player.currentTime || 0;
+  const section = player.dataset.section || null;
+
+  localStorage.setItem("modoReproduccion", modo);
+  localStorage.setItem("indiceActual", index);
+  localStorage.setItem("tiempoActual", time);
+  localStorage.setItem("seccionActual", section);
+}
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const modoGuardado = localStorage.getItem("modoReproduccion");
+    const indexGuardado = parseInt(localStorage.getItem("indiceActual") || 0);
+    const tiempoGuardado = parseFloat(localStorage.getItem("tiempoActual") || 0);
+    const seccionGuardada = parseInt(localStorage.getItem("seccionActual"));
+
+    if (modoGuardado === "full") {
+      mode = "full";
+      playFullAt(indexGuardado);
+      player.currentTime = tiempoGuardado;
+    } else if (modoGuardado === "section" && !isNaN(seccionGuardada)) {
+      mode = "section";
+      const list = sections[seccionGuardada].map(n => base + n);
+      playTrackFromList(list, indexGuardado);
+      player.dataset.mode = "section";
+      player.dataset.section = seccionGuardada;
+      player.currentTime = tiempoGuardado;
+    }
+
     updateMainButton();
     updateButtonStates();
-  </script>
+  });
+</script>
+
+<script>
+  // Guardado automático del progreso cada 10 segundos
+  setInterval(() => {
+    if (!player.paused && player.src) {
+      guardarProgreso();
+    }
+  }, 10000); // cada 10 segundos
+</script>
+
+  
 </body>
 </html>
+
 
 
 
