@@ -1,20 +1,86 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi Playlist</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi Playlist – Vida Abundante</title>
+
+  <!-- Vista previa para WhatsApp / redes -->
+  <meta property="og:title" content="Mi Playlist – Vida Abundante" />
+  <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante 💖" />
+  <meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vida-abundante.github.io/playlist-audio/" />
+
+  <!-- Archivos PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="PortadaCuadrada.png" />
+  <meta name="theme-color" content="#fffafc" />
+
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: "Poppins", sans-serif;
+      background-color: #fffafc;
+      color: #3a2a2a;
       text-align: center;
       padding: 20px;
+      margin: 0;
+    }
+
+    h1 {
+      margin-top: 0.5rem;
+      color: #3a2a2a;
     }
 
     h2 {
+      margin-bottom: 15px;
+    }
+
+    .btn-navegador {
+      display: inline-block;
+      background-color: #d8b6c6;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 1em;
+      cursor: pointer;
       margin-bottom: 20px;
     }
 
+    .btn-navegador:hover {
+      opacity: 0.9;
+    }
+
+    video {
+      width: 220px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      margin: 1rem auto;
+      display: block;
+    }
+
+    #instruccion {
+      display: none;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      color: #444;
+    }
+
+    #instruccion video {
+      width: 90%;
+      max-width: 320px;
+      border-radius: 10px;
+      margin-top: 0.8rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    #main {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* 🎧 Estilos del reproductor */
     #mainPlayPause {
       font-size: 28px;
       padding: 25px 50px;
@@ -55,10 +121,6 @@
       cursor: pointer;
     }
 
-    .control-btn:focus {
-      outline: 3px solid yellow;
-    }
-
     .button-container {
       display: flex;
       flex-direction: column;
@@ -84,47 +146,98 @@
       background-color: #0056b3;
     }
 
-    .track-btn:focus {
-      outline: 3px solid yellow;
-    }
-
     #nowPlaying {
       font-size: 18px;
       color: #333;
       margin-top: 10px;
     }
+
+    /* Loader */
+    #loader {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: #fffafc;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 999;
+    }
   </style>
 </head>
-<body>
-  <h2>Reproductor de Audio</h2>
 
-  <!-- Botón principal -->
-  <button id="mainPlayPause" aria-label="Reproducir o pausar toda la lista">
-    ▶ Reproducir lista completa
-  </button>
+<body class="hidden">
+  <button class="btn-navegador" onclick="mostrarInstruccion()">📱 Ver como aplicación</button>
+  <div id="main">
+    <h1>Mi Playlist – Vida Abundante</h1>
+    <h2>Reproductor de Audio</h2>
 
-  <div class="player-container">
-    <button class="control-btn" onclick="prevTrack()" aria-label="Pista anterior">⏮</button>
-    <audio id="player" controls></audio>
-    <button class="control-btn" onclick="nextTrack()" aria-label="Siguiente pista">⏭</button>
+    <!-- Botón principal -->
+    <button id="mainPlayPause">▶ Reproducir lista completa</button>
+
+    <div class="player-container">
+      <button class="control-btn" onclick="prevTrack()">⏮</button>
+      <audio id="player" controls></audio>
+      <button class="control-btn" onclick="nextTrack()">⏭</button>
+    </div>
+
+    <div id="nowPlaying">🎵 Reproduciendo: Nada</div>
+
+    <div class="button-container">
+      <button class="track-btn" id="btn0" onclick="playSection(0)">▶ Salvación</button>
+      <button class="track-btn" id="btn1" onclick="playSection(1)">▶ Pecado</button>
+      <button class="track-btn" id="btn2" onclick="playSection(2)">▶ La Palabra</button>
+      <button class="track-btn" id="btn3" onclick="playSection(3)">▶ La Oración</button>
+      <button class="track-btn" id="btn4" onclick="playSection(4)">▶ Espíritu Santo</button>
+      <button class="track-btn" id="btn5" onclick="playSection(5)">▶ Bautismo</button>
+      <button class="track-btn" id="btn6" onclick="playSection(6)">▶ Mayordomía</button>
+      <button class="track-btn" id="btn7" onclick="playSection(7)">▶ Evangelismo</button>
+      <button class="track-btn" id="btn8" onclick="playSection(8)">▶ Visión de la iglesia</button>
+    </div>
   </div>
 
-  <!-- Texto de pista actual -->
-  <div id="nowPlaying">🎵 Reproduciendo: Nada</div>
-
-  <div class="button-container">
-    <button class="track-btn" id="btn0" onclick="playSection(0)">▶ Salvación</button>
-    <button class="track-btn" id="btn1" onclick="playSection(1)">▶ Pecado</button>
-    <button class="track-btn" id="btn2" onclick="playSection(2)">▶ La Palabra</button>
-    <button class="track-btn" id="btn3" onclick="playSection(3)">▶ La Oración</button>
-    <button class="track-btn" id="btn4" onclick="playSection(4)">▶ Espíritu Santo</button>
-    <button class="track-btn" id="btn5" onclick="playSection(5)">▶ Bautismo</button>
-    <button class="track-btn" id="btn6" onclick="playSection(6)">▶ Mayordomía</button>
-    <button class="track-btn" id="btn7" onclick="playSection(7)">▶ Evangelismo</button>
-    <button class="track-btn" id="btn8" onclick="playSection(8)">▶ Visión de la iglesia</button>
+  <!-- Instrucciones de instalación -->
+  <div id="instruccion">
+    <h4>Para usarla como APP, abrí el menú del navegador ( ⋮ ) y elegí <b>“Agregar a pantalla de inicio”</b></h4>
+    <video src="InstruccionInstalar.mp4" controls autoplay muted loop playsinline></video>
+    <h4>Así podrás abrirla desde tu pantalla como una aplicación 💖</h4>
   </div>
+
+  <div id="loader"><p>Abriendo...</p></div>
 
   <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js');
+      }
+
+      const appSheetURL = "https://vida-abundante.github.io/playlist-audio/";
+
+      const esAppInstalada =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;
+
+     if (esAppInstalada) {
+  // Ya instalada: mostrar directamente la app sin loader
+  document.getElementById("loader").style.display = "none";
+  document.body.classList.remove("hidden");
+} else {
+  // No instalada: mostrar normalmente
+  document.body.classList.remove("hidden");
+}
+
+      window.mostrarInstruccion = () => {
+        document.getElementById("main").style.display = "none";
+        document.getElementById("instruccion").style.display = "block";
+      };
+    });
+  </script>
+
+  <!-- 🎧 Tu script original del reproductor -->
+  <script>
+    <script>
     const base = "https://vida-abundante.github.io/playlist-audio/";
 
     const sections = [
@@ -427,8 +540,11 @@ function updateNowPlaying(src) {
     updateMainButton();
     updateButtonStates();
   </script>
+  </script>
 </body>
 </html>
+
+ 
 
 
 
