@@ -182,6 +182,9 @@
     <h2>Reproductor de Audio</h2>
 
     <button id="mainPlayPause">▶ Reproducir lista completa</button>
+<button onclick="reiniciarProgreso()" class="btn-navegador" style="background-color: #dc3545;">
+  🔄 Reiniciar progreso
+</button>
 
     <div class="player-container">
       <button class="control-btn" onclick="prevTrack()">⏮</button>
@@ -467,25 +470,45 @@ function guardarProgreso() {
 }
 </script>
 
+ <script>
+function reiniciarProgreso() {
+  if (!confirm("¿Estás seguro de que querés reiniciar el progreso?")) return;
+
+  localStorage.removeItem("modoReproduccion");
+  localStorage.removeItem("indiceActual");
+  localStorage.removeItem("tiempoActual");
+  localStorage.removeItem("seccionActual");
+  location.reload();
+}
+</script>
+  
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const modoGuardado = localStorage.getItem("modoReproduccion");
     const indexGuardado = parseInt(localStorage.getItem("indiceActual") || 0);
     const tiempoGuardado = parseFloat(localStorage.getItem("tiempoActual") || 0);
     const seccionGuardada = parseInt(localStorage.getItem("seccionActual"));
+if (modoGuardado === "full") {
+  mode = "full";
+  player.src = fullPlaylist[indexGuardado];
+  player.dataset.mode = "full";
+  player.dataset.index = indexGuardado;
+  player.currentTime = tiempoGuardado;
+  updateNowPlaying(player.src);
+} else if (modoGuardado === "section" && !isNaN(seccionGuardada)) {
+  mode = "section";
+  const list = sections[seccionGuardada].map(n => base + n);
+  player.src = list[indexGuardado];
+  player.dataset.mode = "section";
+  player.dataset.section = seccionGuardada;
+  player.dataset.list = JSON.stringify(list);
+  player.dataset.index = indexGuardado;
+  player.currentTime = tiempoGuardado;
+  updateNowPlaying(player.src);
+}
 
-    if (modoGuardado === "full") {
-      mode = "full";
-      playFullAt(indexGuardado);
-      player.currentTime = tiempoGuardado;
-    } else if (modoGuardado === "section" && !isNaN(seccionGuardada)) {
-      mode = "section";
-      const list = sections[seccionGuardada].map(n => base + n);
-      playTrackFromList(list, indexGuardado);
-      player.dataset.mode = "section";
-      player.dataset.section = seccionGuardada;
-      player.currentTime = tiempoGuardado;
-    }
+updateMainButton();
+updateButtonStates();
 
     updateMainButton();
     updateButtonStates();
@@ -504,6 +527,7 @@ function guardarProgreso() {
   
 </body>
 </html>
+
 
 
 
