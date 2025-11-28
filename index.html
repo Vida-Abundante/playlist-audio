@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -29,70 +27,30 @@
       margin: 0;
     }
 
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
+    h1 { margin-top: 0.5rem; color: #3a2a2a; }
+    h2 { margin-bottom: 15px; }
 
-    h1 {
-      margin-top: 0.5rem;
-      color: #3a2a2a;
+    /* Layout 50/50 panels */
+    .two-columns {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-top: 18px;
     }
-
-    h2 {
-      margin-bottom: 15px;
-    }
-
-    .btn-navegador {
-      display: inline-block;
-      background-color: #83bde3;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 12px 20px;
-      font-size: 1em;
-      cursor: pointer;
-      margin-bottom: 20px;
-    }
-
-    .btn-navegador:hover {
-      opacity: 0.9;
-    }
-
-    video {
-      width: 220px;
+    .panel {
+      background: #fff;
       border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      margin: 1rem auto;
-      display: block;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      padding: 18px;
+      width: 48%;
+      min-width: 320px;
+      box-sizing: border-box;
     }
 
-    #instruccion {
-      display: none;
-      margin-top: 1.5rem;
-      font-size: 1rem;
-      color: #222;
-    }
-
-    #instruccion h4 {
-      margin: 0.8rem 0;
-      line-height: 1.5;
-    }
-
-    #instruccion video, 
-    #instruccion img {
-      width: 90%;
-      max-width: 320px;
-      border-radius: 12px;
-      margin-top: 1rem;
-      box-shadow: 0 0 12px rgba(0,0,0,0.1);
-    }
-
-    #main {
-      max-width: 500px;
-      margin: 0 auto;
-    }
-
-    /* 🎧 Estilos del reproductor */
+    /* Keep original main styles for left panel controls */
     #mainPlayPause {
       font-size: 28px;
       padding: 25px 50px;
@@ -106,72 +64,47 @@
       max-width: 400px;
     }
 
-    .player-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 10px;
-    }
+    .btn-navegador { display: inline-block; background-color: #83bde3; color: white; border: none; border-radius: 10px; padding: 12px 20px; font-size: 1em; cursor: pointer; margin-bottom: 20px; }
+    .btn-navegador:hover { opacity: 0.9; }
 
-    audio {
-      width: 70%;
-      max-width: 400px;
-    }
+    .player-container { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 10px; }
+    audio { width: 70%; max-width: 400px; }
+    .control-btn { font-size: 28px; padding: 10px 20px; border: none; border-radius: 10px; background-color: #007bff; color: white; cursor: pointer; }
 
-    .control-btn {
+    .button-container { display: flex; flex-direction: column; align-items: center; gap: 20px; margin-top: 30px; }
+    .track-btn { font-size: 24px; padding: 20px 40px; border: none; border-radius: 12px; background-color: #007bff; color: white; cursor: pointer; width: 80%; max-width: 400px; transition: background-color 0.3s; }
+    .track-btn.active { background-color: #0056b3; }
+
+    #nowPlaying { font-size: 18px; color: #333; margin-top: 10px; }
+
+    /* Devocionales (right) style overrides */
+    #mainPlayPauseDev {
       font-size: 28px;
-      padding: 10px 20px;
+      padding: 25px 50px;
       border: none;
-      border-radius: 10px;
-      background-color: #007bff;
+      border-radius: 15px;
+      background-color: #ff8c00; /* naranja */
       color: white;
       cursor: pointer;
-    }
-
-    .button-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-      margin-top: 30px;
-    }
-
-    .track-btn {
-      font-size: 24px;
-      padding: 20px 40px;
-      border: none;
-      border-radius: 12px;
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
+      margin-bottom: 30px;
       width: 80%;
       max-width: 400px;
-      transition: background-color 0.3s;
     }
-
-    .track-btn.active {
-      background-color: #0056b3;
-    }
-
-    #nowPlaying {
-      font-size: 18px;
-      color: #333;
-      margin-top: 10px;
-    }
+    /* devocionales player container */
+    .player-container-dev { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 10px; }
+    /* yellow list buttons for devocionales */
+    .track-btn-dev { font-size: 24px; padding: 20px 40px; border: none; border-radius: 12px; background-color: #ffcc00; color: #000; cursor: pointer; width: 80%; max-width: 400px; transition: background-color 0.2s; }
+    .track-btn-dev.active { background-color: #ffb800; color: #000; }
 
     /* Loader */
-    #loader {
-      display: flex;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: #fffafc;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-      font-size: 1.2rem;
+    #loader { display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #fffafc; flex-direction: column; justify-content: center; align-items: center; z-index: 999; font-size: 1.2rem; }
+
+    /* Make lists scrollable if long */
+    .list-scroll { max-height: 60vh; overflow-y: auto; padding: 8px; }
+
+    @media (max-width: 900px) {
+      .panel { width: 100%; }
+      audio { width: 100%; }
     }
   </style>
 </head>
@@ -179,41 +112,68 @@
 <body class="hidden">
   <button class="btn-navegador" onclick="mostrarInstruccion()">📱 Ver como aplicación</button>
 
-  <div id="main">
-    <h1>Mi Playlist – Vida Abundante</h1>
-    <h2>Reproductor de Audio</h2>
+  <h1>Mi Playlist – Vida Abundante</h1>
+  <h2>Reproductor de Audio</h2>
 
-    <button id="mainPlayPause">▶ Reproducir lista completa</button>
-<button onclick="reiniciarProgreso()" class="btn-navegador" style="background-color: #dc3545;">
-  🔄 Reiniciar progreso
-</button>
+  <div class="two-columns">
+    <!-- LEFT PANEL: TU REPRODUCTOR ORIGINAL (sin cambios funcionales) -->
+    <div class="panel" id="leftPanel">
+      <div id="main">
+        <button id="mainPlayPause">▶ Reproducir lista completa</button>
+        <button onclick="reiniciarProgreso()" class="btn-navegador" style="background-color: #dc3545; margin-left:12px;">
+          🔄 Reiniciar progreso
+        </button>
 
-    <div class="player-container">
-      <button class="control-btn" onclick="prevTrack()">⏮</button>
-      <audio id="player" controls></audio>
-      <button class="control-btn" onclick="nextTrack()">⏭</button>
+        <div class="player-container">
+          <button class="control-btn" onclick="prevTrack()">⏮</button>
+          <audio id="player" controls></audio>
+          <button class="control-btn" onclick="nextTrack()">⏭</button>
+        </div>
+
+        <div id="nowPlaying">🎵 Reproduciendo: Nada</div>
+
+        <div class="button-container">
+          <button class="track-btn" id="btn0" onclick="playSection(0)">▶ Salvación</button>
+          <button class="track-btn" id="btn1" onclick="playSection(1)">▶ Pecado</button>
+          <button class="track-btn" id="btn2" onclick="playSection(2)">▶ La Palabra</button>
+          <button class="track-btn" id="btn3" onclick="playSection(3)">▶ La Oración</button>
+          <button class="track-btn" id="btn4" onclick="playSection(4)">▶ Espíritu Santo</button>
+          <button class="track-btn" id="btn5" onclick="playSection(5)">▶ Bautismo</button>
+          <button class="track-btn" id="btn6" onclick="playSection(6)">▶ Mayordomía</button>
+          <button class="track-btn" id="btn7" onclick="playSection(7)">▶ Evangelismo</button>
+          <button class="track-btn" id="btn8" onclick="playSection(8)">▶ Visión de la iglesia</button>
+        </div>
+      </div>
     </div>
 
-    <div id="nowPlaying">🎵 Reproduciendo: Nada</div>
+    <!-- RIGHT PANEL: CLON del reproductor para DEVOCIONALES (mismos comportamientos, estética diferente) -->
+    <div class="panel" id="rightPanel">
+      <div id="devMain">
+        <button id="mainPlayPauseDev">▶ Reproducir devocionales</button>
+        <button onclick="reiniciarProgresoDev()" class="btn-navegador" style="background-color: #cc4d00; margin-left:12px; color:#fff;">
+          🔄 Reiniciar progreso (Dev)
+        </button>
 
-    <div class="button-container">
-      <button class="track-btn" id="btn0" onclick="playSection(0)">▶ Salvación</button>
-      <button class="track-btn" id="btn1" onclick="playSection(1)">▶ Pecado</button>
-      <button class="track-btn" id="btn2" onclick="playSection(2)">▶ La Palabra</button>
-      <button class="track-btn" id="btn3" onclick="playSection(3)">▶ La Oración</button>
-      <button class="track-btn" id="btn4" onclick="playSection(4)">▶ Espíritu Santo</button>
-      <button class="track-btn" id="btn5" onclick="playSection(5)">▶ Bautismo</button>
-      <button class="track-btn" id="btn6" onclick="playSection(6)">▶ Mayordomía</button>
-      <button class="track-btn" id="btn7" onclick="playSection(7)">▶ Evangelismo</button>
-      <button class="track-btn" id="btn8" onclick="playSection(8)">▶ Visión de la iglesia</button>
+        <div class="player-container-dev">
+          <button class="control-btn" id="prevDev" onclick="prevTrackDev()">⏮</button>
+          <audio id="playerDev" controls></audio>
+          <button class="control-btn" id="nextDev" onclick="nextTrackDev()">⏭</button>
+        </div>
+
+        <div id="nowPlayingDev">🎵 Reproduciendo: Nada</div>
+
+        <div class="list-scroll" id="devListContainer">
+          <!-- devocionales list buttons will be injected here -->
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Instrucciones de instalación -->
-  <div id="instruccion">
+  <div id="instruccion" style="display:none;">
     <h4>📲 Para usarla como app:</h4>
     <h4>Abre el menú del navegador → <b>⋮</b> y elegí <b>“Agregar a pantalla de inicio”</b>.</h4>
-   <video src="InstruccionInstalar.mp4" controls autoplay muted loop></video>
+    <video src="InstruccionInstalar.mp4" controls autoplay muted loop></video>
     <h4>Así podrás abrirla desde tu pantalla como una aplicación 💖</h4>
   </div>
 
@@ -221,12 +181,10 @@
 
   <!-- Script de instalación -->
   <script>
-    document.addEventListener("DOMContentLoaded", () => {     
+    document.addEventListener("DOMContentLoaded", () => {
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('service-worker.js');
+        navigator.serviceWorker.register('service-worker.js').catch(()=>{});
       }
-
-  
 
       const esAppInstalada =
         window.matchMedia('(display-mode: standalone)').matches ||
@@ -235,17 +193,12 @@
       const loader = document.getElementById("loader");
       const body = document.body;
 
-      // Ocultamos el loader y mostramos el contenido directamente
       loader.style.display = "none";
       body.classList.remove("hidden");
 
-// Buscar el botón "Ver como aplicación" y ocultarlo si la app está instalada
-const btnAplicacion = document.querySelector(".btn-navegador");
-if (esAppInstalada) {
-  btnAplicacion.style.display = "none";
-}
-      
-      // Mostrar las instrucciones
+      const btnAplicacion = document.querySelector(".btn-navegador");
+      if (esAppInstalada) { btnAplicacion.style.display = "none"; }
+
       window.mostrarInstruccion = () => {
         document.getElementById("main").style.display = "none";
         document.getElementById("instruccion").style.display = "block";
@@ -253,7 +206,7 @@ if (esAppInstalada) {
     });
   </script>
 
-  <!-- 🎧 Script del reproductor -->
+  <!-- 🎧 Script del reproductor izquierdo (TU CÓDIGO ORIGINAL sin cambios funcionales importantes) -->
   <script>
     const base = "https://vida-abundante.github.io/playlist-audio/";
 
@@ -404,11 +357,11 @@ if (esAppInstalada) {
     });
 
     player.addEventListener("play", () => { updateButtonStates(); updateMainButton(); updateNowPlaying(player.src); });
-   player.addEventListener("pause", () => {
-  updateButtonStates();
-  updateMainButton();
-  guardarProgreso();
-});
+    player.addEventListener("pause", () => {
+      updateButtonStates();
+      updateMainButton();
+      guardarProgreso();
+    });
 
     function finishFullPlaylist() {
       mode = "none";
@@ -459,100 +412,275 @@ if (esAppInstalada) {
       });
     }
 
-function guardarProgreso() {
-  const modo = player.dataset.mode || mode;
-  const index = player.dataset.index || 0;
-  const time = player.currentTime || 0;
-  const section = player.dataset.section || null;
+    function guardarProgreso() {
+      const modo = player.dataset.mode || mode;
+      const index = player.dataset.index || 0;
+      const time = player.currentTime || 0;
+      const section = player.dataset.section || null;
 
-  localStorage.setItem("modoReproduccion", modo);
-  localStorage.setItem("indiceActual", index);
-  localStorage.setItem("tiempoActual", time);
-  localStorage.setItem("seccionActual", section);
-}
-</script>
-
- <script>
-function reiniciarProgreso() {
-  if (!confirm("¿Estás seguro de que querés reiniciar el progreso?")) return;
-
-  localStorage.removeItem("modoReproduccion");
-  localStorage.removeItem("indiceActual");
-  localStorage.removeItem("tiempoActual");
-  localStorage.removeItem("seccionActual");
-  location.reload();
-}
-</script>
-  
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const modoGuardado = localStorage.getItem("modoReproduccion");
-    const indexGuardado = parseInt(localStorage.getItem("indiceActual") || 0);
-    const tiempoGuardado = parseFloat(localStorage.getItem("tiempoActual") || 0);
-    const seccionGuardada = parseInt(localStorage.getItem("seccionActual"));
-if (modoGuardado === "full") {
-  mode = "full";
-  player.src = fullPlaylist[indexGuardado];
-  player.dataset.mode = "full";
-  player.dataset.index = indexGuardado;
-  player.currentTime = tiempoGuardado;
-  updateNowPlaying(player.src);
-} else if (modoGuardado === "section" && !isNaN(seccionGuardada)) {
-  mode = "section";
-  const list = sections[seccionGuardada].map(n => base + n);
-  player.src = list[indexGuardado];
-  player.dataset.mode = "section";
-  player.dataset.section = seccionGuardada;
-  player.dataset.list = JSON.stringify(list);
-  player.dataset.index = indexGuardado;
-  player.currentTime = tiempoGuardado;
-  updateNowPlaying(player.src);
-}
-
-updateMainButton();
-updateButtonStates();
-
-    updateMainButton();
-    updateButtonStates();
-  });
-</script>
-
-<script>
-  // Guardado automático del progreso cada 10 segundos
-  setInterval(() => {
-    if (!player.paused && player.src) {
-      guardarProgreso();
+      localStorage.setItem("modoReproduccion", modo);
+      localStorage.setItem("indiceActual", index);
+      localStorage.setItem("tiempoActual", time);
+      localStorage.setItem("seccionActual", section);
     }
-  }, 10000); // cada 10 segundos
-</script>
+  </script>
 
-  
+  <!-- 🎧 Script del reproductor derecho (DEVOCIONALES) - CLON con namespacing Dev -->
+  <script>
+    // base path
+    const baseDev = "https://vida-abundante.github.io/playlist-audio/";
+
+    // elements
+    const playerDev = document.getElementById("playerDev");
+    const mainBtnDev = document.getElementById("mainPlayPauseDev");
+    const nowPlayingDev = document.getElementById("nowPlayingDev");
+    const devListContainer = document.getElementById("devListContainer");
+
+    // state
+    let devList = []; // {title,file,url}
+    let devMode = "none"; // "none" | "dev"
+    let devIndex = 0;
+    let devWaiting = false;
+
+    // fetch devocionales.json and render buttons
+    async function cargarDevocionalesAndRender() {
+      try {
+        const res = await fetch(baseDev + "devocionales.json");
+        if (!res.ok) {
+          // nothing to show
+          devListContainer.innerHTML = "<div style='color:#666'>No hay devocionales aún.</div>";
+          return;
+        }
+        const j = await res.json();
+        devList = j.map(entry => ({
+          title: entry.title,
+          file: entry.file,
+          url: baseDev + entry.file
+        }));
+        renderDevList();
+      } catch (e) {
+        devListContainer.innerHTML = "<div style='color:#666'>Error cargando devocionales.</div>";
+        console.error(e);
+      }
+    }
+
+    function renderDevList() {
+      devListContainer.innerHTML = "";
+      devList.forEach((d, i) => {
+        const btn = document.createElement("button");
+        btn.className = "track-btn-dev";
+        btn.textContent = "▶ " + (d.title || d.file);
+        btn.onclick = () => playDev(i);
+        btn.id = "dev_btn_" + i;
+        // accessibility
+        btn.setAttribute("aria-label", "Reproducir " + (d.title || d.file));
+        devListContainer.appendChild(btn);
+      });
+    }
+
+    // main button for devocionales
+    mainBtnDev.addEventListener("click", () => {
+      if (devMode === "dev") {
+        // toggle
+        if (playerDev.paused) playerDev.play(); else playerDev.pause();
+        updateMainButtonDev();
+      } else {
+        startDevPlaylist();
+      }
+    });
+
+    function startDevPlaylist(resume = false) {
+      if (!devList.length) return;
+      devMode = "dev";
+      if (!resume) devIndex = 0;
+      playDevAt(devIndex);
+      updateMainButtonDev();
+    }
+
+    function playDevAt(index) {
+      if (!devList[index]) return;
+      devIndex = index;
+      playerDev.src = devList[index].url;
+      playerDev.play().catch(()=>{});
+      playerDev.dataset.mode = "dev";
+      playerDev.dataset.index = devIndex;
+      updateNowPlayingDev(playerDev.src);
+      updateDevButtonStates();
+      updateMainButtonDev();
+    }
+
+    function playDev(i) {
+      const isSame = (playerDev.dataset.mode === "dev" && parseInt(playerDev.dataset.index||-1) === i);
+      const isPlaying = !playerDev.paused && !playerDev.ended;
+      if (isSame) {
+        if (isPlaying) playerDev.pause(); else playerDev.play();
+        updateMainButtonDev();
+        return;
+      }
+      playDevAt(i);
+    }
+
+    function nextTrackDev() {
+      if (devIndex + 1 < devList.length) playDevAt(devIndex + 1);
+      else finishDev();
+    }
+
+    function prevTrackDev() {
+      if (devIndex > 0) playDevAt(devIndex - 1);
+    }
+
+    function finishDev() {
+      devMode = "none";
+      playerDev.pause();
+      playerDev.dataset.mode = "";
+      updateNowPlayingDev("");
+      updateDevButtonStates();
+      updateMainButtonDev();
+    }
+
+    function updateNowPlayingDev(src) {
+      if (!src) { nowPlayingDev.textContent = "🎵 Reproduciendo: Nada"; return; }
+      const cleanSrc = decodeURIComponent(src.split("?")[0]);
+      for (let i = 0; i < devList.length; i++) {
+        if (cleanSrc.endsWith(devList[i].file)) {
+          nowPlayingDev.textContent = "🎵 Reproduciendo: " + (devList[i].title || devList[i].file);
+          return;
+        }
+      }
+      nowPlayingDev.textContent = "🎵 Reproduciendo";
+    }
+
+    function updateDevButtonStates() {
+      // remove active from all
+      devList.forEach((d, i) => {
+        const el = document.getElementById("dev_btn_" + i);
+        if (el) el.classList.remove("active");
+      });
+      const cur = document.getElementById("dev_btn_" + devIndex);
+      if (cur) cur.classList.add("active");
+    }
+
+    function updateMainButtonDev() {
+      if (playerDev.dataset.mode === "dev") mainBtnDev.textContent = playerDev.paused ? "▶ Reanudar devocionales" : "⏸ Pausar devocionales";
+      else mainBtnDev.textContent = "▶ Reproducir devocionales";
+    }
+
+    // save progress for devocionales (separate keys)
+    function guardarProgresoDev() {
+      const modo = playerDev.dataset.mode || devMode;
+      const index = playerDev.dataset.index || 0;
+      const time = playerDev.currentTime || 0;
+      const section = playerDev.dataset.section || null;
+
+      localStorage.setItem("modoReproduccionDev", modo);
+      localStorage.setItem("indiceActualDev", index);
+      localStorage.setItem("tiempoActualDev", time);
+      localStorage.setItem("seccionActualDev", section);
+    }
+
+    // reiniciar progreso dev
+    function reiniciarProgresoDev() {
+      if (!confirm("¿Querés reiniciar el progreso de Devocionales?")) return;
+      localStorage.removeItem("modoReproduccionDev");
+      localStorage.removeItem("indiceActualDev");
+      localStorage.removeItem("tiempoActualDev");
+      localStorage.removeItem("seccionActualDev");
+      location.reload();
+    }
+
+    // playerDev events
+    playerDev.addEventListener("ended", () => {
+      // play next or finish
+      if (devIndex + 1 < devList.length) playDevAt(devIndex + 1);
+      else finishDev();
+    });
+    playerDev.addEventListener("play", () => { updateDevButtonStates(); updateMainButtonDev(); updateNowPlayingDev(playerDev.src); });
+    playerDev.addEventListener("pause", () => { updateDevButtonStates(); updateMainButtonDev(); guardarProgresoDev(); });
+  </script>
+
+  <!-- Initialization: load devocionales and restore saved state for both players -->
+  <script>
+    (function initAll() {
+      // load devocionales into right panel
+      cargarDevocionalesAndRender();
+
+      // restore left player state (original behavior)
+      document.addEventListener("DOMContentLoaded", () => {
+        const modoGuardado = localStorage.getItem("modoReproduccion");
+        const indexGuardado = parseInt(localStorage.getItem("indiceActual") || 0);
+        const tiempoGuardado = parseFloat(localStorage.getItem("tiempoActual") || 0);
+        const seccionGuardada = parseInt(localStorage.getItem("seccionActual"));
+
+        if (modoGuardado === "full") {
+          mode = "full";
+          player.src = fullPlaylist[indexGuardado];
+          player.dataset.mode = "full";
+          player.dataset.index = indexGuardado;
+          player.currentTime = tiempoGuardado;
+          updateNowPlaying(player.src);
+        } else if (modoGuardado === "section" && !isNaN(seccionGuardada)) {
+          mode = "section";
+          const list = sections[seccionGuardada].map(n => base + n);
+          player.src = list[indexGuardado];
+          player.dataset.mode = "section";
+          player.dataset.section = seccionGuardada;
+          player.dataset.list = JSON.stringify(list);
+          player.dataset.index = indexGuardado;
+          player.currentTime = tiempoGuardado;
+          updateNowPlaying(player.src);
+        }
+
+        updateMainButton();
+        updateButtonStates();
+      });
+
+      // restore dev player state (after dev list loads)
+      window.addEventListener('load', async () => {
+        // small delay to ensure dev list loaded (it loads quickly)
+        setTimeout(() => {
+          const modo = localStorage.getItem("modoReproduccionDev");
+          const index = parseInt(localStorage.getItem("indiceActualDev") || 0);
+          const tiempo = parseFloat(localStorage.getItem("tiempoActualDev") || 0);
+          if (modo === "dev" && !isNaN(index) && devList[index]) {
+            playerDev.src = devList[index].url;
+            playerDev.dataset.mode = "dev";
+            playerDev.dataset.index = index;
+            playerDev.currentTime = tiempo || 0;
+            updateNowPlayingDev(playerDev.src);
+            updateDevButtonStates();
+            updateMainButtonDev();
+          }
+        }, 500);
+      });
+
+      // Autosave progress left player
+      setInterval(() => {
+        if (!player.paused && player.src) {
+          guardarProgreso();
+        }
+      }, 10000);
+
+      // Autosave progress dev player
+      setInterval(() => {
+        if (!playerDev.paused && playerDev.src) {
+          guardarProgresoDev();
+        }
+      }, 10000);
+    })();
+  </script>
+
+  <script>
+    // reiniciar progreso general (izquierda)
+    function reiniciarProgreso() {
+      if (!confirm("¿Estás seguro de que querés reiniciar el progreso?")) return;
+
+      localStorage.removeItem("modoReproduccion");
+      localStorage.removeItem("indiceActual");
+      localStorage.removeItem("tiempoActual");
+      localStorage.removeItem("seccionActual");
+      location.reload();
+    }
+  </script>
+
 </body>
 </html>
-
-
- 
-
-manifest.json
-
-{
-  "name": "Vida Abundante",
-  "short_name": "ABC Playlist",
-  "start_url": "/playlist-audio/index.html",
-  "display": "standalone",
-  "background_color": "#fffafc",
-  "theme_color": "#fffafc",
-  "icons": [
-    {
-      "src": "/playlist-audio/PortadaCuadrada.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
-
-service.worker.js
-
-self.addEventListener("install", () => {
-  console.log("Vida Abundante instalada 🌸");
-});
