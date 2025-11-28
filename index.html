@@ -3,392 +3,621 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mi Playlist – Vida Abundante (con Devocionales)</title>
+  <title>Mi Playlist – Vida Abundante</title>
 
+  <!-- Vista previa para WhatsApp / redes -->
   <meta property="og:title" content="Mi Playlist – Vida Abundante" />
-  <meta property="og:description" content="Escuchá los audios de enseñanza y los devocionales de la Iglesia Cristiana de la Vida Abundante 💖" />
+  <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante 💖" />
   <meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://vida-abundante.github.io/playlist-audio/" />
 
+  <!-- Archivos PWA -->
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="PortadaCuadrada.png" />
   <meta name="theme-color" content="#fffafc" />
 
   <style>
-    :root{
-      --bg: #fffafc;
-      --text: #3a2a2a;
-      --primary: #007bff;
-      --accent: #83bde3;
-      --green: #28a745;
-      --danger: #dc3545;
-    }
-    html,body{height:100%;}
     body {
       font-family: "Poppins", sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
+      background-color: #fffafc;
+      color: #3a2a2a;
+      text-align: center;
+      padding: 20px;
       margin: 0;
-      padding: 0;
-      -webkit-font-smoothing:antialiased;
     }
 
-    /* Layout: two columns */
-    .layout{
-      display: grid;
-      grid-template-columns: 1fr 360px; /* left flexible, right fixed */
-      gap: 18px;
-      max-width: 1100px;
-      margin: 18px auto;
-      padding: 18px;
-      align-items: start;
+    .hidden { display: none; }
+    h1 { margin-top: 0.5rem; color: #3a2a2a; }
+    h2 { margin-bottom: 15px; }
+
+    /* Layout 50/50 */
+    .layout {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: flex-start;
+      margin-top: 18px;
+      flex-wrap: wrap;
     }
-
-    @media (max-width: 860px){
-      .layout{grid-template-columns: 1fr;}
-      .right-column{order:2}
-      .left-column{order:1}
-    }
-
-    header{ text-align:center; padding: 12px 0; }
-    h1{margin:0.2rem}
-
-    .card{
-      background: white;
+    .panel {
+      background: #fff;
       border-radius: 12px;
-      padding: 14px;
       box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      padding: 18px;
+      width: 48%;
+      min-width: 320px;
+      box-sizing: border-box;
     }
 
-    /* Left: Devocionales list */
-    .left-column .card{min-height: 380px}
-    #devocionalesList{display:flex;flex-direction:column;gap:8px}
-    .dev-btn{
-      display:flex;align-items:center;justify-content:space-between;
-      padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);
-      background:linear-gradient(180deg,#fff,#f8f9fb);
-      cursor:pointer;font-size:16px;
+    /* Buttons arriba */
+    .top-controls {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 12px;
     }
-    .dev-btn[aria-pressed="true"]{background:#e8f4ff;border-color:var(--accent)}
-    .dev-title{flex:1;text-align:left;margin-right:12px}
-    .dev-meta{font-size:13px;color:#666}
+    .top-btn {
+      padding: 12px 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background: #28a745;
+      color: #fff;
+      font-size: 16px;
+    }
+    .top-btn.dev { background: #b34747; } /* devocionales color */
 
-    /* Right: existing playlist */
-    .right-column .track-btn{display:block;margin:8px auto;padding:12px 18px;width:90%;border-radius:10px}
+    /* Player area */
+    .player-wrap {
+      display:flex;
+      gap:20px;
+      align-items:center;
+      justify-content:center;
+      margin-top:18px;
+      flex-wrap:wrap;
+    }
+    audio { width: 360px; max-width: 90%; }
 
-    /* Player */
-    .player-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
-    #player{width:100%;max-width:420px}
-    .controls{display:flex;gap:8px;align-items:center}
-    .control-btn{font-size:20px;padding:10px 14px;border-radius:10px;border:none;background:var(--primary);color:#fff}
+    /* list items */
+    .list {
+      text-align: left;
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .item {
+      background: #f7f7fb;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+    }
+    .item:hover { background:#eef6ff; }
+    .item.active { background:#dff3ff; border-left:4px solid #00a0d6; }
 
-    /* Now playing */
-    #nowPlaying{font-size:16px;color:#222;margin:6px 0}
+    .item .title { flex:1; text-overflow:ellipsis; overflow:hidden; white-space:nowrap; }
+    .item .file { color:#666; font-size:12px; margin-left:12px; }
 
-    /* Small helpers */
-    .muted{opacity:0.7}
-
-    /* Loader */
-    #loader{position:fixed;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:999}
-
+    /* small helpers */
+    .small { font-size:13px; color:#666; margin-top:10px; }
+    .btn-reset { background:#dc3545; color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; }
   </style>
 </head>
-<body>
-  <div id="loader"><div class="card"><strong>Abriendo...</strong></div></div>
 
-  <header>
+<body class="hidden">
+  <button class="btn-navegador" onclick="mostrarInstruccion()">📱 Ver como aplicación</button>
+
+  <div id="main">
     <h1>Mi Playlist – Vida Abundante</h1>
-    <p class="muted">Reproductor accesible — Devocionales a la izquierda, playlist a la derecha</p>
-  </header>
+    <h2>Reproductor accesible — Devocionales a la izquierda, playlist ABC a la derecha</h2>
 
-  <main class="layout">
-    <!-- LEFT: Devocionales dinámicos -->
-    <section class="left-column card" aria-label="Devocionales">
-      <h3>Devocionales</h3>
-      <div id="devocionalesList" role="list" aria-live="polite">
-        <!-- Botones generados dinámicamente -->
-      </div>
-      <div style="margin-top:12px;font-size:13px;color:#555">Los devocionales nuevos se irán sumando automáticamente.</div>
-    </section>
+    <!-- TOP CONTROL: dos botones de reproducción (ABC y Devocionales) -->
+    <div class="top-controls">
+      <button id="mainPlayPause" class="top-btn">▶ Reproducir ABC</button>
+      <button id="mainPlayPauseDev" class="top-btn dev">▶ Reproducir Devocionales</button>
+      <button onclick="reiniciarProgreso()" class="btn-reset">🔄 Reiniciar progreso</button>
+    </div>
 
-    <!-- RIGHT: Reproductor + lista existente -->
-    <aside class="right-column card" aria-label="Reproductor y lista">
-      <div class="player-wrap">
-        <div class="controls">
-          <button id="prevBtn" class="control-btn" aria-label="Anterior">⏮</button>
-          <button id="playPause" class="control-btn" aria-label="Reproducir/Pausar">▶</button>
-          <button id="nextBtn" class="control-btn" aria-label="Siguiente">⏭</button>
+    <div class="player-wrap">
+      <button class="control-btn" onclick="prevTrack()">⏮</button>
+      <audio id="player" controls></audio>
+      <button class="control-btn" onclick="nextTrack()">⏭</button>
+    </div>
+
+    <div id="nowPlaying" class="small">🎵 Reproduciendo: Nada</div>
+
+    <div class="layout">
+      <!-- LEFT: Devocionales -->
+      <div class="panel" id="panelDev">
+        <h2>Devocionales</h2>
+        <div id="devList" class="list">
+          <!-- items dynamically loaded from devocionales.json -->
         </div>
-
-        <audio id="player" controls preload="metadata"></audio>
-        <div id="nowPlaying">🎵 Reproduciendo: Nada</div>
-
-        <hr style="width:90%;opacity:0.06;margin:12px auto" />
-
-        <div id="playlistButtons" aria-label="Secciones">
-          <!-- Se mantienen tus botones existentes -->
-          <button class="track-btn">▶ Salvación</button>
-          <button class="track-btn">▶ Pecado</button>
-          <button class="track-btn">▶ La Palabra</button>
-          <button class="track-btn">▶ La Oración</button>
-          <button class="track-btn">▶ Espíritu Santo</button>
-          <button class="track-btn">▶ Bautismo</button>
-          <button class="track-btn">▶ Mayordomía</button>
-          <button class="track-btn">▶ Evangelismo</button>
-          <button class="track-btn">▶ Visión de la iglesia</button>
-        </div>
-
+        <div class="small">Los devocionales nuevos se irán sumando automáticamente.</div>
       </div>
-    </aside>
-  </main>
 
+      <!-- RIGHT: ABC (secciones existentes) -->
+      <div class="panel" id="panelABC">
+        <h2>ABC - Secciones</h2>
+        <div id="abcControls" class="list">
+          <!-- we will keep the existing section buttons visually similar -->
+          <button class="track-btn" id="btn0" onclick="playSection(0)">▶ Salvación</button>
+          <button class="track-btn" id="btn1" onclick="playSection(1)">▶ Pecado</button>
+          <button class="track-btn" id="btn2" onclick="playSection(2)">▶ La Palabra</button>
+          <button class="track-btn" id="btn3" onclick="playSection(3)">▶ La Oración</button>
+          <button class="track-btn" id="btn4" onclick="playSection(4)">▶ Espíritu Santo</button>
+          <button class="track-btn" id="btn5" onclick="playSection(5)">▶ Bautismo</button>
+          <button class="track-btn" id="btn6" onclick="playSection(6)">▶ Mayordomía</button>
+          <button class="track-btn" id="btn7" onclick="playSection(7)">▶ Evangelismo</button>
+          <button class="track-btn" id="btn8" onclick="playSection(8)">▶ Visión de la iglesia</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instrucciones de instalación -->
+  <div id="instruccion" style="display:none">
+    <h4>📲 Para usarla como app:</h4>
+    <h4>Abre el menú del navegador → <b>⋮</b> y elegí <b>“Agregar a pantalla de inicio”</b>.</h4>
+    <video src="InstruccionInstalar.mp4" controls autoplay muted loop></video>
+    <h4>Así podrás abrirla desde tu pantalla como una aplicación 💖</h4>
+  </div>
+
+  <div id="loader"><p>Abriendo...</p></div>
+
+  <!-- Script de instalación -->
   <script>
-    // ---------- CONFIG ----------
-    const REPO_RAW_JSON = "https://raw.githubusercontent.com/Vida-Abundante/playlist-audio/main/devocionales.json";
-    const DEV_BASE = "https://vida-abundante.github.io/playlist-audio/devocionales/"; // carpeta donde estarán los mp3
+    document.addEventListener("DOMContentLoaded", () => {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+      }
 
-    // ---------- datos actuales (tu lista existente) ----------
+      const esAppInstalada =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true;
+
+      const loader = document.getElementById("loader");
+      const body = document.body;
+
+      loader.style.display = "none";
+      body.classList.remove("hidden");
+
+      const btnAplicacion = document.querySelector(".btn-navegador");
+      if (esAppInstalada) { btnAplicacion.style.display = "none"; }
+
+      window.mostrarInstruccion = () => {
+        document.getElementById("main").style.display = "none";
+        document.getElementById("instruccion").style.display = "block";
+      };
+    });
+  </script>
+
+  <!-- 🎧 Script del reproductor (extiende y respeta tu lógica original) -->
+  <script>
+    // base repo
     const base = "https://vida-abundante.github.io/playlist-audio/";
+
+    /* -------------------------
+       ABC: secciones originales
+       ------------------------- */
     const sections = [
       ["Salvación.mp3"],
       ["Pecado.mp3"],
-      ["La palabra 1.mp3","La palabra 2.mp3","La palabra 3.mp3"],
-      ["La oración 1.mp3","La oración 2.mp3","La oración 3.mp3","La oración 4.mp3","La oración 5.mp3"],
-      ["Espíritu Santo 1.mp3","Espíritu Santo 2.mp3","Espíritu Santo 3.mp3"],
-      ["Bautismo 1.mp3","Bautismo 2.mp3"],
-      ["Mayordomía 1.mp3","Mayordomía 2.mp3"],
+      ["La palabra 1.mp3", "La palabra 2.mp3", "La palabra 3.mp3"],
+      ["La oración 1.mp3", "La oración 2.mp3", "La oración 3.mp3", "La oración 4.mp3", "La oración 5.mp3"],
+      ["Espíritu Santo 1.mp3", "Espíritu Santo 2.mp3", "Espíritu Santo 3.mp3"],
+      ["Bautismo 1.mp3", "Bautismo 2.mp3"],
+      ["Mayordomía 1.mp3", "Mayordomía 2.mp3"],
       ["Evangelismo.mp3"],
       ["Visión de la iglesia.mp3"]
     ];
 
-    const sectionNames = ["Salvación","Pecado","La Palabra","La Oración","Espíritu Santo","Bautismo","Mayordomía","Evangelismo","Visión de la iglesia"];
+    const sectionNames = ["Salvación", "Pecado", "La Palabra", "La Oración", "Espíritu Santo", "Bautismo", "Mayordomía", "Evangelismo", "Visión de la iglesia"];
 
-    // ---------- variables de reproducción ----------
-    const player = document.getElementById("player");
-    const prevBtn = document.getElementById("prevBtn");
-    const playPause = document.getElementById("playPause");
-    const nextBtn = document.getElementById("nextBtn");
-    const nowPlaying = document.getElementById("nowPlaying");
-    const devListEl = document.getElementById("devocionalesList");
+    const fullPlaylist = sections.flat().map(name => base + name);
 
-    let fullPlaylist = sections.flat().map(name => base + name);
-    let devocionales = []; // se cargará desde JSON
+    const sectionEndIndices = (() => {
+      const ends = [];
+      let idx = -1;
+      for (let i = 0; i < sections.length; i++) {
+        idx += sections[i].length;
+        ends.push(idx);
+      }
+      return ends;
+    })();
 
-    // indices para reproducción "full" entre playlist+devocionales
-    let combinedList = [...fullPlaylist];
-    let combinedLabels = [];
+    /* -------------------------
+       Devocionales: cargados dinámicamente desde devocionales.json
+       devocionales.json expected: [{ "title":"2025-11-27", "file":"devocional_2025-11-27.mp3" }, ...]
+       ------------------------- */
+    let devocionales = []; // will be array of {title,file,url}
 
-    // estado
-    let mode = "none"; // 'none' | 'full' | 'section' | 'dev'
-    let currentList = [];
-    let currentIndex = 0;
-
-    // ---------- helpers ----------
-    function setNowPlayingLabel(label){ nowPlaying.textContent = `🎵 Reproduciendo: ${label}`; }
-
-    function playFromList(list, index, label){
-      currentList = list;
-      currentIndex = index;
-      player.src = list[index];
-      player.play().catch(()=>{});
-      setNowPlayingLabel(label || extractLabelFromSrc(player.src));
-      guardarProgreso();
+    async function cargarDevocionales() {
+      try {
+        const raw = await fetch(base + "devocionales.json");
+        if (!raw.ok) return; // no file yet
+        const j = await raw.json();
+        devocionales = j.map(entry => ({
+          title: entry.title,
+          file: entry.file,
+          url: base + (entry.file || "")
+        }));
+        renderDevList();
+      } catch (e) {
+        console.warn("No se pudo cargar devocionales.json:", e);
+      }
     }
 
-    function extractLabelFromSrc(src){
-      if(!src) return "Nada";
-      const clean = decodeURIComponent(src.split("?")[0]);
-      // buscar en devocionales
-      for(const d of devocionales){ if(clean.endsWith(d.file)) return d.title; }
-      // buscar en sections
-      for(let s=0; s<sections.length; s++){
-        for(let i=0;i<sections[s].length;i++){
-          if(clean.endsWith(sections[s][i])){
-            const pos = sections[s].length>1?` (${i+1} de ${sections[s].length})`:'';
-            return sectionNames[s]+pos;
-          }
-        }
-      }
-      return 'Reproduciendo';
-    }
+    function renderDevList() {
+      const list = document.getElementById("devList");
+      list.innerHTML = "";
+      devocionales.forEach((d, i) => {
+        const el = document.createElement("div");
+        el.className = "item";
+        el.id = "devitem-" + i;
 
-    // ---------- carga devocionales desde JSON ----------
-    async function cargarDevocionales(){
-      try{
-        const r = await fetch(REPO_RAW_JSON,{cache:'no-store'});
-        if(!r.ok) throw new Error('no json');
-        const data = await r.json();
-        // Esperamos array [{title,file}]
-        devocionales = Array.isArray(data)?data:[];
-      }catch(e){
-        console.warn('No se pudo cargar JSON devocionales',e);
-        devocionales = [];
-      }
+        const title = document.createElement("div");
+        title.className = "title";
+        title.textContent = d.title || d.file;
 
-      renderDevocionales();
-      rebuildCombinedList();
-    }
+        const file = document.createElement("div");
+        file.className = "file";
+        file.textContent = d.file;
 
-    function renderDevocionales(){
-      devListEl.innerHTML = '';
-      if(devocionales.length===0){
-        devListEl.innerHTML = '<div class="muted">No hay devocionales todavía.</div>';
-        return;
-      }
-
-      devocionales.forEach((d, idx) =>{
-        const btn = document.createElement('button');
-        btn.className = 'dev-btn';
-        btn.setAttribute('role','listitem');
-        btn.setAttribute('aria-pressed','false');
-        btn.innerHTML = `<div class="dev-title">${d.title}</div><div class="dev-meta">${d.file}</div>`;
-        btn.addEventListener('click', ()=>{
-          // reproducir el devocional seleccionado
-          const url = DEV_BASE + d.file;
-          mode = 'dev';
-          playFromList([url], 0, d.title);
-          // marcar como presionado
-          Array.from(devListEl.children).forEach(c=>c.setAttribute('aria-pressed','false'));
-          btn.setAttribute('aria-pressed','true');
-        });
-        devListEl.appendChild(btn);
+        el.appendChild(title);
+        el.appendChild(file);
+        el.onclick = () => playDev(i);
+        list.appendChild(el);
       });
     }
 
-    // ---------- combinar listas para 'lista completa' si querés incluir devocionales al final ----------
-    function rebuildCombinedList(){
-      combinedList = [...fullPlaylist];
-      combinedLabels = fullPlaylist.map(src=>extractLabelFromSrc(src));
-      // agregar devocionales al final del combined (opcional)
-      devocionales.forEach(d => { combinedList.push(DEV_BASE + d.file); combinedLabels.push(d.title); });
+    /* -------------------------
+       Player & state (compatible con tu original)
+       ------------------------- */
+    const player = document.getElementById("player");
+    const mainBtn = document.getElementById("mainPlayPause");
+    const mainBtnDev = document.getElementById("mainPlayPauseDev");
+    const nowPlaying = document.getElementById("nowPlaying");
+    const trackButtons = Array.from(document.getElementsByClassName("track-btn"));
+
+    // mode: "none" | "full" (ABC full) | "section" | "dev"
+    let mode = "none";
+    let fullIndex = 0; // index into fullPlaylist
+    let waiting = false;
+
+    // Dev mode index
+    let devIndex = 0;
+
+    // main button handlers
+    mainBtn.addEventListener("click", () => {
+      if (mode === "none") startFullPlaylist();
+      else togglePlayPauseCurrent();
+    });
+
+    mainBtnDev.addEventListener("click", () => {
+      if (mode === "dev") togglePlayPauseCurrent();
+      else startDevPlaylist();
+    });
+
+    /* -------------------------
+       ABC playback (existing behavior)
+       ------------------------- */
+    function startFullPlaylist(resume = false) {
+      mode = "full";
+      if (!resume) fullIndex = 0;
+      playFullAt(fullIndex);
+      updateMainButtons();
     }
 
-    // ---------- controles ----------
-    playPause.addEventListener('click', ()=>{
-      if(!player.src){ // iniciar full lista combinada
-        mode='full';
-        playFromList(combinedList,0,combinedLabels[0]);
+    function playFullAt(index) {
+      fullIndex = index;
+      playTrackFromList(fullPlaylist, fullIndex);
+      player.dataset.mode = "full";
+      player.dataset.index = fullIndex;
+      updateMainButtons();
+    }
+
+    function playSection(sectionIdx) {
+      const list = sections[sectionIdx].map(n => base + n);
+      const isSameSection = (player.dataset.mode === "section" && player.dataset.section == sectionIdx);
+      const isPlaying = !player.paused;
+
+      if (isSameSection) {
+        if (isPlaying) player.pause(); else player.play();
+        updateMainButtons();
         return;
       }
-      if(player.paused) player.play(); else player.pause();
-      guardarProgreso();
-    });
 
-    nextBtn.addEventListener('click', ()=>{
-      if(currentIndex+1 < currentList.length){ playFromList(currentList, currentIndex+1); }
-      else if(mode==='full' && currentIndex+1 < combinedList.length){ playFromList(combinedList, currentIndex+1, combinedLabels[currentIndex+1]); }
-    });
-    prevBtn.addEventListener('click', ()=>{ if(currentIndex>0) playFromList(currentList, currentIndex-1); });
-
-    player.addEventListener('ended', ()=>{
-      if(currentIndex+1 < currentList.length) playFromList(currentList, currentIndex+1);
-      else if(mode==='full' && currentIndex+1 < combinedList.length) playFromList(combinedList, currentIndex+1, combinedLabels[currentIndex+1]);
-      else { player.pause(); setNowPlayingLabel('Nada'); mode='none'; }
-    });
-
-    // ---------- progreso localStorage (por separado para devocionales y playlist) ----------
-    function guardarProgreso(){
-      const state = {
-        mode: mode,
-        currentSrc: player.src || '',
-        currentTime: player.currentTime || 0
-      };
-      localStorage.setItem('va_player_state', JSON.stringify(state));
+      mode = "section";
+      player.dataset.mode = "section";
+      player.dataset.section = sectionIdx;
+      playTrackFromList(list, 0);
+      updateButtonStates();
+      updateMainButtons();
     }
 
-    function restaurarProgreso(){
-      try{
-        const raw = localStorage.getItem('va_player_state');
-        if(!raw) return;
-        const s = JSON.parse(raw);
-        if(s.currentSrc){
-          player.src = s.currentSrc;
-          player.currentTime = s.currentTime || 0;
-          setNowPlayingLabel(extractLabelFromSrc(s.currentSrc));
-          mode = s.mode || 'none';
-        }
-      }catch(e){console.warn('no restore',e)}
+    function playTrackFromList(list, index) {
+      player.src = list[index];
+      player.play().catch(()=>{});
+      player.dataset.list = JSON.stringify(list);
+      player.dataset.index = index;
+      updateNowPlaying(player.src);
     }
 
-    // guardado periódico
-    setInterval(()=>{ if(!player.paused) guardarProgreso(); }, 10000);
+    /* -------------------------
+       Devocionales playback (mirror behavior)
+       ------------------------- */
+    function startDevPlaylist(resume = false) {
+      if (!devocionales.length) return;
+      mode = "dev";
+      if (!resume) devIndex = 0;
+      playDevAt(devIndex);
+      updateMainButtons();
+    }
 
-    // ---------- inicialización ----------
-    document.addEventListener('DOMContentLoaded', async ()=>{
-      await cargarDevocionales();
-      restaurarProgreso();
-      document.getElementById('loader').style.display='none';
-    });
+    function playDevAt(index) {
+      if (!devocionales[index]) return;
+      devIndex = index;
+      const url = devocionales[index].url;
+      player.src = url;
+      player.play().catch(()=>{});
+      player.dataset.mode = "dev";
+      player.dataset.index = devIndex;
+      updateNowPlaying(player.src);
+      updateDevButtonStates();
+      updateMainButtons();
+    }
 
-  </script>
+    function playDev(i) {
+      // clicking same dev item toggles play/pause
+      const isSame = (player.dataset.mode === "dev" && parseInt(player.dataset.index||-1) === i);
+      const isPlaying = !player.paused && !player.ended;
+      if (isSame) {
+        if (isPlaying) player.pause(); else player.play();
+        updateMainButtons();
+        return;
+      }
+      playDevAt(i);
+    }
 
-  <!-- ------------------------------------------------------------------ -->
-  <!-- Adjunto: Apps Script (ejemplo) para subir MP3 y actualizar devocionales.json -->
-  <!-- ------------------------------------------------------------------ -->
-  <!-- Guardá esto en un archivo separado en tu proyecto de Apps Script y configurá los tokens -->
-  <!-- NO PEGAR CREDENCIALES EN LUGAR PÚBLICO -->
+    function updateDevButtonStates() {
+      // clear existing active
+      document.querySelectorAll("#devList .item").forEach(el => el.classList.remove("active"));
+      const el = document.getElementById("devitem-" + devIndex);
+      if (el) el.classList.add("active");
+      // also update ABC buttons state
+      updateButtonStates();
+    }
 
-  <!--
-  // Google Apps Script - upload audio and update devocionales.json in GitHub
-  function subirAudioYActualizarJSON() {
-    const SHEET_ID = 'TU_SHEET_ID';
-    const sheet = SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
-    const data = sheet.getDataRange().getValues(); // asumimos Col A = texto, Col B = url mp3
-
-    const GITHUB_TOKEN = 'TU_GITHUB_TOKEN';
-    const githubUser = 'Vida-Abundante';
-    const repo = 'playlist-audio';
-
-    const githubApiBase = 'https://api.github.com/repos/' + githubUser + '/' + repo + '/contents/';
-
-    // Obtener devocionales.json actual
-    const jsonPath = 'devocionales.json';
-    let devs = [];
-    try{
-      const getResp = UrlFetchApp.fetch('https://api.github.com/repos/'+githubUser+'/'+repo+'/contents/'+jsonPath, {headers:{'Authorization':'token '+GITHUB_TOKEN}});
-      const getData = JSON.parse(getResp.getContentText());
-      const content = Utilities.newBlob(Utilities.base64Decode(getData.content)).getDataAsString();
-      devs = JSON.parse(content);
-      var shaActual = getData.sha;
-    }catch(e){ devs = []; shaActual = null; }
-
-    for(let i=1;i<data.length;i++){
-      const texto = data[i][0];
-      const urlMp3 = data[i][1];
-      if(texto && urlMp3){
-        // suponer que el nombre del archivo está en la url
-        const fileName = urlMp3.split('/').pop();
-        const title = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "EEEE dd 'de' MMMM yyyy") + ' - ' + (texto.substring(0,40));
-        // si no existe en devs, agregar
-        if(!devs.some(d=>d.file===fileName)){
-          devs.push({title:title, file:fileName});
-        }
+    /* -------------------------
+       Next / Prev unioned logic
+       Handles modes: full (ABC full), section, dev
+       ------------------------- */
+    function nextTrack() {
+      const currentMode = player.dataset.mode || mode;
+      if (currentMode === "full") {
+        if (fullIndex < fullPlaylist.length - 1) {
+          const isEndOfSection = sectionEndIndices.includes(fullIndex);
+          if (isEndOfSection) waitAndPlayFull(fullIndex + 1);
+          else playFullAt(fullIndex + 1);
+        } else finishFullPlaylist();
+      } else if (currentMode === "section") {
+        const list = JSON.parse(player.dataset.list || "[]");
+        let i = parseInt(player.dataset.index || 0);
+        if (i + 1 < list.length) playTrackFromList(list, i + 1);
+        else finishSection();
+      } else if (currentMode === "dev") {
+        if (devIndex + 1 < devocionales.length) playDevAt(devIndex + 1);
+        else { /* loop or finish -> choose to stop */ finishSection(); }
       }
     }
 
-    // subir devocionales.json actualizado (PUT)
-    const newContent = Utilities.base64Encode(JSON.stringify(devs, null, 2));
-    const payload = {message: 'Actualizar devocionales.json', content: newContent};
-    if(shaActual) payload.sha = shaActual;
+    function prevTrack() {
+      const currentMode = player.dataset.mode || mode;
+      if (currentMode === "full") {
+        if (fullIndex > 0) playFullAt(fullIndex - 1);
+      } else if (currentMode === "section") {
+        const list = JSON.parse(player.dataset.list || "[]");
+        let i = parseInt(player.dataset.index || 0);
+        if (i > 0) playTrackFromList(list, i - 1);
+      } else if (currentMode === "dev") {
+        if (devIndex > 0) playDevAt(devIndex - 1);
+      }
+    }
 
-    const putOptions = {method:'put', contentType:'application/json', payload: JSON.stringify(payload), headers:{'Authorization':'token '+GITHUB_TOKEN}};
-    const putResp = UrlFetchApp.fetch('https://api.github.com/repos/'+githubUser+'/'+repo+'/contents/'+jsonPath, putOptions);
-    Logger.log('Actualizado devocionales.json: ' + putResp.getResponseCode());
-  }
-  -->
+    async function waitAndPlayFull(nextIdx) {
+      if (waiting) return;
+      waiting = true;
+      updateNowPlaying("⏸ Esperando 2s...");
+      await new Promise(r => setTimeout(r, 2000));
+      waiting = false;
+      playFullAt(nextIdx);
+    }
 
-  <!-- ------------------------------------------------------------------ -->
-  <!-- Ejemplo devocionales.json (subilo a tu repo /devocionales.json) -->
-  <!-- ------------------------------------------------------------------ -->
-  <!--
-  [
-    { "title": "Sábado 18 de Enero 2025", "file": "2025-01-18.mp3" },
-    { "title": "Domingo 19 de Enero 2025", "file": "2025-01-19.mp3" }
-  ]
-  -->
+    function togglePlayPauseCurrent() {
+      if (!player.src) { 
+        // default to ABC full if no src
+        startFullPlaylist(); 
+        return;
+      }
+      if (player.paused) player.play(); else player.pause();
+      updateMainButtons();
+    }
+
+    player.addEventListener("ended", () => {
+      const currentMode = player.dataset.mode || mode;
+      if (currentMode === "full") {
+        const idx = fullIndex;
+        if (idx >= fullPlaylist.length - 1) finishFullPlaylist();
+        else {
+          const isEndOfSection = sectionEndIndices.includes(idx);
+          if (isEndOfSection) waitAndPlayFull(idx + 1);
+          else playFullAt(idx + 1);
+        }
+      } else if (currentMode === "section") {
+        const list = JSON.parse(player.dataset.list || "[]");
+        let i = parseInt(player.dataset.index || 0);
+        if (i + 1 < list.length) playTrackFromList(list, i + 1);
+        else finishSection();
+      } else if (currentMode === "dev") {
+        if (devIndex + 1 < devocionales.length) playDevAt(devIndex + 1);
+        else finishSection();
+      }
+    });
+
+    player.addEventListener("play", () => { updateButtonStates(); updateMainButtons(); updateNowPlaying(player.src); });
+    player.addEventListener("pause", () => { updateButtonStates(); updateMainButtons(); guardarProgreso(); });
+
+    function finishFullPlaylist() {
+      mode = "none";
+      player.pause();
+      updateMainButtons();
+      updateButtonStates();
+      updateNowPlaying("");
+    }
+
+    function finishSection() {
+      mode = "none";
+      player.pause();
+      player.dataset.mode = "";
+      updateNowPlaying("");
+      updateButtonStates();
+      updateMainButtons();
+    }
+
+    function updateMainButtons() {
+      // ABC main button
+      if (mode === "none" || player.dataset.mode === "dev") mainBtn.textContent = "▶ Reproducir ABC";
+      else if (mode === "full" || player.dataset.mode === "full") mainBtn.textContent = player.paused ? "▶ Reanudar lista completa" : "⏸ Pausar lista completa";
+      else if (mode === "section" || player.dataset.mode === "section") mainBtn.textContent = player.paused ? "▶ Reanudar" : "⏸ Pausar";
+
+      // Dev main button
+      if (player.dataset.mode === "dev") mainBtnDev.textContent = player.paused ? "▶ Reanudar Devocionales" : "⏸ Pausar Devocionales";
+      else mainBtnDev.textContent = "▶ Reproducir Devocionales";
+    }
+
+    function updateNowPlaying(src) {
+      if (!src) { nowPlaying.textContent = "🎵 Reproduciendo: Nada"; return; }
+      const cleanSrc = decodeURIComponent(src.split("?")[0]);
+      // check dev list
+      for (let i=0;i<devocionales.length;i++){
+        if (cleanSrc.endsWith(devocionales[i].file)) {
+          nowPlaying.textContent = "🎵 Reproduciendo: " + (devocionales[i].title || devocionales[i].file);
+          return;
+        }
+      }
+      // fallback to sections
+      for (let s = 0; s < sections.length; s++) {
+        const section = sections[s];
+        for (let i = 0; i < section.length; i++) {
+          if (cleanSrc.endsWith(section[i])) {
+            const label = sectionNames[s];
+            const pos = section.length > 1 ? ` (${i + 1} de ${section.length})` : "";
+            nowPlaying.textContent = `🎵 Reproduciendo: ${label}${pos}`;
+            return;
+          }
+        }
+      }
+      nowPlaying.textContent = "🎵 Reproduciendo";
+    }
+
+    function updateButtonStates() {
+      trackButtons.forEach((btn, i) => {
+        const label = sectionNames[i];
+        const isActive = (player.dataset.mode === "section" && parseInt(player.dataset.section || -1) === i && !player.paused);
+        btn.textContent = (isActive ? "⏸ " : "▶ ") + label;
+        btn.classList.toggle("active", isActive);
+      });
+    }
+
+    function guardarProgreso() {
+      const modo = player.dataset.mode || mode;
+      const index = player.dataset.index || 0;
+      const time = player.currentTime || 0;
+      const section = player.dataset.section || null;
+
+      localStorage.setItem("modoReproduccion", modo);
+      localStorage.setItem("indiceActual", index);
+      localStorage.setItem("tiempoActual", time);
+      localStorage.setItem("seccionActual", section);
+    }
+
+    function actualizarBotonesActivos() {
+      updateButtonStates();
+      updateDevButtonStates();
+    }
+
+    // Inicialización: restaurar estado
+    document.addEventListener("DOMContentLoaded", async () => {
+      await cargarDevocionales(); // load dev list first
+      const modoGuardado = localStorage.getItem("modoReproduccion");
+      const indexGuardado = parseInt(localStorage.getItem("indiceActual") || 0);
+      const tiempoGuardado = parseFloat(localStorage.getItem("tiempoActual") || 0);
+      const seccionGuardada = parseInt(localStorage.getItem("seccionActual"));
+
+      if (modoGuardado === "full") {
+        mode = "full";
+        fullIndex = indexGuardado;
+        player.src = fullPlaylist[indexGuardado];
+        player.dataset.mode = "full";
+        player.dataset.index = indexGuardado;
+        player.currentTime = tiempoGuardado;
+        updateNowPlaying(player.src);
+      } else if (modoGuardado === "section" && !isNaN(seccionGuardada)) {
+        mode = "section";
+        const list = sections[seccionGuardada].map(n => base + n);
+        player.src = list[indexGuardado];
+        player.dataset.mode = "section";
+        player.dataset.section = seccionGuardada;
+        player.dataset.list = JSON.stringify(list);
+        player.dataset.index = indexGuardado;
+        player.currentTime = tiempoGuardado;
+        updateNowPlaying(player.src);
+      } else if (modoGuardado === "dev") {
+        // restore dev only if devocionales loaded and index valid
+        mode = "dev";
+        devIndex = indexGuardado;
+        if (devocionales[devIndex]) {
+          player.src = devocionales[devIndex].url;
+          player.dataset.mode = "dev";
+          player.dataset.index = devIndex;
+          player.currentTime = tiempoGuardado;
+          updateNowPlaying(player.src);
+          updateDevButtonStates();
+        } else {
+          // fallback to ABC if dev not available
+          mode = "none";
+        }
+      }
+
+      updateMainButtons();
+      updateButtonStates();
+      updateDevButtonStates();
+    });
+
+    // Guardado automático del progreso cada 10 segundos
+    setInterval(() => {
+      if (!player.paused && player.src) {
+        guardarProgreso();
+      }
+    }, 10000); // cada 10 segundos
+  </script>
+
+  <script>
+    function reiniciarProgreso() {
+      if (!confirm("¿Estás seguro de que querés reiniciar el progreso?")) return;
+      localStorage.removeItem("modoReproduccion");
+      localStorage.removeItem("indiceActual");
+      localStorage.removeItem("tiempoActual");
+      localStorage.removeItem("seccionActual");
+      location.reload();
+    }
+  </script>
 
 </body>
 </html>
-
-
