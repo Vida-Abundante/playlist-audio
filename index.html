@@ -24,7 +24,10 @@
   header h1{margin:6px 0;font-size:1.05rem}
   #appToggle{margin-top:8px;padding:8px 12px;border-radius:8px;border:none;background:#83bde3;color:#fff;cursor:pointer}
 
-  .content{flex:1;display:flex;gap:12px;padding:12px;box-sizing:border-box;align-items:center;justify-content:center}
+  /* place install area directly under header so video appears arriba */
+  #installArea{display:none;padding:8px;display:flex;align-items:center;justify-content:center}
+
+  .content{flex:1;display:flex;gap:12px;padding:12px;box-sizing:border-box;align-items:stretch;justify-content:center}
   /* Two column mirror layout */
   .col{
     flex:1;
@@ -38,7 +41,7 @@
     align-items:stretch;
     justify-content:flex-start;
     box-shadow:0 2px 8px rgba(0,0,0,0.06);
-    height: calc(100vh - 140px);
+    height: calc(100vh - 190px);
     overflow:hidden;
   }
 
@@ -52,15 +55,16 @@
     box-shadow:inset 0 0 0 1px rgba(0,0,0,0.03);
     flex: 0 0 auto;
     width:100%;
-    max-width:520px;
+    max-width:560px;
   }
 
   .main-play{
     font-size:20px;padding:18px 18px;border-radius:14px;border:none;color:white;cursor:pointer;margin:12px 0;
     width:88%;
-    max-width:420px;
+    max-width:520px;
     font-weight:700;
     box-shadow:0 6px 10px rgba(0,0,0,0.08);
+    min-height:64px; /* make taller */
   }
 
   .controls{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:6px}
@@ -80,25 +84,24 @@
   .devo .track-btn{background:var(--devo-btn);color:#000;font-weight:700}
 
   /* reiniciar button */
-  .reset-btn{margin-top:8px;padding:8px 12px;border-radius:10px;border:none;background:#dc3545;color:#fff;cursor:pointer}
+  .reset-btn{margin-top:8px;padding:10px 12px;border-radius:10px;border:none;background:#dc3545;color:#fff;cursor:pointer}
 
   @media (max-width:900px){
     .content{gap:8px;padding:8px}
     .col{height:auto;min-height:300px;padding:8px}
     .player-box{margin-bottom:8px}
-    .main-play{font-size:18px;padding:14px;width:100%}
+    .main-play{font-size:18px;padding:14px;width:100%;min-height:56px}
     .track-btn{font-size:16px;padding:12px}
   }
 
   @media (max-width:420px){
-    .content{flex-direction:row;gap:6px} /* keep two columns but very narrow - user asked mirror on mobile */
+    .content{flex-direction:row;gap:6px} /* keep two columns side-by-side for mobile as requested */
     .col{padding:6px;height:auto}
   }
 
   .msg{font-size:0.95rem;color:#444;text-align:center;padding:6px}
   .hidden{display:none}
-  #installArea{display:flex;align-items:center;justify-content:center;padding:8px}
-</style>
+  </style>
 </head>
 <body>
 <div class="app">
@@ -107,8 +110,10 @@
     <button id="appToggle" aria-controls="installArea">📱 Ver como aplicación</button>
   </header>
 
+  <div id="installArea"></div>
+
   <div class="content" role="main" aria-live="polite">
-    <!-- LEFT: DEVOCIONALES -->
+    <!-- LEFT: DEVOCIONALES (en pantalla deben quedar a la IZQUIERDA segun tu última indicación) -->
     <section id="devoCol" class="col devo" aria-label="Devocionales (izquierda)">
       <div class="col-inner">
         <div class="col-title"><h2>DEVOCIONALES</h2></div>
@@ -150,8 +155,6 @@
       </div>
     </section>
   </div>
-
-  <div id="installArea" style="display:none"></div>
 </div>
 
 <script>
@@ -375,7 +378,6 @@ class MirrorPlayer {
           this.audio.dataset.section = sec-1;
           this.playTrackFromList(prevList, prevList.length-1);
         } else {
-          // if at first of section, move to previous section if exists in fullPlaylist
           if(this.fullIndex > 0) this.playFullAt(Math.max(0,this.fullIndex-1));
         }
       }
@@ -394,6 +396,7 @@ class MirrorPlayer {
     this.audio.pause();
     this.audio.src='';
     this.audio.dataset.mode='';
+    this.audio.dataset.index='';
     this._updateButtonsState();
     this._updateNowPlaying();
   }
@@ -600,12 +603,11 @@ appToggle.addEventListener('click', ()=>{
     const v = document.createElement('video');
     v.src='InstruccionInstalar.mp4';
     v.controls=true; v.autoplay=true; v.muted=true; v.loop=true;
-    v.style.width='90%'; v.style.maxWidth='420px'; v.id='appVideo';
+    v.style.width='90%'; v.style.maxWidth='720px'; v.id='appVideo';
     installArea.appendChild(v);
     appToggle.textContent='🔙 Ver como web';
     showingVideo=true;
-    // ensure area visible on mobile
-    installArea.scrollIntoView({behavior:'smooth', block:'center'});
+    window.scrollTo({top:0,behavior:'smooth'});
   } else {
     const vid = document.getElementById('appVideo');
     if(vid){ vid.pause(); vid.src=''; vid.remove(); }
@@ -617,17 +619,17 @@ appToggle.addEventListener('click', ()=>{
 });
 
 /* --------------------------
-  Reiniciar botones behavior
+  Reiniciar buttons behavior (ensure main button text resets too)
 ---------------------------*/
 document.getElementById('devoReset').addEventListener('click', ()=> {
   if(!confirm('¿Estás seguro de que querés reiniciar el progreso de Devocionales?')) return;
   try{
     localStorage.removeItem('devo_state');
-    if(window.devoPlayer && window.devoPlayer.audio){ window.devoPlayer.audio.pause(); window.devoPlayer.audio.src=''; }
-    // reset UI
-    const btns = document.querySelectorAll('#devoList .track-btn');
-    btns.forEach(b => { b.classList.remove('active'); });
+    if(window.devoPlayer){ window.devoPlayer.finishFullPlaylist(); window.devoPlayer.finishSection(); }
     document.getElementById('devoTime').textContent = '🎵 Reproduciendo: Nada';
+    document.getElementById('devoMainPlay').textContent = '▶ Reproducir lista completa';
+    // clear active states
+    const btns = document.querySelectorAll('#devoList .track-btn'); btns.forEach(b=>b.classList.remove('active'));
   }catch(e){}
 });
 
@@ -635,17 +637,15 @@ document.getElementById('abcReset').addEventListener('click', ()=> {
   if(!confirm('¿Estás seguro de que querés reiniciar el progreso de ABC?')) return;
   try{
     localStorage.removeItem('abc_state');
-    if(window.abcPlayer && window.abcPlayer.audio){ window.abcPlayer.audio.pause(); window.abcPlayer.audio.src=''; }
-    const btns = document.querySelectorAll('#abcList .track-btn');
-    btns.forEach(b => { b.classList.remove('active'); });
+    if(window.abcPlayer){ window.abcPlayer.finishFullPlaylist(); window.abcPlayer.finishSection(); }
     document.getElementById('abcTime').textContent = '🎵 Reproduciendo: Nada';
+    document.getElementById('abcMainPlay').textContent = '▶ Reproducir lista completa';
+    const btns = document.querySelectorAll('#abcList .track-btn'); btns.forEach(b=>b.classList.remove('active'));
   }catch(e){}
 });
 
 /* ensure mutual exclusion also when clicking track buttons (safety) */
-document.addEventListener('click', (ev)=>{
-  // nothing extra needed because MirrorPlayer.audio.play override already calls pauseOthers
-});
+document.addEventListener('click', (ev)=>{});
 
 /* final: make sure no horizontal scroll */
 document.documentElement.style.overflowX='hidden';
