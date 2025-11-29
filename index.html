@@ -1,792 +1,613 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mi Playlist – Vida Abundante</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mi Playlist – Vida Abundante</title>
+<meta property="og:title" content="Mi Playlist – Vida Abundante" />
+<meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante 💖" />
+<meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
+<meta name="theme-color" content="#fffafc" />
 
-  <meta property="og:title" content="Mi Playlist – Vida Abundante" />
-  <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante 💖" />
-  <meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://vida-abundante.github.io/playlist-audio/" />
+<style>
+  :root{
+    --bg:#fffafc;
+    --text:#3a2a2a;
+    --abc-primary:#28a745; /* verde */
+    --abc-btn:#007bff; /* azul botones */
+    --devo-primary:#ff8a00; /* naranja reproductor */
+    --devo-btn:#ffd44d; /* amarillo botones */
+  }
 
-  <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="PortadaCuadrada.png" />
-  <meta name="theme-color" content="#fffafc" />
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif}
+  .app{min-height:100%;display:flex;flex-direction:column;align-items:stretch}
+  header{padding:12px 16px;text-align:center}
+  header h1{margin:6px 0;font-size:1.1rem}
+  header p{margin:0;color:#666;font-size:0.95rem}
+  .content{flex:1;display:flex;gap:12px;padding:12px;box-sizing:border-box}
 
-  <style>
-    :root{
-      --bg: #fffafc;
-      --text: #3a2a2a;
-      --abc-blue: #007bff;
-      --abc-blue-dark: #0056b3;
-      --dev-orange: #ff8c00;
-      --dev-yellow: #ffcc00;
-      --dev-yellow-dark: #ffb800;
-    }
+  /* Two column mirror layout */
+  .col{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    background:rgba(255,255,255,0.6);
+    border-radius:12px;
+    padding:12px;
+    box-sizing:border-box;
+    min-width:0; /* important for flex overflow */
+    align-items:stretch;
+    justify-content:flex-start;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    height: calc(100vh - 140px); /* equal height control */
+  }
 
-    html,body{height:100%; margin:0; padding:0; background:var(--bg); color:var(--text); font-family:"Poppins", sans-serif;}
+  .col-title{display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .col-title h2{margin:0;font-size:1rem}
 
-    .app-header{padding:14px 12px 6px 12px; text-align:center;}
-    h1{margin:6px 0 0 0; font-size:1.1rem;}
-    h2{margin:2px 0 0 0; font-size:0.95rem; color:#5a4750;}
+  /* player box (mirrored) */
+  .player-box{
+    border-radius:10px;padding:10px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;
+    background:linear-gradient(0deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,0.03);
+  }
 
-    .top-controls { display:flex; justify-content:center; gap:10px; margin-top:8px; }
+  /* main play button bigger */
+  .main-play{
+    font-size:20px;padding:12px 18px;border-radius:12px;border:none;color:white;cursor:pointer;margin:10px 0;
+    width:84%;
+    max-width:420px;
+  }
 
-    .btn-navegador {
-      display:inline-block;
-      background-color:#83bde3;
-      color:white;
-      border:none;
-      border-radius:10px;
-      padding:10px 14px;
-      font-size:0.95rem;
-      cursor:pointer;
-    }
+  /* small control row */
+  .controls{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:6px}
+  .ctrl-btn{font-size:20px;padding:8px 12px;border-radius:10px;border:none;color:white;cursor:pointer}
+  .time{font-size:0.95rem;color:#222;margin-top:6px}
 
-    /* Layout: always two columns side-by-side, 50/50 */
-    .two-columns {
-      display:flex;
-      flex-direction:row;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      padding:14px;
-      box-sizing:border-box;
-      width:100%;
-      height: calc(100vh - 120px);
-    }
+  /* list buttons (tall list) */
+  .list{overflow:auto;display:flex;flex-direction:column;gap:10px;padding:6px}
+  .track-btn{font-size:18px;padding:14px;border-radius:12px;border:none;cursor:pointer;display:block;width:100%;text-align:left}
+  .track-btn.active{outline:3px solid rgba(0,0,0,0.08)}
 
-    .panel {
-      width:50%;
-      min-width:240px;
-      box-sizing:border-box;
-      background:#fff;
-      border-radius:12px;
-      box-shadow:0 6px 18px rgba(0,0,0,0.06);
-      padding:12px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      overflow:hidden;
-    }
+  /* ABC styles (left) */
+  .abc .main-play{background:var(--abc-primary)}
+  .abc .ctrl-btn{background:var(--abc-btn)}
+  .abc .track-btn{background:#007bff;color:#fff}
 
-    .panel-title {
-      width:100%;
-      text-align:left;
-      font-weight:600;
-      margin-bottom:8px;
-      display:flex;
-      align-items:center;
-      gap:8px;
-    }
+  /* Devocionales styles (right) */
+  .devo .main-play{background:var(--devo-primary)}
+  .devo .ctrl-btn{background:var(--devo-primary)}
+  .devo .track-btn{background:var(--devo-btn);color:#000;font-weight:600}
 
-    /* Player main controls (kept similar to your original) */
-    .play-main {
-      font-size:20px;
-      padding:14px 28px;
-      border:none;
-      border-radius:12px;
-      color:white;
-      cursor:pointer;
-      margin-bottom:12px;
-      width:85%;
-      max-width:420px;
-    }
+  /* responsive: keep 50/50 and avoid horizontal scroll, shrink buttons on narrow screens */
+  @media (max-width:700px){
+    .content{padding:8px;gap:8px}
+    .col{height:auto; padding:8px}
+    html,body{overflow-x:hidden}
+    .main-play{font-size:16px;padding:10px;width:100%}
+    .track-btn{font-size:16px;padding:10px}
+    .player-box{margin-bottom:8px}
+    /* keep 2 columns side-by-side but ensure fit (buttons are smaller) */
+  }
 
-    /* left = dev (orange) */
-    #mainPlayPauseDev { background:var(--dev-orange); }
-    /* right = abc (green like original) */
-    #mainPlayPause { background:#28a745; }
+  /* ensure columns remain side-by-side on mobile without horizontal scroll */
+  @media (max-width:420px){
+    .col{padding:6px}
+    .content{gap:6px}
+  }
 
-    .player-container { display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:8px; width:100%; }
-    audio { width:70%; max-width:420px; }
-
-    .control-btn {
-      font-size:22px;
-      padding:8px 12px;
-      border:none;
-      border-radius:10px;
-      background:var(--abc-blue);
-      color:white;
-      cursor:pointer;
-    }
-
-    .control-btn-dev { background:var(--abc-blue); } /* same icon color for prev/next */
-
-    .nowPlaying { font-size:15px; color:#333; margin-bottom:6px; text-align:center; min-height:26px; }
-
-    /* List buttons: match sizes but smaller for mobile compactness */
-    .list-scroll { width:100%; overflow-y:auto; padding:6px; box-sizing:border-box; display:flex; flex-direction:column; gap:10px; }
-
-    .track-btn {
-      font-size:18px;
-      padding:14px 18px;
-      border:none;
-      border-radius:12px;
-      background:var(--abc-blue);
-      color:white;
-      cursor:pointer;
-      width:88%;
-      margin:0 auto;
-      transition:background-color 0.2s;
-      text-align:left;
-    }
-    .track-btn.active { background:var(--abc-blue-dark); }
-
-    /* dev list style: yellow */
-    .track-btn-dev {
-      font-size:18px;
-      padding:14px 18px;
-      border:none;
-      border-radius:12px;
-      background:var(--dev-yellow);
-      color:#000;
-      cursor:pointer;
-      width:88%;
-      margin:0 auto;
-      transition:background-color 0.15s;
-      text-align:left;
-    }
-    .track-btn-dev.active { background:var(--dev-yellow-dark); color:#000; }
-
-    /* smaller sizes on narrow screens to keep two columns readable */
-    @media (max-width:540px) {
-      .play-main { font-size:16px; padding:10px 18px; }
-      .control-btn { font-size:18px; padding:8px 10px; }
-      .track-btn, .track-btn-dev { font-size:16px; padding:10px 12px; width:92%; }
-      h1{font-size:1rem;} h2{font-size:0.85rem;}
-      /* keep two columns but allow horizontal scroll if needed */
-      .two-columns { gap:8px; padding:8px; height: calc(100vh - 110px); }
-      .panel { padding:10px; border-radius:10px; }
-      audio { width:60%; }
-    }
-
-    /* ensure scrollbars visible if lists long */
-    .list-scroll::-webkit-scrollbar { height:8px; width:8px; }
-    .list-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius:6px; }
-    .small-muted { font-size:0.82rem; color:#666; margin-top:6px; }
-
-    /* top video container */
-    #videoContainer { display:none; width:100%; justify-content:center; padding:8px 12px; box-sizing:border-box; }
-    #videoContainer video { max-width:460px; width:98%; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.08); }
-
-  </style>
+  /* helper for small messages */
+  .msg{font-size:0.9rem;color:#444;text-align:center;padding:4px}
+  .hidden{display:none}
+</style>
 </head>
 <body>
-
-  <div class="app-header">
+<div class="app">
+  <header>
     <h1>Mi Playlist – Vida Abundante</h1>
-    <h2>Escuchá los audios de enseñanza</h2>
+    <p>ABC (izquierda) — Devocionales (derecha). Diseño espejo 50/50, accesible.</p>
+    <button id="appToggle" class="btn-navegador" style="margin-top:8px;padding:8px 12px;border-radius:8px;border:none;background:#83bde3;color:#fff;cursor:pointer">📱 Ver como aplicación</button>
+  </header>
 
-    <div class="top-controls">
-      <button id="toggleAppBtn" class="btn-navegador">📱 Ver como aplicación</button>
-      <button class="btn-navegador" id="refreshDevListBtn">🔄 Actualizar Devocionales</button>
-    </div>
+  <div class="content" role="main">
+    <!-- LEFT: ABC -->
+    <section id="abcCol" class="col abc" aria-label="ABC (izquierda)">
+      <div class="col-title"><h2>ABC</h2></div>
+
+      <div class="player-box" id="abcPlayerBox" aria-hidden="false">
+        <button id="abcMainPlay" class="main-play">▶ Reproducir lista completa</button>
+        <div class="controls">
+          <button id="abcPrev" class="ctrl-btn">⏮</button>
+          <audio id="abcAudio" preload="metadata" controls style="width:80%"></audio>
+          <button id="abcNext" class="ctrl-btn">⏭</button>
+        </div>
+        <div class="time" id="abcTime">🎵 Reproduciendo: Nada</div>
+      </div>
+
+      <div class="list" id="abcList" aria-label="Lista ABC">
+        <!-- ABC buttons injected by JS -->
+      </div>
+    </section>
+
+    <!-- RIGHT: DEVOCIONALES -->
+    <section id="devoCol" class="col devo" aria-label="Devocionales (derecha)">
+      <div class="col-title"><h2>DEVOCIONALES</h2></div>
+
+      <div class="player-box" id="devoPlayerBox">
+        <button id="devoMainPlay" class="main-play">▶ Reproducir lista completa</button>
+        <div class="controls">
+          <button id="devoPrev" class="ctrl-btn">⏮</button>
+          <audio id="devoAudio" preload="metadata" controls style="width:80%"></audio>
+          <button id="devoNext" class="ctrl-btn">⏭</button>
+        </div>
+        <div class="time" id="devoTime">🎵 Reproduciendo: Nada</div>
+      </div>
+
+      <div class="list" id="devoList" aria-label="Lista Devocionales">
+        <div id="devoMsg" class="msg">Cargando devocionales…</div>
+      </div>
+    </section>
   </div>
+</div>
 
-  <!-- Video container (shows when toggled) -->
-  <div id="videoContainer"><video id="introVideo" src="InstruccionInstalar.mp4" controls autoplay muted loop></video></div>
+<script>
+/* --------------------------
+  CONFIG
+---------------------------*/
+const GHPAGES_BASE = "https://vida-abundante.github.io/playlist-audio/";
+const DEVOCIONALES_JSON_URL = GHPAGES_BASE + "devocionales.json"; // we'll add nocache param in fetch
+const DEV_FOLDER = GHPAGES_BASE + "devocionales/";
 
-  <div class="two-columns">
-    <!-- LEFT: DEVOCIONALES -->
-    <div class="panel" id="devPanel">
-      <div class="panel-title"><strong>📙 Devocionales</strong></div>
+/* --------------------------
+  ABC data (stays local)
+  Keep same structure as before (sections / sectionNames)
+---------------------------*/
+const abcSections = [
+  ["Salvación.mp3"],
+  ["Pecado.mp3"],
+  ["La palabra 1.mp3","La palabra 2.mp3","La palabra 3.mp3"],
+  ["La oración 1.mp3","La oración 2.mp3","La oración 3.mp3","La oración 4.mp3","La oración 5.mp3"],
+  ["Espíritu Santo 1.mp3","Espíritu Santo 2.mp3","Espíritu Santo 3.mp3"],
+  ["Bautismo 1.mp3","Bautismo 2.mp3"],
+  ["Mayordomía 1.mp3","Mayordomía 2.mp3"],
+  ["Evangelismo.mp3"],
+  ["Visión de la iglesia.mp3"]
+];
+const abcNames = ["Salvación","Pecado","La Palabra","La Oración","Espíritu Santo","Bautismo","Mayordomía","Evangelismo","Visión de la iglesia"];
 
-      <button id="mainPlayPauseDev" class="play-main">▶ Reproducir devocionales</button>
-      <button onclick="reiniciarProgresoDev()" class="btn-navegador" style="background:#cc4d00;color:#fff;margin-bottom:8px;">🔁 Reiniciar progreso (Dev)</button>
+/* --------------------------
+  Small helpers
+---------------------------*/
+function secToMMSS(s){
+  s = Math.floor(s);
+  const mm = String(Math.floor(s/60)).padStart(2,'0');
+  const ss = String(s%60).padStart(2,'0');
+  return mm+':'+ss;
+}
 
-      <div class="player-container">
-        <button class="control-btn" id="prevDev" onclick="prevTrackDev()">⏮</button>
-        <audio id="playerDev" controls preload="none"></audio>
-        <button class="control-btn" id="nextDev" onclick="nextTrackDev()">⏭</button>
-      </div>
+/* --------------------------
+  Generic Player Class (manages sections/playlist)
+  - sections: array of arrays of filenames (each section may have multiple files)
+  - names: section names
+  - baseUrl: prefix to files
+---------------------------*/
+class MirrorPlayer {
+  constructor(opts){
+    this.container = opts.container; // dom section
+    this.audio = opts.audio; // audio element
+    this.mainBtn = opts.mainBtn;
+    this.prevBtn = opts.prevBtn;
+    this.nextBtn = opts.nextBtn;
+    this.listContainer = opts.listContainer; // dom for track buttons
+    this.timeEl = opts.timeEl;
+    this.sections = opts.sections || [];
+    this.names = opts.names || [];
+    this.base = opts.base || '';
+    this.mode = 'none'; // none | full | section
+    this.fullPlaylist = []; // absolute urls
+    this.sectionEndIndices = [];
+    this.fullIndex = 0;
+    this.waiting = false;
 
-      <div id="nowPlayingDev" class="nowPlaying">🎵 Reproduciendo: Nada</div>
+    this._buildFullPlaylist();
+    this._wireEvents();
+    this._renderLists();
+    this._restoreState();
+  }
 
-      <div class="list-scroll" id="devListContainer">
-        <!-- Buttons injected here -->
-      </div>
-      <div class="small-muted" id="devCount"></div>
-    </div>
+  _buildFullPlaylist(){
+    this.fullPlaylist = this.sections.flat().map(n => this.base + n);
+    // sectionEndIndices
+    const ends=[]; let idx=-1;
+    for(let s=0;s<this.sections.length;s++){
+      idx+=this.sections[s].length;
+      ends.push(idx);
+    }
+    this.sectionEndIndices = ends;
+  }
 
-    <!-- RIGHT: ABC (tu reproductor original) -->
-    <div class="panel" id="abcPanel">
-      <div class="panel-title"><strong>📘 ABC</strong></div>
-
-      <button id="mainPlayPause" class="play-main" style="background:#28a745;">▶ Reproducir lista completa</button>
-      <button onclick="reiniciarProgreso()" class="btn-navegador" style="background-color: #dc3545;">🔁 Reiniciar progreso</button>
-
-      <div class="player-container">
-        <button class="control-btn" onclick="prevTrack()">⏮</button>
-        <audio id="player" controls preload="none"></audio>
-        <button class="control-btn" onclick="nextTrack()">⏭</button>
-      </div>
-
-      <div id="nowPlaying" class="nowPlaying">🎵 Reproduciendo: Nada</div>
-
-      <div class="list-scroll" id="abcListContainer">
-        <!-- ABC buttons (kept same labels as before) -->
-        <button class="track-btn" id="btn0" onclick="playSection(0)">▶ Salvación</button>
-        <button class="track-btn" id="btn1" onclick="playSection(1)">▶ Pecado</button>
-        <button class="track-btn" id="btn2" onclick="playSection(2)">▶ La Palabra</button>
-        <button class="track-btn" id="btn3" onclick="playSection(3)">▶ La Oración</button>
-        <button class="track-btn" id="btn4" onclick="playSection(4)">▶ Espíritu Santo</button>
-        <button class="track-btn" id="btn5" onclick="playSection(5)">▶ Bautismo</button>
-        <button class="track-btn" id="btn6" onclick="playSection(6)">▶ Mayordomía</button>
-        <button class="track-btn" id="btn7" onclick="playSection(7)">▶ Evangelismo</button>
-        <button class="track-btn" id="btn8" onclick="playSection(8)">▶ Visión de la iglesia</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="loader" style="display:none;"><p>Abriendo...</p></div>
-
-  <script>
-    // ---------------------------
-    // Top controls: toggle app/web (video)
-    // ---------------------------
-    const toggleAppBtn = document.getElementById('toggleAppBtn');
-    const videoContainer = document.getElementById('videoContainer');
-    let appShown = false;
-    toggleAppBtn.addEventListener('click', () => {
-      appShown = !appShown;
-      if (appShown) {
-        videoContainer.style.display = 'flex';
-        toggleAppBtn.textContent = '🌐 Ver como web';
-        // scroll to top so video visible on small screens
-        window.scrollTo({top:0, behavior:'smooth'});
-      } else {
-        videoContainer.style.display = 'none';
-        toggleAppBtn.textContent = '📱 Ver como aplicación';
-      }
+  _wireEvents(){
+    this.mainBtn.addEventListener('click', ()=> {
+      if(this.mode==='none') this.startFullPlaylist();
+      else this.togglePlayPauseCurrent();
     });
+    this.prevBtn.addEventListener('click', ()=> this.prevTrack());
+    this.nextBtn.addEventListener('click', ()=> this.nextTrack());
 
-    // refresh dev list button
-    document.getElementById('refreshDevListBtn').addEventListener('click', () => {
-      cargarDevocionalesAndRender(true);
-    });
+    this.audio.addEventListener('ended', ()=> this._onEnded());
+    this.audio.addEventListener('play', ()=> this._onPlay());
+    this.audio.addEventListener('pause', ()=> this._onPause());
+    this.audio.addEventListener('timeupdate', ()=> this._updateTimeDisplay());
+  }
 
-    // try to register service worker quietly
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js').catch(()=>{});
+  _renderLists(){
+    // clear listContainer and create buttons per section (one button per section)
+    this.listContainer.innerHTML = '';
+    for(let s=0;s<this.sections.length;s++){
+      const btn = document.createElement('button');
+      btn.className='track-btn';
+      btn.setAttribute('data-section', s);
+      btn.textContent = (this.names && this.names[s]) ? this.names[s] : `Sección ${s+1}`;
+      btn.addEventListener('click', ()=> this.playSection(s));
+      this.listContainer.appendChild(btn);
     }
-  </script>
+    // store reference to buttons
+    this.trackButtons = Array.from(this.listContainer.getElementsByClassName('track-btn'));
+  }
 
-  <!-- ===================== DEVOCIONALES player (left) ===================== -->
-  <script>
-    const baseDev = "https://vida-abundante.github.io/playlist-audio/";
-
-    const playerDev = document.getElementById("playerDev");
-    const mainBtnDev = document.getElementById("mainPlayPauseDev");
-    const nowPlayingDev = document.getElementById("nowPlayingDev");
-    const devListContainer = document.getElementById("devListContainer");
-    const devCount = document.getElementById("devCount");
-
-    let devList = []; // {title,file,url}
-    let devIndex = 0;
-    let devMode = "none"; // "none" | "dev"
-
-    // Load devocionales.json fresh. forceReload true bypasses any previous state
-    async function cargarDevocionalesAndRender(forceReload=false) {
-      try {
-        // avoid any caching by adding timestamp param when forced
-        const url = baseDev + "devocionales.json" + (forceReload ? `?t=${Date.now()}` : "");
-        const res = await fetch(url, { cache: "no-store" });
-        if (!res.ok) {
-          devListContainer.innerHTML = "<div style='color:#666'>No hay devocionales aún.</div>";
-          devCount.textContent = "";
-          devList = [];
-          return;
-        }
-        const j = await res.json();
-        // sort by title descending (newest at top). If titles are dates formatted, this works lexicographically.
-        j.sort((a,b)=> (b.title || "").localeCompare(a.title || ""));
-        devList = j.map(entry => ({ title: entry.title, file: entry.file, url: baseDev + entry.file }));
-        renderDevList();
-      } catch (e) {
-        console.error("Error cargando devos:", e);
-        devListContainer.innerHTML = "<div style='color:#666'>Error cargando devocionales.</div>";
-        devCount.textContent = "";
-        devList = [];
-      }
-    }
-
-    function renderDevList(){
-      devListContainer.innerHTML = "";
-      if(!devList.length){ devListContainer.innerHTML = "<div style='color:#666'>No hay devocionales aún.</div>"; devCount.textContent = ""; return; }
-      devList.forEach((d,i) => {
-        const btn = document.createElement("button");
-        btn.className = "track-btn-dev";
-        btn.id = "dev_btn_"+i;
-        btn.textContent = "▶ " + (d.title || d.file);
-        btn.onclick = ()=> playDev(i);
-        btn.setAttribute("aria-label", "Reproducir "+(d.title||d.file));
-        devListContainer.appendChild(btn);
-      });
-      devCount.textContent = `${devList.length} devocional(es)`;
-    }
-
-    // main button
-    mainBtnDev.addEventListener("click", () => {
-      if (devMode === "dev") {
-        if (playerDev.paused) playerDev.play(); else playerDev.pause();
-        updateMainButtonDev();
-      } else {
-        startDevPlaylist();
-      }
-    });
-
-    function startDevPlaylist(resume = false){
-      if(!devList.length) return;
-      devMode = "dev";
-      if(!resume) devIndex = 0;
-      playDevAt(devIndex);
-      updateMainButtonDev();
-    }
-
-    function playDevAt(index){
-      if(!devList[index]) return;
-      devIndex = index;
-      playerDev.src = devList[index].url;
-      playerDev.play().catch(()=>{});
-      playerDev.dataset.mode = "dev";
-      playerDev.dataset.index = devIndex;
-      updateNowPlayingDev(playerDev.src);
-      updateDevButtonStates();
-      updateMainButtonDev();
-    }
-
-    function playDev(i){
-      const isSame = (playerDev.dataset.mode === "dev" && parseInt(playerDev.dataset.index||-1) === i);
-      const isPlaying = !playerDev.paused && !playerDev.ended;
-      if(isSame){
-        if(isPlaying) playerDev.pause(); else playerDev.play();
-        updateMainButtonDev();
-        return;
-      }
-      playDevAt(i);
-    }
-
-    function nextTrackDev(){
-      if(devIndex + 1 < devList.length) playDevAt(devIndex + 1);
-      else finishDev();
-    }
-    function prevTrackDev(){
-      if(devIndex > 0) playDevAt(devIndex - 1);
-    }
-    function finishDev(){
-      devMode = "none";
-      playerDev.pause();
-      playerDev.dataset.mode = "";
-      updateNowPlayingDev("");
-      updateDevButtonStates();
-      updateMainButtonDev();
-    }
-
-    function updateNowPlayingDev(src){
-      if(!src) { nowPlayingDev.textContent = "🎵 Reproduciendo: Nada"; return; }
-      const clean = decodeURIComponent(src.split("?")[0]);
-      for(let i=0;i<devList.length;i++){
-        if(clean.endsWith(devList[i].file)){
-          nowPlayingDev.textContent = "🎵 Reproduciendo: " + (devList[i].title || devList[i].file);
+  _onPlay(){
+    this._updateNowPlaying();
+    this._updateButtonsState();
+    this._saveState();
+  }
+  _onPause(){
+    this._updateButtonsState();
+    this._saveState();
+  }
+  _updateTimeDisplay(){
+    if(!this.audio || !this.timeEl) return;
+    const cur = secToMMSS(this.audio.currentTime||0);
+    const tot = this.audio.duration && !isNaN(this.audio.duration) ? secToMMSS(this.audio.duration) : '--:--';
+    // if playing show label
+    if(this.audio.src) this.timeEl.textContent = `⏱ ${cur} / ${tot}`;
+    else this.timeEl.textContent = `🎵 Reproduciendo: Nada`;
+  }
+  _updateNowPlaying(){
+    if(!this.audio.src) { this.timeEl.textContent = '🎵 Reproduciendo: Nada'; return; }
+    const clean = decodeURIComponent(this.audio.src.split('?')[0]);
+    // find section/pos
+    for(let s=0,acc=0;s<this.sections.length;s++){
+      for(let i=0;i<this.sections[s].length;i++){
+        const name = this.sections[s][i];
+        if(clean.endsWith(name)){
+          const pos = this.sections[s].length>1 ? ` (${i+1} de ${this.sections[s].length})` : '';
+          this.timeEl.textContent = `🎵 Reproduciendo: ${this.names[s] || ('Sección '+(s+1))}${pos} — ${secToMMSS(this.audio.currentTime||0)} / ${this.audio.duration && !isNaN(this.audio.duration)?secToMMSS(this.audio.duration):'--:--'}`;
           return;
         }
       }
-      nowPlayingDev.textContent = "🎵 Reproduciendo";
     }
+    this.timeEl.textContent = `🎵 Reproduciendo`;
+  }
 
-    function updateDevButtonStates(){
-      devList.forEach((d,i)=>{
-        const el = document.getElementById("dev_btn_"+i);
-        if(!el) return;
-        el.classList.toggle("active", i===devIndex && playerDev && !playerDev.paused);
-      });
-    }
-
-    function updateMainButtonDev(){
-      if(playerDev.dataset.mode === "dev") mainBtnDev.textContent = playerDev.paused ? "▶ Reanudar devocionales" : "⏸ Pausar devocionales";
-      else mainBtnDev.textContent = "▶ Reproducir devocionales";
-    }
-
-    // persist dev progress
-    function guardarProgresoDev(){
-      const modo = playerDev.dataset.mode || devMode;
-      const index = playerDev.dataset.index || 0;
-      const time = playerDev.currentTime || 0;
-      localStorage.setItem("modoReproduccionDev", modo);
-      localStorage.setItem("indiceActualDev", index);
-      localStorage.setItem("tiempoActualDev", time);
-    }
-
-    function reiniciarProgresoDev(){
-      if(!confirm("¿Querés reiniciar el progreso de Devocionales?")) return;
-      localStorage.removeItem("modoReproduccionDev");
-      localStorage.removeItem("indiceActualDev");
-      localStorage.removeItem("tiempoActualDev");
-      location.reload();
-    }
-
-    // playerDev events
-    playerDev.addEventListener("ended", ()=> {
-      if(devIndex +1 < devList.length) playDevAt(devIndex+1);
-      else finishDev();
-    });
-    playerDev.addEventListener("play", ()=> { updateDevButtonStates(); updateMainButtonDev(); updateNowPlayingDev(playerDev.src); });
-    playerDev.addEventListener("pause", ()=> { updateDevButtonStates(); updateMainButtonDev(); guardarProgresoDev(); });
-
-    // load devs immediately
-    cargarDevocionalesAndRender();
-
-  </script>
-
-  <!-- ===================== ABC player (right) - ORIGINAL with prev/next fixes ===================== -->
-  <script>
-    const base = "https://vida-abundante.github.io/playlist-audio/";
-
-    const sections = [
-      ["Salvación.mp3"],
-      ["Pecado.mp3"],
-      ["La palabra 1.mp3", "La palabra 2.mp3", "La palabra 3.mp3"],
-      ["La oración 1.mp3", "La oración 2.mp3", "La oración 3.mp3", "La oración 4.mp3", "La oración 5.mp3"],
-      ["Espíritu Santo 1.mp3", "Espíritu Santo 2.mp3", "Espíritu Santo 3.mp3"],
-      ["Bautismo 1.mp3", "Bautismo 2.mp3"],
-      ["Mayordomía 1.mp3", "Mayordomía 2.mp3"],
-      ["Evangelismo.mp3"],
-      ["Visión de la iglesia.mp3"]
-    ];
-
-    const sectionNames = ["Salvación", "Pecado", "La Palabra", "La Oración", "Espíritu Santo", "Bautismo", "Mayordomía", "Evangelismo", "Visión de la iglesia"];
-
-    // compute flattened playlist and section index ranges
-    const fullPlaylist = sections.flat().map(n => base + n);
-    const sectionStartIndex = (() => {
-      const starts = [];
-      let idx = 0;
-      for(let i=0;i<sections.length;i++){
-        starts.push(idx);
-        idx += sections[i].length;
-      }
-      return starts;
-    })();
-    const sectionEndIndex = (() => {
-      const ends = [];
-      let idx = -1;
-      for(let i=0;i<sections.length;i++){
-        idx += sections[i].length;
-        ends.push(idx);
-      }
-      return ends;
-    })();
-
-    const player = document.getElementById("player");
-    const mainBtn = document.getElementById("mainPlayPause");
-    const nowPlaying = document.getElementById("nowPlaying");
-    const trackButtons = Array.from(document.getElementsByClassName("track-btn"));
-
-    let mode = "none";
-    let fullIndex = 0;
-    let waiting = false;
-
-    // Helper: find section index and local index for a given flattened fullIndex
-    function sectionForFullIndex(fi){
-      for(let s=0;s<sections.length;s++){
-        const start = sectionStartIndex[s];
-        const end = sectionEndIndex[s];
-        if(fi >= start && fi <= end) return {section:s, local: fi - start};
-      }
-      return null;
-    }
-
-    // Helper: determine current section index from player.dataset.list (if playing a section)
-    function currentSectionFromPlayerDataset(){
-      try{
-        const list = JSON.parse(player.dataset.list || "[]");
-        if(!list.length) return null;
-        // find which section has this exact sequence (by file names)
-        for(let s=0;s<sections.length;s++){
-          const sec = sections[s].map(n=> base + n);
-          // compare lengths and each entry
-          if(sec.length !== list.length) continue;
-          let ok = true;
-          for(let k=0;k<sec.length;k++) if(decodeURIComponent(sec[k]) !== decodeURIComponent(list[k])) { ok = false; break; }
-          if(ok) return s;
-        }
-      }catch(e){}
-      return null;
-    }
-
-    mainBtn.addEventListener("click", () => {
-      if (mode === "none") {
-        startFullPlaylist();
-      } else {
-        togglePlayPauseCurrent();
-      }
+  _updateButtonsState(){
+    if(!this.trackButtons) return;
+    this.trackButtons.forEach((btn,i)=>{
+      const isActive = (this.mode==='section' && parseInt(this.audio.dataset.section||-1)===i && !this.audio.paused);
+      btn.textContent = (isActive ? '⏸ ' : '▶ ') + (this.names[i]||('Sección '+(i+1)));
+      btn.classList.toggle('active', isActive);
     });
 
-    function startFullPlaylist(resume = false) {
-      mode = "full";
-      if (!resume) fullIndex = 0;
-      playFullAt(fullIndex);
-      updateMainButton();
+    // main button text
+    if(this.mode==='none') this.mainBtn.textContent = '▶ Reproducir lista completa';
+    else if(this.mode==='full') this.mainBtn.textContent = this.audio.paused ? '▶ Reanudar lista completa' : '⏸ Pausar lista completa';
+    else if(this.mode==='section') this.mainBtn.textContent = this.audio.paused ? '▶ Reanudar' : '⏸ Pausar';
+  }
+
+  playTrackFromList(list,index){
+    this.audio.src = list[index];
+    // store list in data for section playbacks
+    this.audio.dataset.list = JSON.stringify(list);
+    this.audio.dataset.index = index;
+    this.audio.play().catch(()=>{});
+    this._updateNowPlaying();
+    this._updateButtonsState();
+    this._saveState();
+  }
+
+  startFullPlaylist(resume=false){
+    this.mode='full';
+    if(!resume) this.fullIndex=0;
+    this.playFullAt(this.fullIndex);
+  }
+  playFullAt(index){
+    this.fullIndex=index;
+    this.playTrackFromList(this.fullPlaylist,this.fullIndex);
+    this.audio.dataset.mode='full';
+    this.audio.dataset.index=this.fullIndex;
+    this._updateButtonsState();
+  }
+
+  playSection(sectionIdx){
+    const list = this.sections[sectionIdx].map(n=>this.base+n);
+    const isSameSection = (this.audio.dataset.mode==='section' && parseInt(this.audio.dataset.section||-1)===sectionIdx);
+    const isPlaying = !this.audio.paused && !this.audio.ended;
+    if(isSameSection){
+      if(isPlaying) this.audio.pause(); else this.audio.play();
+      this._updateButtonsState();
+      return;
     }
+    this.mode='section';
+    this.audio.dataset.mode='section';
+    this.audio.dataset.section=sectionIdx;
+    this.playTrackFromList(list,0);
+  }
 
-    function playFullAt(index) {
-      fullIndex = index;
-      playTrackFromList(fullPlaylist, fullIndex);
-      player.dataset.mode = "full";
-      player.dataset.index = fullIndex;
-      updateMainButton();
+  nextTrack(){
+    const currentMode = this.audio.dataset.mode || (this.mode==='full'?'full':'section');
+    if(currentMode==='full'){
+      if(this.fullIndex < this.fullPlaylist.length-1){
+        const isEndOfSection = this.sectionEndIndices.includes(this.fullIndex);
+        if(isEndOfSection) this._waitAndPlayFull(this.fullIndex+1);
+        else this.playFullAt(this.fullIndex+1);
+      } else this.finishFullPlaylist();
+    } else {
+      const list = JSON.parse(this.audio.dataset.list||"[]");
+      let i = parseInt(this.audio.dataset.index||0);
+      if(i+1 < list.length) this.playTrackFromList(list,i+1);
+      else this.finishSection();
     }
+  }
 
-    function playSection(sectionIdx) {
-      const list = sections[sectionIdx].map(n => base + n);
-      const currentSrc = player.src;
-      const isSameSection = (player.dataset.mode === "section" && player.dataset.section == sectionIdx);
-      const isPlaying = !player.paused;
-
-      if (isSameSection) {
-        if (isPlaying) player.pause(); else player.play();
-        updateMainButton();
-        return;
-      }
-
-      mode = "section";
-      player.dataset.mode = "section";
-      player.dataset.section = sectionIdx;
-      playTrackFromList(list, 0);
-      updateButtonStates();
-      updateMainButton();
-    }
-
-    function playTrackFromList(list, index) {
-      // set src to list[index] and play
-      player.src = list[index];
-      player.play().catch(()=>{});
-      player.dataset.list = JSON.stringify(list);
-      player.dataset.index = index;
-      updateNowPlaying(player.src);
-    }
-
-    // FIXED next/prev logic
-    function nextTrack() {
-      const currentMode = player.dataset.mode || (mode === "full" ? "full" : "section");
-      if (currentMode === "full") {
-        if (fullIndex < fullPlaylist.length - 1) {
-          const isEndOfSection = sectionEndIndex.includes(fullIndex);
-          if (isEndOfSection) waitAndPlayFull(fullIndex + 1);
-          else playFullAt(fullIndex + 1);
-        } else finishFullPlaylist();
-      } else {
-        // section mode
-        const list = JSON.parse(player.dataset.list || "[]");
-        let i = parseInt(player.dataset.index || 0);
-        if (i + 1 < list.length) {
-          playTrackFromList(list, i + 1);
-        } else {
-          // at end of current section -> go to next section if exists
-          const curSection = currentSectionFromPlayerDataset();
-          if (curSection !== null && curSection + 1 < sections.length) {
-            // play first track of next section
-            const nextList = sections[curSection + 1].map(n => base + n);
-            player.dataset.mode = "section";
-            player.dataset.section = curSection + 1;
-            playTrackFromList(nextList, 0);
-            updateButtonStates();
-            updateMainButton();
-          } else {
-            finishSection();
-          }
+  prevTrack(){
+    const currentMode = this.audio.dataset.mode || (this.mode==='full'?'full':'section');
+    if(currentMode==='full'){
+      if(this.fullIndex > 0) this.playFullAt(this.fullIndex-1);
+    } else {
+      const list = JSON.parse(this.audio.dataset.list||"[]");
+      let i = parseInt(this.audio.dataset.index||0);
+      if(i>0) this.playTrackFromList(list,i-1);
+      else {
+        // if at first item of section, go to previous section's last item
+        const sec = parseInt(this.audio.dataset.section||0);
+        if(sec>0){
+          const prevList = this.sections[sec-1].map(n=>this.base+n);
+          this.audio.dataset.mode='section';
+          this.audio.dataset.section = sec-1;
+          this.playTrackFromList(prevList, prevList.length-1);
         }
       }
     }
+  }
 
-    function prevTrack() {
-      const currentMode = player.dataset.mode || (mode === "full" ? "full" : "section");
-      if (currentMode === "full") {
-        if (fullIndex > 0) playFullAt(fullIndex - 1);
-      } else {
-        const list = JSON.parse(player.dataset.list || "[]");
-        let i = parseInt(player.dataset.index || 0);
-        if (i > 0) {
-          playTrackFromList(list, i - 1);
-        } else {
-          // at start of current section -> go to previous section if exists
-          const curSection = currentSectionFromPlayerDataset();
-          if (curSection !== null && curSection - 1 >= 0) {
-            const prevList = sections[curSection - 1].map(n => base + n);
-            // play last track of previous section
-            player.dataset.mode = "section";
-            player.dataset.section = curSection - 1;
-            playTrackFromList(prevList, prevList.length - 1);
-            updateButtonStates();
-            updateMainButton();
-          } else {
-            // nothing to do
-          }
-        }
+  _waitAndPlayFull(nextIdx){
+    if(this.waiting) return;
+    this.waiting = true;
+    this.timeEl.textContent = '⏸ Esperando 2s...';
+    setTimeout(()=> {
+      this.waiting = false;
+      this.playFullAt(nextIdx);
+    },2000);
+  }
+
+  finishFullPlaylist(){
+    this.mode='none';
+    this.audio.pause();
+    this.audio.src='';
+    this.audio.dataset.mode='';
+    this._updateButtonsState();
+    this._updateNowPlaying();
+  }
+  finishSection(){
+    this.mode='none';
+    this.audio.pause();
+    this.audio.src='';
+    this.audio.dataset.mode='';
+    this.audio.dataset.section='';
+    this._updateButtonsState();
+    this._updateNowPlaying();
+  }
+
+  _onEnded(){
+    const currentMode = this.audio.dataset.mode || (this.mode==='full'?'full':'section');
+    if(currentMode==='full'){
+      const idx = this.fullIndex;
+      if(idx >= this.fullPlaylist.length-1) this.finishFullPlaylist();
+      else {
+        const isEndOfSection = this.sectionEndIndices.includes(idx);
+        if(isEndOfSection) this._waitAndPlayFull(idx+1);
+        else this.playFullAt(idx+1);
       }
+    } else {
+      const list = JSON.parse(this.audio.dataset.list||"[]");
+      let i = parseInt(this.audio.dataset.index||0);
+      if(i+1 < list.length) this.playTrackFromList(list,i+1);
+      else this.finishSection();
     }
+  }
 
-    async function waitAndPlayFull(nextIdx) {
-      if (waiting) return;
-      waiting = true;
-      updateNowPlaying("⏸ Esperando 2s...");
-      await new Promise(r => setTimeout(r, 2000));
-      waiting = false;
-      playFullAt(nextIdx);
-    }
+  _saveState(){
+    try{
+      const key = (this.container.id==='abcCol') ? 'abc_state' : 'devo_state';
+      const state = {
+        mode: this.audio.dataset.mode || this.mode,
+        index: parseInt(this.audio.dataset.index||0),
+        time: this.audio.currentTime || 0,
+        section: parseInt(this.audio.dataset.section||-1)
+      };
+      localStorage.setItem(key, JSON.stringify(state));
+    } catch(e){}
+  }
 
-    function togglePlayPauseCurrent() {
-      if (!player.src) { startFullPlaylist(); return; }
-      if (player.paused) player.play(); else player.pause();
-      updateMainButton();
-    }
-
-    player.addEventListener("ended", () => {
-      const currentMode = player.dataset.mode || (mode === "full" ? "full" : "section");
-      if (currentMode === "full") {
-        const idx = fullIndex;
-        if (idx >= fullPlaylist.length - 1) finishFullPlaylist();
-        else {
-          const isEndOfSection = sectionEndIndex.includes(idx);
-          if (isEndOfSection) waitAndPlayFull(idx + 1);
-          else playFullAt(idx + 1);
-        }
-      } else {
-        const list = JSON.parse(player.dataset.list || "[]");
-        let i = parseInt(player.dataset.index || 0);
-        if (i + 1 < list.length) playTrackFromList(list, i + 1);
-        else {
-          // at end of section -> go to next section or finish
-          const curSection = currentSectionFromPlayerDataset();
-          if (curSection !== null && curSection + 1 < sections.length) {
-            const nextList = sections[curSection + 1].map(n => base + n);
-            player.dataset.mode = "section";
-            player.dataset.section = curSection + 1;
-            playTrackFromList(nextList, 0);
-            updateButtonStates();
-            updateMainButton();
-          } else {
-            finishSection();
-          }
-        }
+  _restoreState(){
+    try{
+      const key = (this.container.id==='abcCol') ? 'abc_state' : 'devo_state';
+      const st = JSON.parse(localStorage.getItem(key) || 'null');
+      if(!st) { this._updateButtonsState(); return; }
+      if(st.mode==='full'){
+        this.mode='full';
+        this.fullIndex = st.index || 0;
+        this.playFullAt(this.fullIndex);
+        this.audio.currentTime = st.time || 0;
+        this.audio.pause();
+      } else if(st.mode==='section' && st.section>=0){
+        this.mode='section';
+        const list = this.sections[st.section].map(n=>this.base+n);
+        this.audio.dataset.mode='section';
+        this.audio.dataset.section = st.section;
+        this.audio.dataset.list = JSON.stringify(list);
+        this.audio.dataset.index = st.index || 0;
+        this.audio.src = list[this.audio.dataset.index];
+        this.audio.currentTime = st.time || 0;
+        this.audio.pause();
       }
+      this._updateButtonsState();
+      this._updateNowPlaying();
+    }catch(e){}
+  }
+}
+
+/* --------------------------
+  Initialize ABC player (left)
+---------------------------*/
+const abcPlayer = new MirrorPlayer({
+  container: document.getElementById('abcCol'),
+  audio: document.getElementById('abcAudio'),
+  mainBtn: document.getElementById('abcMainPlay'),
+  prevBtn: document.getElementById('abcPrev'),
+  nextBtn: document.getElementById('abcNext'),
+  listContainer: document.getElementById('abcList'),
+  timeEl: document.getElementById('abcTime'),
+  sections: abcSections,
+  names: abcNames,
+  base: GHPAGES_BASE
+});
+
+/* Render ABC list labels (to preserve your previous buttons exactly) */
+(function renderABClistButtons(){
+  const names = abcNames;
+  const list = document.getElementById('abcList');
+  list.innerHTML=''; // already done in class, but ensure same style ordering
+  for(let i=0;i<names.length;i++){
+    const btn = document.createElement('button');
+    btn.className='track-btn';
+    btn.textContent = '▶ ' + names[i];
+    btn.addEventListener('click', ()=> abcPlayer.playSection(i));
+    list.appendChild(btn);
+  }
+})();
+
+/* --------------------------
+  DEVOCIONALES loader + player (right)
+  - loads devocionales.json, checks each mp3 exists by trying to load metadata
+  - builds sections = [ [file1], [file2], ... ] and names accordingly (reverse list so newest on top)
+---------------------------*/
+const devoListContainer = document.getElementById('devoList');
+const devoMsg = document.getElementById('devoMsg');
+
+async function loadDevocionales(){
+  devoMsg.textContent = 'Cargando devocionales…';
+  try{
+    const resp = await fetch(DEVOCIONALES_JSON_URL + '?nocache=' + Date.now(), {cache:'no-store'});
+    if(!resp.ok) throw new Error('No se pudo obtener devocionales.json');
+    const arr = await resp.json();
+    if(!Array.isArray(arr) || arr.length===0){ devoMsg.textContent='No hay devocionales publicados.'; return; }
+
+    // reverse to show newest first (assumption: new added to end)
+    const entries = arr.slice().reverse();
+
+    // check existence of files by attempting to load metadata
+    const valid = [];
+    for(const e of entries){
+      const file = e.file;
+      const title = e.title || file;
+      const url = DEV_FOLDER + file;
+      // attempt to create audio element and load metadata
+      const ok = await checkAudioExists(url, 6000); // 6s timeout
+      if(ok) valid.push({title,file,url});
+      // else skip
+    }
+
+    if(valid.length===0){ devoMsg.textContent = 'No hay devocionales válidos.'; return; }
+    devoMsg.style.display='none';
+    // build sections/names for player
+    const sections = valid.map(v=>[v.file]);
+    const names = valid.map(v=>v.title);
+    // inject list buttons (clear first)
+    const listEl = document.getElementById('devoList');
+    listEl.innerHTML=''; // will be re-rendered by class
+    // create the player instance with these sections
+    window.devoPlayer = new MirrorPlayer({
+      container: document.getElementById('devoCol'),
+      audio: document.getElementById('devoAudio'),
+      mainBtn: document.getElementById('devoMainPlay'),
+      prevBtn: document.getElementById('devoPrev'),
+      nextBtn: document.getElementById('devoNext'),
+      listContainer: document.getElementById('devoList'),
+      timeEl: document.getElementById('devoTime'),
+      sections: sections,
+      names: names,
+      base: DEV_FOLDER
     });
+  }catch(err){
+    devoMsg.textContent = 'Error cargando devocionales: ' + (err.message || err);
+    console.error(err);
+  }
+}
 
-    player.addEventListener("play", () => { updateButtonStates(); updateMainButton(); updateNowPlaying(player.src); });
-    player.addEventListener("pause", () => { updateButtonStates(); updateMainButton(); guardarProgreso(); });
-
-    function finishFullPlaylist() {
-      mode = "none";
-      player.pause();
-      updateMainButton();
-      updateButtonStates();
-      updateNowPlaying("");
+/* tries to load metadata of an mp3 by creating Audio and awaiting loadedmetadata or error */
+function checkAudioExists(url, timeout=5000){
+  return new Promise(resolve=>{
+    try{
+      const a = new Audio();
+      let done=false;
+      const t = setTimeout(()=> { if(!done){ done=true; resolve(false); try{ a.src=''; }catch(e){} } }, timeout);
+      a.addEventListener('loadedmetadata', ()=> { if(!done){ done=true; clearTimeout(t); resolve(true); a.src=''; } });
+      a.addEventListener('error', ()=> { if(!done){ done=true; clearTimeout(t); resolve(false); a.src=''; } });
+      a.preload='metadata';
+      a.src = url;
+      // also try load()
+      try { a.load(); } catch(e){}
+    }catch(e){
+      resolve(false);
     }
+  });
+}
 
-    function finishSection() {
-      mode = "none";
-      player.pause();
-      player.dataset.mode = "";
-      updateNowPlaying("");
-      updateButtonStates();
-      updateMainButton();
-    }
+/* Load devocionales on start */
+loadDevocionales();
 
-    function updateMainButton() {
-      if (mode === "none") mainBtn.textContent = "▶ Reproducir lista completa";
-      else if (mode === "full") mainBtn.textContent = player.paused ? "▶ Reanudar lista completa" : "⏸ Pausar lista completa";
-      else if (mode === "section") mainBtn.textContent = player.paused ? "▶ Reanudar" : "⏸ Pausar";
-    }
+/* --------------------------
+  App toggle (show/hide video placeholder)
+---------------------------*/
+const appToggle = document.getElementById('appToggle');
+let showingVideo=false;
+appToggle.addEventListener('click', ()=>{
+  const instr = document.getElementById('devoMsg'); // reuse area for message/video toggling
+  if(!showingVideo){
+    // show a simple embedded video placeholder (if InstruccionInstalar.mp4 exists it will play)
+    const v = document.createElement('video');
+    v.src='InstruccionInstalar.mp4';
+    v.controls=true; v.autoplay=true; v.muted=true; v.loop=true;
+    v.style.width='90%'; v.style.maxWidth='320px'; v.id='appVideo';
+    instr.style.display='block';
+    instr.textContent='';
+    instr.appendChild(v);
+    appToggle.textContent='🔙 Volver a la web';
+    showingVideo=true;
+  } else {
+    // hide
+    const vid = document.getElementById('appVideo');
+    if(vid){vid.pause(); vid.src=''; vid.remove();}
+    // restore message
+    document.getElementById('devoMsg').textContent='Cargando devocionales…';
+    appToggle.textContent='📱 Ver como aplicación';
+    showingVideo=false;
+  }
+});
 
-    function updateNowPlaying(src) {
-      if (!src) { nowPlaying.textContent = "🎵 Reproduciendo: Nada"; return; }
-      const cleanSrc = decodeURIComponent(src.split("?")[0]);
-      for (let s = 0; s < sections.length; s++) {
-        const section = sections[s];
-        for (let i = 0; i < section.length; i++) {
-          if (cleanSrc.endsWith(section[i])) {
-            const label = sectionNames[s];
-            const pos = section.length > 1 ? ` (${i + 1} de ${section.length})` : "";
-            nowPlaying.textContent = `🎵 Reproduciendo: ${label}${pos}`;
-            return;
-          }
-        }
-      }
-      nowPlaying.textContent = "🎵 Reproduciendo";
-    }
-
-    function updateButtonStates() {
-      trackButtons.forEach((btn, i) => {
-        const label = sectionNames[i];
-        const isActive = (player.dataset.mode === "section" && parseInt(player.dataset.section || -1) === i && !player.paused);
-        btn.textContent = (isActive ? "⏸ " : "▶ ") + label;
-        btn.classList.toggle("active", isActive);
-      });
-    }
-
-    function guardarProgreso() {
-      const modo = player.dataset.mode || mode;
-      const index = player.dataset.index || 0;
-      const time = player.currentTime || 0;
-      const section = player.dataset.section || null;
-
-      localStorage.setItem("modoReproduccion", modo);
-      localStorage.setItem("indiceActual", index);
-      localStorage.setItem("tiempoActual", time);
-      localStorage.setItem("seccionActual", section);
-    }
-
-    // Restore saved state for ABC
-    document.addEventListener("DOMContentLoaded", () => {
-      const modoGuardado = localStorage.getItem("modoReproduccion");
-      const indexGuardado = parseInt(localStorage.getItem("indiceActual") || 0);
-      const tiempoGuardado = parseFloat(localStorage.getItem("tiempoActual") || 0);
-      const seccionGuardada = parseInt(localStorage.getItem("seccionActual"));
-      if (modoGuardado === "full") {
-        mode = "full";
-        player.src = fullPlaylist[indexGuardado];
-        player.dataset.mode = "full";
-        player.dataset.index = indexGuardado;
-        player.currentTime = tiempoGuardado;
-        updateNowPlaying(player.src);
-      } else if (modoGuardado === "section" && !isNaN(seccionGuardada)) {
-        mode = "section";
-        const list = sections[seccionGuardada].map(n => base + n);
-        player.src = list[indexGuardado];
-        player.dataset.mode = "section";
-        player.dataset.section = seccionGuardada;
-        player.dataset.list = JSON.stringify(list);
-        player.dataset.index = indexGuardado;
-        player.currentTime = tiempoGuardado;
-        updateNowPlaying(player.src);
-      }
-      updateMainButton();
-      updateButtonStates();
-    });
-
-    // Autosave left and right players
-    setInterval(() => {
-      if (!player.paused && player.src) guardarProgreso();
-      if (!playerDev.paused && playerDev.src) guardarProgresoDev();
-    }, 10000);
-
-  </script>
-
-  <script>
-    // Reiniciar progreso ABC (right)
-    function reiniciarProgreso() {
-      if (!confirm("¿Estás seguro de que querés reiniciar el progreso?")) return;
-      localStorage.removeItem("modoReproduccion");
-      localStorage.removeItem("indiceActual");
-      localStorage.removeItem("tiempoActual");
-      localStorage.removeItem("seccionActual");
-      location.reload();
-    }
-  </script>
-
+/* Prevent horizontal scroll on mobile by forcing overflow-x hidden */
+document.documentElement.style.overflowX='hidden';
+document.body.style.overflowX='hidden';
+</script>
 </body>
 </html>
-
