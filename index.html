@@ -5,10 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Mi Playlist – Vida Abundante</title>
 <meta property="og:title" content="Mi Playlist – Vida Abundante" />
-<meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante 💖" />
+<meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
 <meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
 <meta name="theme-color" content="#fffafc" />
-
 <style>
   :root{
     --bg:#fffafc;
@@ -19,15 +18,13 @@
     --devo-btn:#ffd44d; /* amarillo botones */
   }
 
-  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;overflow-x:hidden;}
   .app{min-height:100%;display:flex;flex-direction:column;align-items:stretch}
   header{padding:12px 16px;text-align:center}
   header h1{margin:6px 0;font-size:1.05rem}
-  header p{margin:0;color:#666;font-size:0.92rem}
   #appToggle{margin-top:8px;padding:8px 12px;border-radius:8px;border:none;background:#83bde3;color:#fff;cursor:pointer}
 
-  .content{flex:1;display:flex;gap:12px;padding:12px;box-sizing:border-box}
-
+  .content{flex:1;display:flex;gap:12px;padding:12px;box-sizing:border-box;align-items:center;justify-content:center}
   /* Two column mirror layout */
   .col{
     flex:1;
@@ -37,27 +34,27 @@
     border-radius:12px;
     padding:12px;
     box-sizing:border-box;
-    min-width:0; /* important for flex overflow */
+    min-width:0;
     align-items:stretch;
     justify-content:flex-start;
     box-shadow:0 2px 8px rgba(0,0,0,0.06);
-    height: calc(100vh - 140px); /* equal height control */
+    height: calc(100vh - 140px);
     overflow:hidden;
   }
 
+  .col-inner{display:flex;flex-direction:column;align-items:center;height:100%;overflow:hidden}
   .col-title{display:flex;align-items:center;justify-content:center;margin-bottom:8px}
   .col-title h2{margin:0;font-size:1rem}
 
-  /* player box (mirrored) */
   .player-box{
     border-radius:10px;padding:12px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;
-    background:linear-gradient(0deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
+    background:linear-gradient(0deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02));
     box-shadow:inset 0 0 0 1px rgba(0,0,0,0.03);
     flex: 0 0 auto;
     width:100%;
+    max-width:520px;
   }
 
-  /* main play button bigger (gordito) */
   .main-play{
     font-size:20px;padding:18px 18px;border-radius:14px;border:none;color:white;cursor:pointer;margin:12px 0;
     width:88%;
@@ -66,102 +63,104 @@
     box-shadow:0 6px 10px rgba(0,0,0,0.08);
   }
 
-  /* small control row */
   .controls{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:6px}
   .ctrl-btn{font-size:20px;padding:10px 14px;border-radius:12px;border:none;color:white;cursor:pointer}
   .time{font-size:0.95rem;color:#222;margin-top:8px;text-align:center}
 
-  /* list buttons (tall list) */
   .list{overflow:auto;display:flex;flex-direction:column;gap:12px;padding:6px 4px 6px 4px}
   .track-btn{font-size:18px;padding:16px;border-radius:14px;border:none;cursor:pointer;display:block;width:100%;text-align:left}
   .track-btn.active{outline:3px solid rgba(0,0,0,0.06)}
 
-  /* ABC styles (right) */
   .abc .main-play{background:var(--abc-primary)}
   .abc .ctrl-btn{background:var(--abc-btn)}
   .abc .track-btn{background:var(--abc-btn);color:#fff}
 
-  /* Devocionales styles (left) */
   .devo .main-play{background:var(--devo-primary)}
   .devo .ctrl-btn{background:var(--devo-primary)}
   .devo .track-btn{background:var(--devo-btn);color:#000;font-weight:700}
 
-  /* responsive: keep 50/50 and avoid horizontal scroll, shrink buttons on narrow screens */
-  @media (max-width:700px){
-    .content{padding:8px;gap:8px}
-    .col{height:auto; padding:8px}
-    html,body{overflow-x:hidden}
+  /* reiniciar button */
+  .reset-btn{margin-top:8px;padding:8px 12px;border-radius:10px;border:none;background:#dc3545;color:#fff;cursor:pointer}
+
+  @media (max-width:900px){
+    .content{gap:8px;padding:8px}
+    .col{height:auto;min-height:300px;padding:8px}
+    .player-box{margin-bottom:8px}
     .main-play{font-size:18px;padding:14px;width:100%}
     .track-btn{font-size:16px;padding:12px}
-    .player-box{margin-bottom:8px}
   }
 
   @media (max-width:420px){
-    .col{padding:6px}
-    .content{gap:6px}
+    .content{flex-direction:row;gap:6px} /* keep two columns but very narrow - user asked mirror on mobile */
+    .col{padding:6px;height:auto}
   }
 
-  /* helper for small messages */
   .msg{font-size:0.95rem;color:#444;text-align:center;padding:6px}
   .hidden{display:none}
+  #installArea{display:flex;align-items:center;justify-content:center;padding:8px}
 </style>
 </head>
 <body>
 <div class="app">
   <header>
     <h1>Mi Playlist – Vida Abundante</h1>
-    <p>Devocionales (izquierda) — ABC (derecha). Diseño espejo 50/50, accesible.</p>
-    <button id="appToggle">📱 Ver como aplicación</button>
+    <button id="appToggle" aria-controls="installArea">📱 Ver como aplicación</button>
   </header>
 
   <div class="content" role="main" aria-live="polite">
     <!-- LEFT: DEVOCIONALES -->
     <section id="devoCol" class="col devo" aria-label="Devocionales (izquierda)">
-      <div class="col-title"><h2>DEVOCIONALES</h2></div>
+      <div class="col-inner">
+        <div class="col-title"><h2>DEVOCIONALES</h2></div>
 
-      <div class="player-box" id="devoPlayerBox" aria-hidden="false">
-        <button id="devoMainPlay" class="main-play">▶ Reproducir lista completa</button>
-        <div class="controls">
-          <button id="devoPrev" class="ctrl-btn" aria-label="Anterior devocional">⏮</button>
-          <audio id="devoAudio" preload="metadata" controls style="width:78%"></audio>
-          <button id="devoNext" class="ctrl-btn" aria-label="Siguiente devocional">⏭</button>
+        <div class="player-box" id="devoPlayerBox" aria-hidden="false">
+          <button id="devoMainPlay" class="main-play">▶ Reproducir lista completa</button>
+          <div class="controls">
+            <button id="devoPrev" class="ctrl-btn" aria-label="Anterior devocional">⏮</button>
+            <audio id="devoAudio" preload="metadata" controls style="width:78%"></audio>
+            <button id="devoNext" class="ctrl-btn" aria-label="Siguiente devocional">⏭</button>
+          </div>
+          <div class="time" id="devoTime">🎵 Reproduciendo: Nada</div>
+          <button id="devoReset" class="reset-btn" title="Reiniciar progreso devocionales">🔄 Reiniciar progreso</button>
         </div>
-        <div class="time" id="devoTime">🎵 Reproduciendo: Nada</div>
-      </div>
 
-      <div class="list" id="devoList" aria-label="Lista Devocionales">
-        <div id="devoMsg" class="msg">Cargando devocionales…</div>
+        <div class="list" id="devoList" aria-label="Lista Devocionales">
+          <div id="devoMsg" class="msg">Cargando devocionales…</div>
+        </div>
       </div>
     </section>
 
     <!-- RIGHT: ABC -->
     <section id="abcCol" class="col abc" aria-label="ABC (derecha)">
-      <div class="col-title"><h2>ABC</h2></div>
+      <div class="col-inner">
+        <div class="col-title"><h2>ABC</h2></div>
 
-      <div class="player-box" id="abcPlayerBox" aria-hidden="false">
-        <button id="abcMainPlay" class="main-play">▶ Reproducir lista completa</button>
-        <div class="controls">
-          <button id="abcPrev" class="ctrl-btn" aria-label="Anterior ABC">⏮</button>
-          <audio id="abcAudio" preload="metadata" controls style="width:78%"></audio>
-          <button id="abcNext" class="ctrl-btn" aria-label="Siguiente ABC">⏭</button>
+        <div class="player-box" id="abcPlayerBox" aria-hidden="false">
+          <button id="abcMainPlay" class="main-play">▶ Reproducir lista completa</button>
+          <div class="controls">
+            <button id="abcPrev" class="ctrl-btn" aria-label="Anterior ABC">⏮</button>
+            <audio id="abcAudio" preload="metadata" controls style="width:78%"></audio>
+            <button id="abcNext" class="ctrl-btn" aria-label="Siguiente ABC">⏭</button>
+          </div>
+          <div class="time" id="abcTime">🎵 Reproduciendo: Nada</div>
+          <button id="abcReset" class="reset-btn" title="Reiniciar progreso ABC">🔄 Reiniciar progreso</button>
         </div>
-        <div class="time" id="abcTime">🎵 Reproduciendo: Nada</div>
-      </div>
 
-      <div class="list" id="abcList" aria-label="Lista ABC">
-        <!-- ABC buttons injected by JS -->
+        <div class="list" id="abcList" aria-label="Lista ABC"></div>
       </div>
     </section>
   </div>
+
+  <div id="installArea" style="display:none"></div>
 </div>
 
 <script>
 /* --------------------------
   CONFIG
 ---------------------------*/
-const GHPAGES_BASE = "https://vida-abundante.github.io/playlist-audio/";
-const DEVOCIONALES_JSON_URL = GHPAGES_BASE + "devocionales.json";
+const GHPAGES_BASE = "https://vida-abundante.github.io/playlist-audio/"; // trailing slash included
 const DEV_FOLDER = GHPAGES_BASE + "devocionales/";
+const DEVOCIONALES_JSON_URL = GHPAGES_BASE + "devocionales.json";
 
 /* --------------------------
   ABC data (local)
@@ -236,7 +235,7 @@ class MirrorPlayer {
     this.audio.addEventListener('play', ()=> this._onPlay());
     this.audio.addEventListener('pause', ()=> this._onPause());
     this.audio.addEventListener('timeupdate', ()=> this._updateTimeDisplay());
-    // ensure that when play() is invoked we ask others to pause first
+
     const origPlay = this.audio.play.bind(this.audio);
     const that = this;
     this.audio.play = function(){
@@ -246,6 +245,8 @@ class MirrorPlayer {
   }
 
   _renderLists(){
+    // render section buttons
+    if(!this.listContainer) return;
     this.listContainer.innerHTML = '';
     for(let s=0;s<this.sections.length;s++){
       const btn = document.createElement('button');
@@ -307,7 +308,6 @@ class MirrorPlayer {
     this.audio.src = list[index];
     this.audio.dataset.list = JSON.stringify(list);
     this.audio.dataset.index = index;
-    // ensure other players pause
     try{ this.pauseOthers(); }catch(e){}
     this.audio.play().catch(()=>{});
     this._updateNowPlaying();
@@ -374,6 +374,9 @@ class MirrorPlayer {
           this.audio.dataset.mode='section';
           this.audio.dataset.section = sec-1;
           this.playTrackFromList(prevList, prevList.length-1);
+        } else {
+          // if at first of section, move to previous section if exists in fullPlaylist
+          if(this.fullIndex > 0) this.playFullAt(Math.max(0,this.fullIndex-1));
         }
       }
     }
@@ -438,7 +441,6 @@ class MirrorPlayer {
       if(st.mode==='full'){
         this.mode='full';
         this.fullIndex = st.index || 0;
-        // set up but do not auto-play
         this.audio.dataset.mode='full';
         this.audio.dataset.index = this.fullIndex;
         this.audio.src = this.fullPlaylist[this.fullIndex] || '';
@@ -462,7 +464,7 @@ class MirrorPlayer {
 }
 
 /* --------------------------
-  Init ABC player (right)
+  Init players and loading devo list
 ---------------------------*/
 const abcListEl = document.getElementById('abcList');
 function renderABClistButtons(){
@@ -476,11 +478,8 @@ function renderABClistButtons(){
   }
 }
 
-/* create players but pass pauseOthers function which will pause the other player */
 let devoPlayer, abcPlayer;
-
 function pauseBothExcept(which){
-  // which = 'devo' or 'abc'
   try{
     if(which !== 'devo' && window.devoPlayer && window.devoPlayer.audio && !window.devoPlayer.audio.paused){
       window.devoPlayer.audio.pause();
@@ -491,11 +490,7 @@ function pauseBothExcept(which){
   }catch(e){}
 }
 
-/* instantiate abcPlayer after devo is created (we'll create devo first) */
-
-/* --------------------------
-  DEVOCIONALES loader + player (left)
----------------------------*/
+/* load devocionales.json and verify files exist */
 const devoListContainer = document.getElementById('devoList');
 const devoMsg = document.getElementById('devoMsg');
 
@@ -507,7 +502,8 @@ async function loadDevocionales(){
     const arr = await resp.json();
     if(!Array.isArray(arr) || arr.length===0){ devoMsg.textContent='No hay devocionales publicados.'; return; }
 
-    const entries = arr.slice().reverse(); // newest first
+    // newest first
+    const entries = arr.slice().reverse();
     const valid = [];
     for(const e of entries){
       const file = e.file;
@@ -520,10 +516,9 @@ async function loadDevocionales(){
     if(valid.length===0){ devoMsg.textContent = 'No hay devocionales válidos.'; return; }
     devoMsg.style.display='none';
 
-    const sections = valid.map(v=>[v.file]);
+    const sections = valid.map(v=>[v.file]); // each dev is one section (single file)
     const names = valid.map(v=>v.title);
 
-    // create devoPlayer now
     window.devoPlayer = new MirrorPlayer({
       container: document.getElementById('devoCol'),
       audio: document.getElementById('devoAudio'),
@@ -538,7 +533,7 @@ async function loadDevocionales(){
       pauseOthers: function(){ pauseBothExcept('devo'); }
     });
 
-    // now create abc player
+    // ABC player (base is GHPAGES_BASE)
     window.abcPlayer = new MirrorPlayer({
       container: document.getElementById('abcCol'),
       audio: document.getElementById('abcAudio'),
@@ -553,7 +548,6 @@ async function loadDevocionales(){
       pauseOthers: function(){ pauseBothExcept('abc'); }
     });
 
-    // render abc list (to keep same look)
     renderABClistButtons();
 
   }catch(err){
@@ -578,13 +572,14 @@ function checkAudioExists(url, timeout=5000){
   });
 }
 
+/* start loading */
 loadDevocionales();
 
 /* --------------------------
-  App toggle (show/hide video placeholder)
-  - hides button if installed
+  App toggle / installation video behavior
 ---------------------------*/
 const appToggle = document.getElementById('appToggle');
+const installArea = document.getElementById('installArea');
 let showingVideo=false;
 function isAppInstalled(){
   return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
@@ -599,27 +594,60 @@ function hideAppToggleIfInstalled(){
 hideAppToggleIfInstalled();
 
 appToggle.addEventListener('click', ()=>{
-  const instrArea = document.getElementById('devoMsg');
   if(!showingVideo){
+    installArea.style.display='flex';
+    installArea.innerHTML = '';
     const v = document.createElement('video');
     v.src='InstruccionInstalar.mp4';
     v.controls=true; v.autoplay=true; v.muted=true; v.loop=true;
-    v.style.width='90%'; v.style.maxWidth='340px'; v.id='appVideo';
-    instrArea.style.display='block';
-    instrArea.textContent='';
-    instrArea.appendChild(v);
-    appToggle.textContent='🔙 Volver a la web';
+    v.style.width='90%'; v.style.maxWidth='420px'; v.id='appVideo';
+    installArea.appendChild(v);
+    appToggle.textContent='🔙 Ver como web';
     showingVideo=true;
+    // ensure area visible on mobile
+    installArea.scrollIntoView({behavior:'smooth', block:'center'});
   } else {
     const vid = document.getElementById('appVideo');
     if(vid){ vid.pause(); vid.src=''; vid.remove(); }
-    document.getElementById('devoMsg').textContent='Cargando devocionales…';
+    installArea.innerHTML='';
+    installArea.style.display='none';
     appToggle.textContent='📱 Ver como aplicación';
     showingVideo=false;
   }
 });
 
-/* Prevent horizontal scroll on mobile by forcing overflow-x hidden */
+/* --------------------------
+  Reiniciar botones behavior
+---------------------------*/
+document.getElementById('devoReset').addEventListener('click', ()=> {
+  if(!confirm('¿Estás seguro de que querés reiniciar el progreso de Devocionales?')) return;
+  try{
+    localStorage.removeItem('devo_state');
+    if(window.devoPlayer && window.devoPlayer.audio){ window.devoPlayer.audio.pause(); window.devoPlayer.audio.src=''; }
+    // reset UI
+    const btns = document.querySelectorAll('#devoList .track-btn');
+    btns.forEach(b => { b.classList.remove('active'); });
+    document.getElementById('devoTime').textContent = '🎵 Reproduciendo: Nada';
+  }catch(e){}
+});
+
+document.getElementById('abcReset').addEventListener('click', ()=> {
+  if(!confirm('¿Estás seguro de que querés reiniciar el progreso de ABC?')) return;
+  try{
+    localStorage.removeItem('abc_state');
+    if(window.abcPlayer && window.abcPlayer.audio){ window.abcPlayer.audio.pause(); window.abcPlayer.audio.src=''; }
+    const btns = document.querySelectorAll('#abcList .track-btn');
+    btns.forEach(b => { b.classList.remove('active'); });
+    document.getElementById('abcTime').textContent = '🎵 Reproduciendo: Nada';
+  }catch(e){}
+});
+
+/* ensure mutual exclusion also when clicking track buttons (safety) */
+document.addEventListener('click', (ev)=>{
+  // nothing extra needed because MirrorPlayer.audio.play override already calls pauseOthers
+});
+
+/* final: make sure no horizontal scroll */
 document.documentElement.style.overflowX='hidden';
 document.body.style.overflowX='hidden';
 </script>
