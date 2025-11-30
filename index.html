@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8" />
@@ -80,32 +80,29 @@
     border-radius:14px;
     border:none;
     cursor:pointer;
-    display:block;
-    width:100%;
-    /* default left alignment for devocionales (keeps date + extra info readable) */
-    text-align:left;
+    display:flex;             /* <-- flex makes vertical centering trivial */
+    align-items:center;       /* <-- vertical center */
+    justify-content:center;   /* <-- horizontal center */
+    text-align:center;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    box-sizing:border-box;
+    gap:10px;
+    width:100%;
   }
+  .track-btn .label{display:inline-block;line-height:1.1}
   .track-btn.active{outline:3px solid rgba(0,0,0,0.06)}
 
-  /* ABC specific styles: centered text, allow wrapping so long names don't cut */
   .abc .main-play{background:var(--abc-primary)}
   .abc .ctrl-btn{background:var(--abc-btn)}
-  .abc .track-btn{
-    background:var(--abc-btn);
-    color:#fff;
-    text-align:center;        /* centered text for ABC */
-    white-space:normal;      /* allow wrapping */
-    font-weight:700;
-  }
+  .abc .track-btn{background:var(--abc-btn);color:#fff;font-weight:700}
 
-  /* Devocionales styles: keep bold yellow buttons */
   .devo .main-play{background:var(--devo-primary)}
   .devo .ctrl-btn{background:var(--devo-primary)}
-  .devo .track-btn{background:var(--devo-btn);color:#000;font-weight:700;text-align:left;white-space:nowrap}
+  .devo .track-btn{background:var(--devo-btn);color:#000;font-weight:700}
+
+  /* small icon at left */
+  .track-icon{min-width:26px;text-align:center;font-weight:700}
 
   /* reiniciar button */
   .reset-btn{margin-top:8px;padding:10px 12px;border-radius:10px;border:none;background:#dc3545;color:#fff;cursor:pointer}
@@ -235,16 +232,14 @@ function extractDateFromDevFile(fileName){
 function buildDevDisplayText(fileName, titleFromJson){
   const d = extractDateFromDevFile(fileName);
   if(d){
-    // force midday to reduce TZ issues
-    const dt = new Date(`${d.yyyy}-${d.mm}-${d.dd}T12:00:00`);
+    const dt = new Date(`${d.yyyy}-${d.mm}-${d.dd}T12:00:00`); // midday to avoid TZ issues
     const weekday = WEEKDAY_ES[dt.getDay()] || '';
-    // titleFromJson may be "28/11" or empty. we want "Viernes 28/11"
-    const short = (titleFromJson && titleFromJson.trim()) ? titleFromJson.trim() : `${d.dd}/${d.mm}`;
+    const short = titleFromJson && titleFromJson.trim() ? titleFromJson : `${d.dd}/${d.mm}`;
     return `${weekday} ${short}`;
   } else {
     // fallback: if title looks like dd/mm use it; else shorten filename
-    if(titleFromJson && /^\d{1,2}\/\d{1,2}$/.test(titleFromJson.trim())) return titleFromJson.trim();
-    return titleFromJson || shortenDevoDisplayFromFile(fileName);
+    if(titleFromJson && /^\d{1,2}\/\d{1,2}$/.test(titleFromJson.trim())) return `${titleFromJson.trim()}`;
+    return titleFromJson || fileName;
   }
 }
 
@@ -281,7 +276,7 @@ class MirrorPlayer {
     this.sections = opts.sections || [];
     this.names = opts.names || [];
     this.base = opts.base || '';
-    this.pauseOthers = opts.pauseOthers || function(){};
+    this.pauseOthers = opts.pauseOthers || function(){}; // must pause other players
     this.mode = 'none';
     this.fullPlaylist = [];
     this.sectionEndIndices = [];
@@ -319,24 +314,22 @@ class MirrorPlayer {
     if(this.prevBtn) this.prevBtn.addEventListener('click', ()=> this.prevTrack());
     if(this.nextBtn) this.nextBtn.addEventListener('click', ()=> this.nextTrack());
 
-    if(this.audio){
-      this.audio.addEventListener('ended', ()=> this._onEnded());
-      this.audio.addEventListener('play', ()=> this._onPlay());
-      this.audio.addEventListener('pause', ()=> this._onPause());
-      this.audio.addEventListener('timeupdate', ()=> this._updateTimeDisplay());
+    this.audio.addEventListener('ended', ()=> this._onEnded());
+    this.audio.addEventListener('play', ()=> this._onPlay());
+    this.audio.addEventListener('pause', ()=> this._onPause());
+    this.audio.addEventListener('timeupdate', ()=> this._updateTimeDisplay());
 
-      const origPlay = this.audio.play.bind(this.audio);
-      const that = this;
-      this.audio.play = function(){
-        try{ that.pauseOthers(); }catch(e){}
-        return origPlay();
-      };
-    }
+    // ensure when play() is called we pause the other player(s)
+    const origPlay = this.audio.play.bind(this.audio);
+    const that = this;
+    this.audio.play = function(){
+      try{ that.pauseOthers(); }catch(e){}
+      return origPlay();
+    };
   }
 
   /* Toggle play/pause of current audio */
   togglePlayPauseCurrent(){
-    if(!this.audio) return;
     if(!this.audio.src) { this.startFullPlaylist(); return; }
     if(this.audio.paused) this.audio.play(); else this.audio.pause();
     this._updateButtonsState();
@@ -349,15 +342,13 @@ class MirrorPlayer {
       const btn = document.createElement('button');
       btn.className='track-btn';
       btn.setAttribute('data-section', s);
-      // show the name (if provided) without the leading ▶ (we add it for visual)
-      const displayName = (this.names && this.names[s]) ? this.names[s] : `Sección ${s+1}`;
-      // put a visible "▶ " at start for clarity
-      btn.innerHTML = '<span style="margin-right:6px;">▶</span><span class="track-label">' + displayName + '</span>';
+      const name = (this.names && this.names[s]) ? this.names[s] : `Sección ${s+1}`;
+      // structure: icon + label (centered)
+      btn.innerHTML = `<span class="track-icon">▶</span><span class="label">${name}</span>`;
       btn.addEventListener('click', ()=> this.playSection(s));
       this.listContainer.appendChild(btn);
     }
     this.trackButtons = Array.from(this.listContainer.getElementsByClassName('track-btn'));
-    this._updateButtonsState();
   }
 
   _onPlay(){
@@ -376,13 +367,18 @@ class MirrorPlayer {
     if(this.audio.src) this.timeEl.textContent = `⏱ ${cur} / ${tot}`;
     else this.timeEl.textContent = `🎵 Reproduciendo: Nada`;
   }
+
   _updateNowPlaying(){
     if(!this.timeEl) return;
-    if(!this.audio || !this.audio.src) { this.timeEl.textContent = '🎵 Reproduciendo: Nada'; return; }
+    if(!this.audio.src) { this.timeEl.textContent = '🎵 Reproduciendo: Nada'; return; }
     try{
       const clean = cleanUrl(this.audio.src || '');
-      const idx = this.fullPlaylist.findIndex(u => clean === decodeURIComponent(u));
+      const idx = this.fullPlaylist.findIndex(u => {
+        const a = decodeURIComponent(u.split('?')[0]);
+        return a === clean;
+      });
       if(idx>=0){
+        // compute section + position
         let secIdx = 0, acc=0;
         for(let s=0;s<this.sections.length;s++){
           const len = this.sections[s].length;
@@ -403,25 +399,38 @@ class MirrorPlayer {
   _updateButtonsState(){
     if(!this.trackButtons) return;
     this.trackButtons.forEach((btn,i)=>{
-      const isActive = (this.mode==='section' && parseInt(this.audio && this.audio.dataset.section || -1)===i && this.audio && !this.audio.paused);
-      const label = this.names && this.names[i] ? this.names[i] : ('Sección '+(i+1));
-      btn.innerHTML = (isActive ? '<span style="margin-right:6px;">⏸</span>' : '<span style="margin-right:6px;">▶</span>') + '<span class="track-label">' + label + '</span>';
+      const isActive = (this.mode==='section' && parseInt(this.audio.dataset.section||-1)===i && !this.audio.paused);
+      const icon = btn.querySelector('.track-icon');
+      if(icon) icon.textContent = isActive ? '⏸' : '▶';
+      const label = btn.querySelector('.label');
+      if(label) label.textContent = (this.names && this.names[i]) ? this.names[i] : ('Sección '+(i+1));
       btn.classList.toggle('active', isActive);
     });
 
-    if(this.mode==='none') this.mainBtn && (this.mainBtn.textContent = '▶ Reproducir lista completa');
-    else if(this.mode==='full') this.mainBtn && (this.mainBtn.textContent = this.audio.paused ? '▶ Reanudar lista completa' : '⏸ Pausar lista completa');
-    else if(this.mode==='section') this.mainBtn && (this.mainBtn.textContent = this.audio.paused ? '▶ Reanudar' : '⏸ Pausar');
+    if(this.mode==='none') this.mainBtn.textContent = '▶ Reproducir lista completa';
+    else if(this.mode==='full') this.mainBtn.textContent = this.audio.paused ? '▶ Reanudar lista completa' : '⏸ Pausar lista completa';
+    else if(this.mode==='section') this.mainBtn.textContent = this.audio.paused ? '▶ Reanudar' : '⏸ Pausar';
   }
 
   playTrackFromList(list,index){
-    if(!this.audio) return;
     const src = list[index];
-    this.audio.src = src;
+    // set dataset fields reliably
     this.audio.dataset.list = JSON.stringify(list);
     this.audio.dataset.index = index;
     try{ this.pauseOthers(); }catch(e){}
     if(list === this.fullPlaylist) this.audio.dataset.mode = 'full'; else this.audio.dataset.mode='section';
+    this.audio.src = src;
+    // update index for fullPlaylist mode too (keep mirror)
+    if(this.audio.dataset.mode === 'full') {
+      this.fullIndex = index;
+    } else {
+      // if playing within a section, compute fullIndex
+      try{
+        // find position in fullPlaylist
+        const idx = this.fullPlaylist.findIndex(u => decodeURIComponent(u.split('?')[0]) === decodeURIComponent(src.split('?')[0]));
+        if(idx>=0) this.fullIndex = idx;
+      }catch(e){}
+    }
     this.audio.play().catch(()=>{});
     this._updateNowPlaying();
     this._updateButtonsState();
@@ -445,23 +454,21 @@ class MirrorPlayer {
 
   playSection(sectionIdx){
     const list = this.sections[sectionIdx].map(n=>this.base + encodeFileName(n));
-    const isSameSection = (this.audio && this.audio.dataset.mode==='section' && parseInt(this.audio.dataset.section||-1)===sectionIdx);
-    const isPlaying = this.audio && !this.audio.paused && !this.audio.ended;
+    const isSameSection = (this.audio.dataset.mode==='section' && parseInt(this.audio.dataset.section||-1)===sectionIdx);
+    const isPlaying = !this.audio.paused && !this.audio.ended;
     if(isSameSection){
       if(isPlaying) this.audio.pause(); else this.audio.play();
       this._updateButtonsState();
       return;
     }
     this.mode='section';
-    if(this.audio) {
-      this.audio.dataset.mode='section';
-      this.audio.dataset.section=sectionIdx;
-    }
+    this.audio.dataset.mode='section';
+    this.audio.dataset.section=sectionIdx;
     this.playTrackFromList(list,0);
   }
 
   nextTrack(){
-    const currentMode = (this.audio && this.audio.dataset.mode) || (this.mode==='full'?'full':'section');
+    const currentMode = this.audio.dataset.mode || (this.mode==='full'?'full':'section');
     if(currentMode==='full'){
       if(this.fullIndex < this.fullPlaylist.length-1){
         const isEndOfSection = this.sectionEndIndices.includes(this.fullIndex);
@@ -469,27 +476,27 @@ class MirrorPlayer {
         else this.playFullAt(this.fullIndex+1);
       } else this.finishFullPlaylist();
     } else {
-      const list = JSON.parse((this.audio && this.audio.dataset.list) || "[]");
-      let i = parseInt((this.audio && this.audio.dataset.index) || 0);
+      const list = JSON.parse(this.audio.dataset.list||"[]");
+      let i = parseInt(this.audio.dataset.index||0);
       if(i+1 < list.length) this.playTrackFromList(list,i+1);
       else this.finishSection();
     }
   }
 
   prevTrack(){
-    const currentMode = (this.audio && this.audio.dataset.mode) || (this.mode==='full'?'full':'section');
+    const currentMode = this.audio.dataset.mode || (this.mode==='full'?'full':'section');
     if(currentMode==='full'){
       if(this.fullIndex > 0) this.playFullAt(this.fullIndex-1);
     } else {
-      const list = JSON.parse((this.audio && this.audio.dataset.list) || "[]");
-      let i = parseInt((this.audio && this.audio.dataset.index) || 0);
+      const list = JSON.parse(this.audio.dataset.list||"[]");
+      let i = parseInt(this.audio.dataset.index||0);
       if(i>0) this.playTrackFromList(list,i-1);
       else {
-        const sec = parseInt((this.audio && this.audio.dataset.section) || 0);
+        const sec = parseInt(this.audio.dataset.section||0);
         if(sec>0){
           const prevList = this.sections[sec-1].map(n=>this.base + encodeFileName(n));
-          if(this.audio) this.audio.dataset.mode='section';
-          if(this.audio) this.audio.dataset.section = sec-1;
+          this.audio.dataset.mode='section';
+          this.audio.dataset.section = sec-1;
           this.playTrackFromList(prevList, prevList.length-1);
         } else {
           if(this.fullIndex > 0) this.playFullAt(Math.max(0,this.fullIndex-1));
@@ -501,7 +508,7 @@ class MirrorPlayer {
   _waitAndPlayFull(nextIdx){
     if(this.waiting) return;
     this.waiting = true;
-    this.timeEl.textContent = '⏸ Esperando 2s...';
+    if(this.timeEl) this.timeEl.textContent = '⏸ Esperando 2s...';
     setTimeout(()=> { this.waiting = false; this.playFullAt(nextIdx); },2000);
   }
 
@@ -509,7 +516,8 @@ class MirrorPlayer {
     this.mode='none';
     try{ this.audio.pause(); }catch(e){}
     this.audio.src='';
-    if(this.audio) { this.audio.dataset.mode=''; this.audio.dataset.index=''; }
+    this.audio.dataset.mode='';
+    this.audio.dataset.index='';
     this._updateButtonsState();
     this._updateNowPlaying();
   }
@@ -517,13 +525,14 @@ class MirrorPlayer {
     this.mode='none';
     try{ this.audio.pause(); }catch(e){}
     this.audio.src='';
-    if(this.audio){ this.audio.dataset.mode=''; this.audio.dataset.section=''; }
+    this.audio.dataset.mode='';
+    this.audio.dataset.section='';
     this._updateButtonsState();
     this._updateNowPlaying();
   }
 
   _onEnded(){
-    const currentMode = (this.audio && this.audio.dataset.mode) || (this.mode==='full'?'full':'section');
+    const currentMode = this.audio.dataset.mode || (this.mode==='full'?'full':'section');
     if(currentMode==='full'){
       const idx = this.fullIndex;
       if(idx >= this.fullPlaylist.length-1) this.finishFullPlaylist();
@@ -533,8 +542,8 @@ class MirrorPlayer {
         else this.playFullAt(idx+1);
       }
     } else {
-      const list = JSON.parse((this.audio && this.audio.dataset.list) || "[]");
-      let i = parseInt((this.audio && this.audio.dataset.index) || 0);
+      const list = JSON.parse(this.audio.dataset.list||"[]");
+      let i = parseInt(this.audio.dataset.index||0);
       if(i+1 < list.length) this.playTrackFromList(list,i+1);
       else this.finishSection();
     }
@@ -542,38 +551,35 @@ class MirrorPlayer {
 
   _saveState(){
     try{
-      const key = (this.container && this.container.id==='abcCol') ? 'abc_state' : 'devo_state';
-      const state = { mode: (this.audio && this.audio.dataset.mode) || this.mode, index: parseInt((this.audio && this.audio.dataset.index) || 0), time: this.audio && this.audio.currentTime || 0, section: parseInt((this.audio && this.audio.dataset.section) || -1) };
+      const key = (this.container.id==='abcCol') ? 'abc_state' : 'devo_state';
+      const state = { mode: this.audio.dataset.mode || this.mode, index: parseInt(this.audio.dataset.index||0), time: this.audio.currentTime || 0, section: parseInt(this.audio.dataset.section||-1) };
       localStorage.setItem(key, JSON.stringify(state));
     } catch(e){}
   }
 
   _restoreState(){
     try{
-      const key = (this.container && this.container.id==='abcCol') ? 'abc_state' : 'devo_state';
+      const key = (this.container.id==='abcCol') ? 'abc_state' : 'devo_state';
       const st = JSON.parse(localStorage.getItem(key) || 'null');
       if(!st) { this._updateButtonsState(); return; }
       if(st.mode==='full'){
         this.mode='full';
         this.fullIndex = st.index || 0;
-        if(this.audio){
-          this.audio.dataset.mode='full';
-          this.audio.dataset.index = this.fullIndex;
-          this.audio.src = this.fullPlaylist[this.fullIndex] || '';
-          // set time after metadata loaded
-          this.audio.addEventListener('loadedmetadata', ()=> { try{ this.audio.currentTime = st.time || 0; this.audio.pause(); }catch(e){} }, { once: true });
-        }
+        this.audio.dataset.mode='full';
+        this.audio.dataset.index = this.fullIndex;
+        this.audio.src = this.fullPlaylist[this.fullIndex] || '';
+        this.audio.currentTime = st.time || 0;
+        this.audio.pause();
       } else if(st.mode==='section' && st.section>=0){
         this.mode='section';
         const list = this.sections[st.section].map(n=>this.base + encodeFileName(n));
-        if(this.audio){
-          this.audio.dataset.mode='section';
-          this.audio.dataset.section = st.section;
-          this.audio.dataset.list = JSON.stringify(list);
-          this.audio.dataset.index = st.index || 0;
-          this.audio.src = list[this.audio.dataset.index] || '';
-          this.audio.addEventListener('loadedmetadata', ()=> { try{ this.audio.currentTime = st.time || 0; this.audio.pause(); }catch(e){} }, { once: true });
-        }
+        this.audio.dataset.mode='section';
+        this.audio.dataset.section = st.section;
+        this.audio.dataset.list = JSON.stringify(list);
+        this.audio.dataset.index = st.index || 0;
+        this.audio.src = list[this.audio.dataset.index] || '';
+        this.audio.currentTime = st.time || 0;
+        this.audio.pause();
       }
       this._updateButtonsState();
       this._updateNowPlaying();
@@ -584,8 +590,21 @@ class MirrorPlayer {
 /* --------------------------
   Init players and loading devo list
 ---------------------------*/
-let devoPlayer, abcPlayer;
+const abcListEl = document.getElementById('abcList');
+function renderABClistButtons(){
+  abcListEl.innerHTML='';
+  for(let i=0;i<abcNames.length;i++){
+    const btn = document.createElement('button');
+    btn.className='track-btn';
+    btn.innerHTML = `<span class="track-icon">▶</span><span class="label">${abcNames[i]}</span>`;
+    btn.addEventListener('click', ()=> {
+      try{ window.abcPlayer.playSection(i); } catch(e){ console.error(e); }
+    });
+    abcListEl.appendChild(btn);
+  }
+}
 
+let devoPlayer, abcPlayer;
 function pauseBothExcept(which){
   try{
     if(which !== 'devo' && window.devoPlayer && window.devoPlayer.audio && !window.devoPlayer.audio.paused){
@@ -621,13 +640,13 @@ async function loadDevocionales(){
 
     if(!arr || arr.length===0){ devoMsg.textContent='No hay devocionales publicados.'; return; }
 
-    // newest first (reverse assuming JSON stored oldest->newest)
+    // newest first (reverse so newest appears on top)
     const entries = arr.slice().reverse();
 
     // build sections (each file is its own section) and display names (weekday + title)
     const sections = entries.map(e=>[e.file]);
     const displayNames = entries.map(e => {
-      // Use JSON title (28/11) when present; then compute weekday from file
+      // If JSON has title like "28/11" we use it to compute "Viernes 28/11"
       const shortFromFile = shortenDevoDisplayFromFile(e.file);
       const titleForJson = (e.title && typeof e.title === 'string' && e.title.trim()) ? e.title.trim() : (shortFromFile || '');
       return buildDevDisplayText(e.file, titleForJson);
@@ -635,8 +654,8 @@ async function loadDevocionales(){
 
     devoMsg.style.display='none';
 
-    // create devoPlayer
-    devoPlayer = new MirrorPlayer({
+    // create devo player
+    window.devoPlayer = new MirrorPlayer({
       container: document.getElementById('devoCol'),
       audio: document.getElementById('devoAudio'),
       mainBtn: document.getElementById('devoMainPlay'),
@@ -650,8 +669,8 @@ async function loadDevocionales(){
       pauseOthers: function(){ pauseBothExcept('devo'); }
     });
 
-    // create abcPlayer (MirrorPlayer will render its list into #abcList)
-    abcPlayer = new MirrorPlayer({
+    // create abc player (base is GHPAGES_BASE)
+    window.abcPlayer = new MirrorPlayer({
       container: document.getElementById('abcCol'),
       audio: document.getElementById('abcAudio'),
       mainBtn: document.getElementById('abcMainPlay'),
@@ -664,6 +683,9 @@ async function loadDevocionales(){
       base: GHPAGES_BASE,
       pauseOthers: function(){ pauseBothExcept('abc'); }
     });
+
+    // render ABC buttons (uses abcPlayer.playSection)
+    renderABClistButtons();
 
   }catch(err){
     devoMsg.textContent = 'Error cargando devocionales: ' + (err.message || err);
@@ -740,7 +762,7 @@ document.getElementById('devoReset').addEventListener('click', ()=> {
     if(window.devoPlayer){ window.devoPlayer.finishFullPlaylist(); window.devoPlayer.finishSection(); }
     document.getElementById('devoTime').textContent = '🎵 Reproduciendo: Nada';
     document.getElementById('devoMainPlay').textContent = '▶ Reproducir lista completa';
-    const btns = document.querySelectorAll('#devoList .track-btn'); btns.forEach(b=>b.classList.remove('active'));
+    const btns = document.querySelectorAll('#devoList .track-btn'); btns.forEach(b=>{ b.classList.remove('active'); const ic=b.querySelector('.track-icon'); if(ic) ic.textContent='▶'; });
   }catch(e){}
 });
 
@@ -751,14 +773,14 @@ document.getElementById('abcReset').addEventListener('click', ()=> {
     if(window.abcPlayer){ window.abcPlayer.finishFullPlaylist(); window.abcPlayer.finishSection(); }
     document.getElementById('abcTime').textContent = '🎵 Reproduciendo: Nada';
     document.getElementById('abcMainPlay').textContent = '▶ Reproducir lista completa';
-    const btns = document.querySelectorAll('#abcList .track-btn'); btns.forEach(b=>b.classList.remove('active'));
+    const btns = document.querySelectorAll('#abcList .track-btn'); btns.forEach(b=>{ b.classList.remove('active'); const ic=b.querySelector('.track-icon'); if(ic) ic.textContent='▶'; });
   }catch(e){}
 });
 
 /* ensure mutual exclusion also when clicking track buttons (safety) */
 document.addEventListener('click', (ev)=>{});
 
- /* final: make sure no horizontal scroll */
+/* final: make sure no horizontal scroll */
 document.documentElement.style.overflowX='hidden';
 document.body.style.overflowX='hidden';
 </script>
