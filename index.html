@@ -198,36 +198,38 @@ function capitalize(word){
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }
 
-/* shorten dev filename to "Viernes 28/11" when possible OR use given title */
+/* Weekday names Spanish (capitalized) */
+const WEEKDAY_ES = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+
+/* Extract yyyy-mm-dd from filename like devocional_YYYY-MM-DD.mp3 */
+function extractDateFromDevFile(fileName){
+  if(!fileName) return null;
+  const m = fileName.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if(!m) return null;
+  return { yyyy: m[1], mm:m[2], dd:m[3] };
+}
+
+/* build display "Viernes 28/11" using file (preferred) and fallback to title (28/11) */
+function buildDevDisplayText(fileName, titleFromJson){
+  const d = extractDateFromDevFile(fileName);
+  if(d){
+    const dt = new Date(`${d.yyyy}-${d.mm}-${d.dd}T12:00:00`); // midday to avoid TZ issues
+    const weekday = WEEKDAY_ES[dt.getDay()] || '';
+    const short = titleFromJson && titleFromJson.trim() ? titleFromJson : `${d.dd}/${d.mm}`;
+    return `${weekday} ${short}`;
+  } else {
+    // fallback: if title looks like dd/mm use it; else shorten filename
+    if(titleFromJson && /^\d{1,2}\/\d{1,2}$/.test(titleFromJson.trim())) return ` ${titleFromJson.trim()}`;
+    return titleFromJson || fileName;
+  }
+}
+
+/* shorten dev filename to fallback nice text if title absent */
 function shortenDevoDisplayFromFile(fileName){
   if(!fileName) return fileName;
   let base = fileName.replace(/\.[^/.]+$/, "");
   base = base.replace(/[-]+/g, "_");
   const parts = base.split(/[_\s]+/).filter(Boolean);
-  // try pattern dd-mm or dd_mm etc
-  // look for numeric day
-  let day=null, month=null, weekday=null;
-  for(let i=0;i<parts.length;i++){
-    const p = parts[i];
-    if(/^\d{1,2}$/.test(p)){ day = p; if(i>0) weekday = parts[i-1]; if(i+1<parts.length) month = parts[i+1]; break; }
-  }
-  if(!month){
-    const join = base.toUpperCase();
-    const mnames = ['ENERO','FEBR','FEBRERO','MAR','MARZO','ABRIL','MAYO','JUN','JUNIO','JUL','JULIO','AGO','AGOSTO','SEPT','SEPTIEMBRE','OCT','OCTUBRE','NOV','NOVIEMBRE','DIC','DICIEMBRE'];
-    for(const m of mnames) if(join.includes(m)){ month = m; break; }
-  }
-  if(day && month){
-    const mmaps = {
-      'ENERO':'01','FEBR':'02','FEBRERO':'02','MARZO':'03','MAR':'03','ABRIL':'04','MAYO':'05','JUNIO':'06','JUN':'06','JULIO':'07','JUL':'07',
-      'AGOSTO':'08','AGO':'08','SEPTIEMBRE':'09','SEPT':'09','OCTUBRE':'10','OCT':'10','NOVIEMBRE':'11','NOV':'11','DICIEMBRE':'12','DIC':'12'
-    };
-    const mkey = month.toUpperCase();
-    const mnum = mmaps[mkey] || ( /^\d+$/.test(month) ? String(parseInt(month)).padStart(2,'0') : '' );
-    const w = weekday ? capitalize(weekday.toLowerCase()) : '';
-    if(w) return `${w} ${String(day)}/${mnum}`;
-    return `${String(day)}/${mnum}`;
-  }
-  // fallback: show first two words nicely
   const nice = parts.slice(0,2).map(p=>capitalize(p.toLowerCase())).join(' ');
   return nice.length>20 ? nice.slice(0,18)+'…' : nice || base;
 }
@@ -304,6 +306,13 @@ class MirrorPlayer {
       try{ that.pauseOthers(); }catch(e){}
       return origPlay();
     };
+  }
+
+  /* Toggle play/pause of current audio (was missing in previous variants) */
+  togglePlayPauseCurrent(){
+    if(!this.audio.src) { this.startFullPlaylist(); return; }
+    if(this.audio.paused) this.audio.play(); else this.audio.pause();
+    this._updateButtonsState();
   }
 
   _renderLists(){
@@ -590,12 +599,13 @@ async function loadDevocionales(){
     // newest first
     const entries = arr.slice().reverse();
 
-    // build sections (each file is its own section) and names (title if present else short from filename)
+    // build sections (each file is its own section) and display names (weekday + title)
     const sections = entries.map(e=>[e.file]);
-    const names = entries.map(e => {
-      if(e.title && typeof e.title === 'string' && e.title.trim()) return e.title;
-      // try to parse filename for date-like name and create "Viernes 28/11" if possible
-      return shortenDevoDisplayFromFile(e.file);
+    const displayNames = entries.map(e => {
+      // Use JSON title (28/11) when present; then compute weekday from file
+      const shortFromFile = shortenDevoDisplayFromFile(e.file);
+      const titleForJson = (e.title && typeof e.title === 'string' && e.title.trim()) ? e.title.trim() : (shortFromFile || '');
+      return buildDevDisplayText(e.file, titleForJson);
     });
 
     devoMsg.style.display='none';
@@ -609,7 +619,7 @@ async function loadDevocionales(){
       listContainer: document.getElementById('devoList'),
       timeEl: document.getElementById('devoTime'),
       sections: sections,
-      names: names,
+      names: displayNames,
       base: DEV_FOLDER,
       pauseOthers: function(){ pauseBothExcept('devo'); }
     });
