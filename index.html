@@ -58,13 +58,14 @@
     max-width:560px;
   }
 
+  /* Main play slightly taller as requested */
   .main-play{
     font-size:20px;padding:18px 18px;border-radius:14px;border:none;color:white;cursor:pointer;margin:12px 0;
     width:88%;
     max-width:520px;
     font-weight:700;
     box-shadow:0 6px 10px rgba(0,0,0,0.08);
-    min-height:68px; /* aumentado 1 punto aprox */
+    min-height:68px;
   }
 
   .controls{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:6px}
@@ -72,14 +73,14 @@
   .time{font-size:0.95rem;color:#222;margin-top:8px;text-align:center}
 
   .list{overflow:auto;display:flex;flex-direction:column;gap:12px;padding:6px 4px 6px 4px}
-  .track-btn{font-size:18px;padding:18px;border-radius:14px;border:none;cursor:pointer;display:block;width:100%;text-align:left}
+  /* uniform track-btn for both columns */
+  .track-btn{font-size:18px;padding:18px;border-radius:14px;border:none;cursor:pointer;display:block;width:100%;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .track-btn.active{outline:3px solid rgba(0,0,0,0.06)}
 
   .abc .main-play{background:var(--abc-primary)}
   .abc .ctrl-btn{background:var(--abc-btn)}
   .abc .track-btn{background:var(--abc-btn);color:#fff}
 
-  /* Devo igual forma que ABC pero con colores propios */
   .devo .main-play{background:var(--devo-primary)}
   .devo .ctrl-btn{background:var(--devo-primary)}
   .devo .track-btn{background:var(--devo-btn);color:#000;font-weight:700}
@@ -96,7 +97,7 @@
   }
 
   @media (max-width:420px){
-    .content{flex-direction:row;gap:6px} /* keep two columns side-by-side for mobile as requested */
+    .content{flex-direction:row;gap:6px}
     .col{padding:6px;height:auto}
   }
 
@@ -114,7 +115,7 @@
   <div id="installArea"></div>
 
   <div class="content" role="main" aria-live="polite">
-    <!-- LEFT: DEVOCIONALES (en pantalla deben quedar a la IZQUIERDA segun tu última indicación) -->
+    <!-- LEFT: DEVOCIONALES -->
     <section id="devoCol" class="col devo" aria-label="Devocionales (izquierda)">
       <div class="col-inner">
         <div class="col-title"><h2>DEVOCIONALES</h2></div>
@@ -165,6 +166,7 @@
 const GHPAGES_BASE = "https://vida-abundante.github.io/playlist-audio/"; // trailing slash included
 const DEV_FOLDER = GHPAGES_BASE + "devocionales/";
 const DEVOCIONALES_JSON_URL = GHPAGES_BASE + "devocionales.json";
+const GITHUB_API_DEV_FOLDER = "https://api.github.com/repos/Vida-Abundante/playlist-audio/contents/devocionales"; // fallback listing
 
 /* --------------------------
   ABC data (local)
@@ -196,48 +198,36 @@ function capitalize(word){
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }
 
-/* shorten dev filename to "Viernes 18/11" when possible */
-function shortenDevoDisplay(fileName){
+/* shorten dev filename to "Viernes 28/11" when possible OR use given title */
+function shortenDevoDisplayFromFile(fileName){
   if(!fileName) return fileName;
   let base = fileName.replace(/\.[^/.]+$/, "");
-  // normalize underscores and spaces
   base = base.replace(/[-]+/g, "_");
   const parts = base.split(/[_\s]+/).filter(Boolean);
-  // try pattern like: VIERNES DE 18 NOVIEMBRE 2025  OR VIERNES_DE_18_NOVIEMBRE
-  // find numeric day
-  let day = null, month = null, weekday = null;
+  // try pattern dd-mm or dd_mm etc
+  // look for numeric day
+  let day=null, month=null, weekday=null;
   for(let i=0;i<parts.length;i++){
     const p = parts[i];
-    if(/^\d{1,2}$/.test(p)) { day = p; if(i>0) weekday = parts[i-1]; if(i+1<parts.length) month = parts[i+1]; break; }
-    // alternative patterns: VIERNES_DE_18_NOVIEMBRE (DE may be present)
-    if(/^\d{1,2}$/.test(p.replace(/\D/g,''))) { day = p.replace(/\D/g,''); }
+    if(/^\d{1,2}$/.test(p)){ day = p; if(i>0) weekday = parts[i-1]; if(i+1<parts.length) month = parts[i+1]; break; }
   }
-  // fallback: try to locate month name
   if(!month){
     const join = base.toUpperCase();
     const mnames = ['ENERO','FEBR','FEBRERO','MAR','MARZO','ABRIL','MAYO','JUN','JUNIO','JUL','JULIO','AGO','AGOSTO','SEPT','SEPTIEMBRE','OCT','OCTUBRE','NOV','NOVIEMBRE','DIC','DICIEMBRE'];
     for(const m of mnames) if(join.includes(m)){ month = m; break; }
   }
-  // try weekday guess if not set
-  if(!weekday && parts.length>0){
-    const w = parts[0];
-    if(/^[A-Za-záéíóúñ]+$/.test(w)) weekday = w;
-  }
-
   if(day && month){
     const mmaps = {
-      'ENERO':'01','FEBR':'02','FEBRERO':'02','MAR':'03','MARZO':'03','ABRIL':'04','MAYO':'05','JUN':'06','JUNIO':'06',
-      'JUL':'07','JULIO':'07','AGO':'08','AGOSTO':'08','SEPT':'09','SEPTIEMBRE':'09','OCT':'10','OCTUBRE':'10','NOV':'11','NOVIEMBRE':'11','DIC':'12','DICIEMBRE':'12'
+      'ENERO':'01','FEBR':'02','FEBRERO':'02','MARZO':'03','MAR':'03','ABRIL':'04','MAYO':'05','JUNIO':'06','JUN':'06','JULIO':'07','JUL':'07',
+      'AGOSTO':'08','AGO':'08','SEPTIEMBRE':'09','SEPT':'09','OCTUBRE':'10','OCT':'10','NOVIEMBRE':'11','NOV':'11','DICIEMBRE':'12','DIC':'12'
     };
     const mkey = month.toUpperCase();
-    let mnum = mmaps[mkey] || '';
-    if(!mnum && /^\d+$/.test(month)) mnum = String(parseInt(month)).padStart(2,'0');
+    const mnum = mmaps[mkey] || ( /^\d+$/.test(month) ? String(parseInt(month)).padStart(2,'0') : '' );
     const w = weekday ? capitalize(weekday.toLowerCase()) : '';
     if(w) return `${w} ${String(day)}/${mnum}`;
     return `${String(day)}/${mnum}`;
   }
-
-  // fallback pretty name (first two words)
+  // fallback: show first two words nicely
   const nice = parts.slice(0,2).map(p=>capitalize(p.toLowerCase())).join(' ');
   return nice.length>20 ? nice.slice(0,18)+'…' : nice || base;
 }
@@ -246,6 +236,9 @@ function shortenDevoDisplay(fileName){
 function encodeFileName(name){
   return name.split('/').map(p => encodeURIComponent(p)).join('/');
 }
+
+/* decode and normalize */
+function cleanUrl(u){ try{ return decodeURIComponent(u.split('?')[0]); }catch(e){return u;} }
 
 /* --------------------------
   Player class (with pauseOthers callback)
@@ -305,7 +298,6 @@ class MirrorPlayer {
     this.audio.addEventListener('pause', ()=> this._onPause());
     this.audio.addEventListener('timeupdate', ()=> this._updateTimeDisplay());
 
-    // wrap play to ensure other player pauses
     const origPlay = this.audio.play.bind(this.audio);
     const that = this;
     this.audio.play = function(){
@@ -315,7 +307,6 @@ class MirrorPlayer {
   }
 
   _renderLists(){
-    // render section buttons
     if(!this.listContainer) return;
     this.listContainer.innerHTML = '';
     for(let s=0;s<this.sections.length;s++){
@@ -349,11 +340,9 @@ class MirrorPlayer {
     if(!this.timeEl) return;
     if(!this.audio.src) { this.timeEl.textContent = '🎵 Reproduciendo: Nada'; return; }
     try{
-      const clean = decodeURIComponent((this.audio.src||'').split('?')[0]);
-      // find index in fullPlaylist
-      const idx = this.fullPlaylist.findIndex(u => decodeURIComponent(u) === clean);
+      const clean = cleanUrl(this.audio.src || '');
+      const idx = this.fullPlaylist.findIndex(u => clean === decodeURIComponent(u));
       if(idx>=0){
-        // find which section this belongs
         let secIdx = 0, acc=0;
         for(let s=0;s<this.sections.length;s++){
           const len = this.sections[s].length;
@@ -390,9 +379,7 @@ class MirrorPlayer {
     this.audio.dataset.list = JSON.stringify(list);
     this.audio.dataset.index = index;
     try{ this.pauseOthers(); }catch(e){}
-    // update dataset mode if playing from fullPlaylist
-    if(list === this.fullPlaylist) this.audio.dataset.mode = 'full';
-    else this.audio.dataset.mode = 'section';
+    if(list === this.fullPlaylist) this.audio.dataset.mode = 'full'; else this.audio.dataset.mode='section';
     this.audio.play().catch(()=>{});
     this._updateNowPlaying();
     this._updateButtonsState();
@@ -576,35 +563,42 @@ function pauseBothExcept(which){
   }catch(e){}
 }
 
-/* load devocionales.json and verify files exist */
+/* load devocionales.json and verify files exist; fallback to GitHub folder listing */
 const devoListContainer = document.getElementById('devoList');
 const devoMsg = document.getElementById('devoMsg');
 
 async function loadDevocionales(){
   devoMsg.textContent = 'Cargando devocionales…';
   try{
+    // 1) try JSON first
     const resp = await fetch(DEVOCIONALES_JSON_URL + '?nocache=' + Date.now(), {cache:'no-store'});
-    if(!resp.ok) throw new Error('No se pudo obtener devocionales.json');
-    const arr = await resp.json();
-    if(!Array.isArray(arr) || arr.length===0){ devoMsg.textContent='No hay devocionales publicados.'; return; }
+    let arr = null;
+    if(resp.ok){
+      arr = await resp.json();
+    } else {
+      // fallback: try listing the folder on GitHub
+      const fallback = await fetch(GITHUB_API_DEV_FOLDER, {cache:'no-store'});
+      if(fallback.ok){
+        const list = await fallback.json();
+        // map to {file, title}
+        arr = list.filter(i=>i.type==='file' && i.name.toLowerCase().endsWith('.mp3')).map(i=>({ title: null, file: i.name }));
+      }
+    }
+
+    if(!arr || arr.length===0){ devoMsg.textContent='No hay devocionales publicados.'; return; }
 
     // newest first
     const entries = arr.slice().reverse();
-    const valid = [];
-    for(const e of entries){
-      const file = e.file;
-      const title = e.title || file;
-      const url = DEV_FOLDER + file;
-      const ok = await checkAudioExists(url, 6000);
-      if(ok) valid.push({title,file,url});
-    }
 
-    if(valid.length===0){ devoMsg.textContent = 'No hay devocionales válidos.'; return; }
+    // build sections (each file is its own section) and names (title if present else short from filename)
+    const sections = entries.map(e=>[e.file]);
+    const names = entries.map(e => {
+      if(e.title && typeof e.title === 'string' && e.title.trim()) return e.title;
+      // try to parse filename for date-like name and create "Viernes 28/11" if possible
+      return shortenDevoDisplayFromFile(e.file);
+    });
+
     devoMsg.style.display='none';
-
-    // build sections and shortened names
-    const sections = valid.map(v=>[v.file]); // each dev is one section (single file)
-    const names = valid.map(v=> shortenDevoDisplay(v.file) );
 
     window.devoPlayer = new MirrorPlayer({
       container: document.getElementById('devoCol'),
@@ -703,7 +697,7 @@ appToggle.addEventListener('click', ()=> {
 });
 
 /* --------------------------
-  Reiniciar buttons behavior (ensure main button text resets too)
+  Reiniciar buttons behavior
 ---------------------------*/
 document.getElementById('devoReset').addEventListener('click', ()=> {
   if(!confirm('¿Estás seguro de que querés reiniciar el progreso de Devocionales?')) return;
@@ -712,7 +706,6 @@ document.getElementById('devoReset').addEventListener('click', ()=> {
     if(window.devoPlayer){ window.devoPlayer.finishFullPlaylist(); window.devoPlayer.finishSection(); }
     document.getElementById('devoTime').textContent = '🎵 Reproduciendo: Nada';
     document.getElementById('devoMainPlay').textContent = '▶ Reproducir lista completa';
-    // clear active states
     const btns = document.querySelectorAll('#devoList .track-btn'); btns.forEach(b=>b.classList.remove('active'));
   }catch(e){}
 });
