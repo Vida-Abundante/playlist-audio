@@ -16,6 +16,7 @@
     --abc-btn:#007bff; /* azul botones */
     --devo-primary:#ff8a00; /* naranja reproductor */
     --devo-btn:#ffd44d; /* amarillo botones */
+    --active-outline: 3px solid rgba(0,0,0,0.08);
   }
 
   html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;overflow-x:hidden;}
@@ -70,13 +71,13 @@
 
   .controls{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:6px}
   .ctrl-btn{font-size:20px;padding:10px 14px;border-radius:12px;border:none;color:white;cursor:pointer}
-  .time{font-size:0.95rem;color:#222;margin-top:8px;text-align:center}
+  .time{font-size:0.95rem;color:#222;margin-top:8px;text-align:center;min-height:20px}
 
   .list{overflow:auto;display:flex;flex-direction:column;gap:12px;padding:6px 4px 6px 4px}
   /* uniform track-btn for both columns */
   .track-btn{
     font-size:18px;
-    padding:18px;
+    padding:14px 18px;
     border-radius:14px;
     border:none;
     cursor:pointer;
@@ -89,9 +90,11 @@
     text-overflow:ellipsis;
     gap:10px;
     width:100%;
+    transition: transform .08s, box-shadow .08s;
   }
+  .track-btn:hover{ transform: translateY(-2px); }
   .track-btn .label{display:inline-block;line-height:1.1}
-  .track-btn.active{outline:3px solid rgba(0,0,0,0.06)}
+  .track-btn.active{ box-shadow: 0 6px 18px rgba(0,0,0,0.08); transform:none; }
 
   .abc .main-play{background:var(--abc-primary)}
   .abc .ctrl-btn{background:var(--abc-btn)}
@@ -352,6 +355,7 @@ class MirrorPlayer {
   }
 
   _onPlay(){
+    // update state immediately so UI doesn't flicker
     this._updateNowPlaying();
     this._updateButtonsState();
     this._saveState();
@@ -399,12 +403,16 @@ class MirrorPlayer {
   _updateButtonsState(){
     if(!this.trackButtons) return;
     this.trackButtons.forEach((btn,i)=>{
-      const isActive = (this.mode==='section' && parseInt(this.audio.dataset.section||-1)===i && !this.audio.paused);
+      const isActive = (this.audio.dataset.mode === 'section' || this.mode==='section') && parseInt(this.audio.dataset.section||-1) === i && !this.audio.paused && this.audio.src;
       const icon = btn.querySelector('.track-icon');
       if(icon) icon.textContent = isActive ? '⏸' : '▶';
       const label = btn.querySelector('.label');
       if(label) label.textContent = (this.names && this.names[i]) ? this.names[i] : ('Sección '+(i+1));
-      btn.classList.toggle('active', isActive);
+      if(isActive) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
     });
 
     if(this.mode==='none') this.mainBtn.textContent = '▶ Reproducir lista completa';
@@ -418,20 +426,45 @@ class MirrorPlayer {
     this.audio.dataset.list = JSON.stringify(list);
     this.audio.dataset.index = index;
     try{ this.pauseOthers(); }catch(e){}
-    if(list === this.fullPlaylist) this.audio.dataset.mode = 'full'; else this.audio.dataset.mode='section';
-    this.audio.src = src;
-    // update index for fullPlaylist mode too (keep mirror)
-    if(this.audio.dataset.mode === 'full') {
+    if(list === this.fullPlaylist) {
+      this.audio.dataset.mode = 'full';
+      this.mode = 'full';
       this.fullIndex = index;
     } else {
-      // if playing within a section, compute fullIndex
+      this.audio.dataset.mode='section';
+      this.mode = 'section';
+      // compute fullIndex for the chosen file
       try{
-        // find position in fullPlaylist
-        const idx = this.fullPlaylist.findIndex(u => decodeURIComponent(u.split('?')[0]) === decodeURIComponent(src.split('?')[0]));
+        const cleanSrc = decodeURIComponent(src.split('?')[0]);
+        const idx = this.fullPlaylist.findIndex(u => decodeURIComponent(u.split('?')[0]) === cleanSrc);
         if(idx>=0) this.fullIndex = idx;
       }catch(e){}
     }
+    // set audio.src AFTER updating datasets so event handlers see them
+    this.audio.src = src;
+    // ensure dataset.section set if playing a section list
+    // if list is from a section, set dataset.section if present (playSection sets before calling here)
+    try{
+      // if dataset.section missing, try to determine it:
+      if(!this.audio.dataset.section || this.audio.dataset.section === '') {
+        // find which section contains this src
+        const clean = decodeURIComponent(src.split('?')[0]);
+        for(let s=0, acc=0; s<this.sections.length; s++){
+          for(let j=0;j<this.sections[s].length;j++){
+            const candidate = this.base + encodeFileName(this.sections[s][j]);
+            if(decodeURIComponent(candidate.split('?')[0]) === clean){
+              this.audio.dataset.section = s;
+              break;
+            }
+          }
+          if(this.audio.dataset.section) break;
+        }
+      }
+    }catch(e){}
+
+    // start play
     this.audio.play().catch(()=>{});
+    // update UI
     this._updateNowPlaying();
     this._updateButtonsState();
     this._saveState();
@@ -455,7 +488,7 @@ class MirrorPlayer {
   playSection(sectionIdx){
     const list = this.sections[sectionIdx].map(n=>this.base + encodeFileName(n));
     const isSameSection = (this.audio.dataset.mode==='section' && parseInt(this.audio.dataset.section||-1)===sectionIdx);
-    const isPlaying = !this.audio.paused && !this.audio.ended;
+    const isPlaying = !this.audio.paused && !this.audio.ended && this.audio.src;
     if(isSameSection){
       if(isPlaying) this.audio.pause(); else this.audio.play();
       this._updateButtonsState();
@@ -464,22 +497,37 @@ class MirrorPlayer {
     this.mode='section';
     this.audio.dataset.mode='section';
     this.audio.dataset.section=sectionIdx;
+    // ensure dataset.index reset to 0 for the section list
+    this.audio.dataset.index = 0;
     this.playTrackFromList(list,0);
   }
 
   nextTrack(){
     const currentMode = this.audio.dataset.mode || (this.mode==='full'?'full':'section');
     if(currentMode==='full'){
+      // advance through full playlist
       if(this.fullIndex < this.fullPlaylist.length-1){
         const isEndOfSection = this.sectionEndIndices.includes(this.fullIndex);
-        if(isEndOfSection) this._waitAndPlayFull(this.fullIndex+1);
-        else this.playFullAt(this.fullIndex+1);
-      } else this.finishFullPlaylist();
+        if(isEndOfSection) {
+          // move to next file (which belongs to next section) after short pause
+          this._waitAndPlayFull(this.fullIndex+1);
+        } else {
+          this.playFullAt(this.fullIndex+1);
+        }
+      } else {
+        // Option A: stop at end and show "Nada"
+        this.finishFullPlaylist();
+      }
     } else {
+      // section mode: advance within current section
       const list = JSON.parse(this.audio.dataset.list||"[]");
       let i = parseInt(this.audio.dataset.index||0);
-      if(i+1 < list.length) this.playTrackFromList(list,i+1);
-      else this.finishSection();
+      if(i+1 < list.length) {
+        this.playTrackFromList(list,i+1);
+      } else {
+        // reached end of section -> finishSection (do not auto-loop)
+        this.finishSection();
+      }
     }
   }
 
@@ -513,11 +561,14 @@ class MirrorPlayer {
   }
 
   finishFullPlaylist(){
+    // Option A: stop and show "Nada"
     this.mode='none';
     try{ this.audio.pause(); }catch(e){}
     this.audio.src='';
     this.audio.dataset.mode='';
     this.audio.dataset.index='';
+    this.audio.dataset.section='';
+    this.fullIndex = 0;
     this._updateButtonsState();
     this._updateNowPlaying();
   }
@@ -527,6 +578,7 @@ class MirrorPlayer {
     this.audio.src='';
     this.audio.dataset.mode='';
     this.audio.dataset.section='';
+    this.audio.dataset.index='';
     this._updateButtonsState();
     this._updateNowPlaying();
   }
@@ -569,6 +621,7 @@ class MirrorPlayer {
         this.audio.dataset.index = this.fullIndex;
         this.audio.src = this.fullPlaylist[this.fullIndex] || '';
         this.audio.currentTime = st.time || 0;
+        // keep paused until user presses play
         this.audio.pause();
       } else if(st.mode==='section' && st.section>=0){
         this.mode='section';
