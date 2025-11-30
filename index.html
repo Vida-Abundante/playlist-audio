@@ -64,7 +64,7 @@
     max-width:520px;
     font-weight:700;
     box-shadow:0 6px 10px rgba(0,0,0,0.08);
-    min-height:64px; /* make taller */
+    min-height:68px; /* aumentado 1 punto aprox */
   }
 
   .controls{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:6px}
@@ -72,13 +72,14 @@
   .time{font-size:0.95rem;color:#222;margin-top:8px;text-align:center}
 
   .list{overflow:auto;display:flex;flex-direction:column;gap:12px;padding:6px 4px 6px 4px}
-  .track-btn{font-size:18px;padding:16px;border-radius:14px;border:none;cursor:pointer;display:block;width:100%;text-align:left}
+  .track-btn{font-size:18px;padding:18px;border-radius:14px;border:none;cursor:pointer;display:block;width:100%;text-align:left}
   .track-btn.active{outline:3px solid rgba(0,0,0,0.06)}
 
   .abc .main-play{background:var(--abc-primary)}
   .abc .ctrl-btn{background:var(--abc-btn)}
   .abc .track-btn{background:var(--abc-btn);color:#fff}
 
+  /* Devo igual forma que ABC pero con colores propios */
   .devo .main-play{background:var(--devo-primary)}
   .devo .ctrl-btn{background:var(--devo-primary)}
   .devo .track-btn{background:var(--devo-btn);color:#000;font-weight:700}
@@ -90,7 +91,7 @@
     .content{gap:8px;padding:8px}
     .col{height:auto;min-height:300px;padding:8px}
     .player-box{margin-bottom:8px}
-    .main-play{font-size:18px;padding:14px;width:100%;min-height:56px}
+    .main-play{font-size:18px;padding:14px;width:100%;min-height:60px}
     .track-btn{font-size:16px;padding:12px}
   }
 
@@ -190,6 +191,61 @@ function secToMMSS(s){
   const ss = String(s%60).padStart(2,'0');
   return mm+':'+ss;
 }
+function capitalize(word){
+  if(!word) return '';
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+
+/* shorten dev filename to "Viernes 18/11" when possible */
+function shortenDevoDisplay(fileName){
+  if(!fileName) return fileName;
+  let base = fileName.replace(/\.[^/.]+$/, "");
+  // normalize underscores and spaces
+  base = base.replace(/[-]+/g, "_");
+  const parts = base.split(/[_\s]+/).filter(Boolean);
+  // try pattern like: VIERNES DE 18 NOVIEMBRE 2025  OR VIERNES_DE_18_NOVIEMBRE
+  // find numeric day
+  let day = null, month = null, weekday = null;
+  for(let i=0;i<parts.length;i++){
+    const p = parts[i];
+    if(/^\d{1,2}$/.test(p)) { day = p; if(i>0) weekday = parts[i-1]; if(i+1<parts.length) month = parts[i+1]; break; }
+    // alternative patterns: VIERNES_DE_18_NOVIEMBRE (DE may be present)
+    if(/^\d{1,2}$/.test(p.replace(/\D/g,''))) { day = p.replace(/\D/g,''); }
+  }
+  // fallback: try to locate month name
+  if(!month){
+    const join = base.toUpperCase();
+    const mnames = ['ENERO','FEBR','FEBRERO','MAR','MARZO','ABRIL','MAYO','JUN','JUNIO','JUL','JULIO','AGO','AGOSTO','SEPT','SEPTIEMBRE','OCT','OCTUBRE','NOV','NOVIEMBRE','DIC','DICIEMBRE'];
+    for(const m of mnames) if(join.includes(m)){ month = m; break; }
+  }
+  // try weekday guess if not set
+  if(!weekday && parts.length>0){
+    const w = parts[0];
+    if(/^[A-Za-záéíóúñ]+$/.test(w)) weekday = w;
+  }
+
+  if(day && month){
+    const mmaps = {
+      'ENERO':'01','FEBR':'02','FEBRERO':'02','MAR':'03','MARZO':'03','ABRIL':'04','MAYO':'05','JUN':'06','JUNIO':'06',
+      'JUL':'07','JULIO':'07','AGO':'08','AGOSTO':'08','SEPT':'09','SEPTIEMBRE':'09','OCT':'10','OCTUBRE':'10','NOV':'11','NOVIEMBRE':'11','DIC':'12','DICIEMBRE':'12'
+    };
+    const mkey = month.toUpperCase();
+    let mnum = mmaps[mkey] || '';
+    if(!mnum && /^\d+$/.test(month)) mnum = String(parseInt(month)).padStart(2,'0');
+    const w = weekday ? capitalize(weekday.toLowerCase()) : '';
+    if(w) return `${w} ${String(day)}/${mnum}`;
+    return `${String(day)}/${mnum}`;
+  }
+
+  // fallback pretty name (first two words)
+  const nice = parts.slice(0,2).map(p=>capitalize(p.toLowerCase())).join(' ');
+  return nice.length>20 ? nice.slice(0,18)+'…' : nice || base;
+}
+
+/* encode filename for URLs (preserve path separators if any) */
+function encodeFileName(name){
+  return name.split('/').map(p => encodeURIComponent(p)).join('/');
+}
 
 /* --------------------------
   Player class (with pauseOthers callback)
@@ -220,9 +276,19 @@ class MirrorPlayer {
   }
 
   _buildFullPlaylist(){
-    this.fullPlaylist = this.sections.flat().map(n => this.base + n);
+    this.fullPlaylist = [];
+    this._originalNames = [];
     const ends=[]; let idx=-1;
-    for(let s=0;s<this.sections.length;s++){ idx+=this.sections[s].length; ends.push(idx); }
+    for(let s=0;s<this.sections.length;s++){
+      for(let i=0;i<this.sections[s].length;i++){
+        const fname = this.sections[s][i];
+        this._originalNames.push(fname);
+        const url = this.base + encodeFileName(fname);
+        this.fullPlaylist.push(url);
+        idx++;
+      }
+      ends.push(idx);
+    }
     this.sectionEndIndices = ends;
   }
 
@@ -239,6 +305,7 @@ class MirrorPlayer {
     this.audio.addEventListener('pause', ()=> this._onPause());
     this.audio.addEventListener('timeupdate', ()=> this._updateTimeDisplay());
 
+    // wrap play to ensure other player pauses
     const origPlay = this.audio.play.bind(this.audio);
     const that = this;
     this.audio.play = function(){
@@ -279,18 +346,28 @@ class MirrorPlayer {
     else this.timeEl.textContent = `🎵 Reproduciendo: Nada`;
   }
   _updateNowPlaying(){
+    if(!this.timeEl) return;
     if(!this.audio.src) { this.timeEl.textContent = '🎵 Reproduciendo: Nada'; return; }
-    const clean = decodeURIComponent(this.audio.src.split('?')[0]);
-    for(let s=0;s<this.sections.length;s++){
-      for(let i=0;i<this.sections[s].length;i++){
-        const name = this.sections[s][i];
-        if(clean.endsWith(name)){
-          const pos = this.sections[s].length>1 ? ` (${i+1} de ${this.sections[s].length})` : '';
-          this.timeEl.textContent = `🎵 Reproduciendo: ${this.names[s] || ('Sección '+(s+1))}${pos} — ${secToMMSS(this.audio.currentTime||0)} / ${this.audio.duration && !isNaN(this.audio.duration)?secToMMSS(this.audio.duration):'--:--'}`;
-          return;
+    try{
+      const clean = decodeURIComponent((this.audio.src||'').split('?')[0]);
+      // find index in fullPlaylist
+      const idx = this.fullPlaylist.findIndex(u => decodeURIComponent(u) === clean);
+      if(idx>=0){
+        // find which section this belongs
+        let secIdx = 0, acc=0;
+        for(let s=0;s<this.sections.length;s++){
+          const len = this.sections[s].length;
+          if(idx < acc + len) { secIdx = s; break; }
+          acc += len;
         }
+        const sectionArray = this.sections[secIdx];
+        const posInSection = idx - acc;
+        const name = this.names && this.names[secIdx] ? this.names[secIdx] : ('Sección '+(secIdx+1));
+        const pos = sectionArray.length>1 ? ` (${posInSection+1} de ${sectionArray.length})` : '';
+        this.timeEl.textContent = `🎵 Reproduciendo: ${name}${pos} — ${secToMMSS(this.audio.currentTime||0)} / ${this.audio.duration && !isNaN(this.audio.duration)?secToMMSS(this.audio.duration):'--:--'}`;
+        return;
       }
-    }
+    }catch(e){}
     this.timeEl.textContent = `🎵 Reproduciendo`;
   }
 
@@ -308,10 +385,14 @@ class MirrorPlayer {
   }
 
   playTrackFromList(list,index){
-    this.audio.src = list[index];
+    const src = list[index];
+    this.audio.src = src;
     this.audio.dataset.list = JSON.stringify(list);
     this.audio.dataset.index = index;
     try{ this.pauseOthers(); }catch(e){}
+    // update dataset mode if playing from fullPlaylist
+    if(list === this.fullPlaylist) this.audio.dataset.mode = 'full';
+    else this.audio.dataset.mode = 'section';
     this.audio.play().catch(()=>{});
     this._updateNowPlaying();
     this._updateButtonsState();
@@ -324,7 +405,9 @@ class MirrorPlayer {
     this.playFullAt(this.fullIndex);
   }
   playFullAt(index){
-    this.fullIndex=index;
+    this.fullIndex = index;
+    if(index < 0) index = 0;
+    if(index > this.fullPlaylist.length-1){ this.finishFullPlaylist(); return; }
     this.playTrackFromList(this.fullPlaylist,this.fullIndex);
     this.audio.dataset.mode='full';
     this.audio.dataset.index=this.fullIndex;
@@ -332,7 +415,7 @@ class MirrorPlayer {
   }
 
   playSection(sectionIdx){
-    const list = this.sections[sectionIdx].map(n=>this.base+n);
+    const list = this.sections[sectionIdx].map(n=>this.base + encodeFileName(n));
     const isSameSection = (this.audio.dataset.mode==='section' && parseInt(this.audio.dataset.section||-1)===sectionIdx);
     const isPlaying = !this.audio.paused && !this.audio.ended;
     if(isSameSection){
@@ -373,7 +456,7 @@ class MirrorPlayer {
       else {
         const sec = parseInt(this.audio.dataset.section||0);
         if(sec>0){
-          const prevList = this.sections[sec-1].map(n=>this.base+n);
+          const prevList = this.sections[sec-1].map(n=>this.base + encodeFileName(n));
           this.audio.dataset.mode='section';
           this.audio.dataset.section = sec-1;
           this.playTrackFromList(prevList, prevList.length-1);
@@ -393,7 +476,7 @@ class MirrorPlayer {
 
   finishFullPlaylist(){
     this.mode='none';
-    this.audio.pause();
+    try{ this.audio.pause(); }catch(e){}
     this.audio.src='';
     this.audio.dataset.mode='';
     this.audio.dataset.index='';
@@ -402,7 +485,7 @@ class MirrorPlayer {
   }
   finishSection(){
     this.mode='none';
-    this.audio.pause();
+    try{ this.audio.pause(); }catch(e){}
     this.audio.src='';
     this.audio.dataset.mode='';
     this.audio.dataset.section='';
@@ -451,7 +534,7 @@ class MirrorPlayer {
         this.audio.pause();
       } else if(st.mode==='section' && st.section>=0){
         this.mode='section';
-        const list = this.sections[st.section].map(n=>this.base+n);
+        const list = this.sections[st.section].map(n=>this.base + encodeFileName(n));
         this.audio.dataset.mode='section';
         this.audio.dataset.section = st.section;
         this.audio.dataset.list = JSON.stringify(list);
@@ -519,8 +602,9 @@ async function loadDevocionales(){
     if(valid.length===0){ devoMsg.textContent = 'No hay devocionales válidos.'; return; }
     devoMsg.style.display='none';
 
+    // build sections and shortened names
     const sections = valid.map(v=>[v.file]); // each dev is one section (single file)
-    const names = valid.map(v=>v.title);
+    const names = valid.map(v=> shortenDevoDisplay(v.file) );
 
     window.devoPlayer = new MirrorPlayer({
       container: document.getElementById('devoCol'),
@@ -596,7 +680,7 @@ function hideAppToggleIfInstalled(){
 }
 hideAppToggleIfInstalled();
 
-appToggle.addEventListener('click', ()=>{
+appToggle.addEventListener('click', ()=> {
   if(!showingVideo){
     installArea.style.display='flex';
     installArea.innerHTML = '';
