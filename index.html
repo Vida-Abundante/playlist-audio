@@ -12,104 +12,39 @@
   :root{
     --bg:#fffafc;
     --text:#3a2a2a;
-    --abc-primary:#28a745; /* verde */
-    --abc-btn:#007bff; /* azul botones */
-    --devo-primary:#ff8a00; /* naranja reproductor */
-    --devo-btn:#ffd44d; /* amarillo botones */
-    --active-outline: 3px solid rgba(0,0,0,0.08);
+    --abc-primary:#28a745;
+    --abc-btn:#007bff;
+    --devo-primary:#ff8a00;
+    --devo-btn:#ffd44d;
   }
-
   html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;overflow-x:hidden;}
   .app{min-height:100%;display:flex;flex-direction:column;align-items:stretch}
   header{padding:12px 16px;text-align:center}
   header h1{margin:6px 0;font-size:1.05rem}
   #appToggle{margin-top:8px;padding:8px 12px;border-radius:8px;border:none;background:#83bde3;color:#fff;cursor:pointer}
-
-  /* place install area directly under header so video appears arriba */
   #installArea{display:none;padding:8px;display:flex;align-items:center;justify-content:center}
-
   .content{flex:1;display:flex;gap:12px;padding:12px;box-sizing:border-box;align-items:stretch;justify-content:center}
-  /* Two column mirror layout */
-  .col{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    background:rgba(255,255,255,0.6);
-    border-radius:12px;
-    padding:12px;
-    box-sizing:border-box;
-    min-width:0;
-    align-items:stretch;
-    justify-content:flex-start;
-    box-shadow:0 2px 8px rgba(0,0,0,0.06);
-    height: calc(100vh - 190px);
-    overflow:hidden;
-  }
-
+  .col{flex:1;display:flex;flex-direction:column;background:rgba(255,255,255,0.6);border-radius:12px;padding:12px;box-sizing:border-box;min-width:0;align-items:stretch;justify-content:flex-start;box-shadow:0 2px 8px rgba(0,0,0,0.06);height: calc(100vh - 190px);overflow:hidden;}
   .col-inner{display:flex;flex-direction:column;align-items:center;height:100%;overflow:hidden}
   .col-title{display:flex;align-items:center;justify-content:center;margin-bottom:8px}
   .col-title h2{margin:0;font-size:1rem}
-
-  .player-box{
-    border-radius:10px;padding:12px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;
-    background:linear-gradient(0deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02));
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,0.03);
-    flex: 0 0 auto;
-    width:100%;
-    max-width:560px;
-  }
-
-  /* Main play slightly taller as requested */
-  .main-play{
-    font-size:20px;padding:18px 18px;border-radius:14px;border:none;color:white;cursor:pointer;margin:12px 0;
-    width:88%;
-    max-width:520px;
-    font-weight:700;
-    box-shadow:0 6px 10px rgba(0,0,0,0.08);
-    min-height:68px;
-  }
-
+  .player-box{border-radius:10px;padding:12px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;background:linear-gradient(0deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02));box-shadow:inset 0 0 0 1px rgba(0,0,0,0.03);flex: 0 0 auto;width:100%;max-width:560px;}
+  .main-play{font-size:20px;padding:18px 18px;border-radius:14px;border:none;color:white;cursor:pointer;margin:12px 0;width:88%;max-width:520px;font-weight:700;box-shadow:0 6px 10px rgba(0,0,0,0.08);min-height:68px;}
   .controls{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:6px}
   .ctrl-btn{font-size:20px;padding:10px 14px;border-radius:12px;border:none;color:white;cursor:pointer}
   .time{font-size:0.95rem;color:#222;margin-top:8px;text-align:center;min-height:20px}
-
   .list{overflow:auto;display:flex;flex-direction:column;gap:12px;padding:6px 4px 6px 4px}
-  /* uniform track-btn for both columns */
-  .track-btn{
-    font-size:18px;
-    padding:14px 18px;
-    border-radius:14px;
-    border:none;
-    cursor:pointer;
-    display:flex;             /* <-- flex makes vertical centering trivial */
-    align-items:center;       /* <-- vertical center */
-    justify-content:center;   /* <-- horizontal center */
-    text-align:center;
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
-    gap:10px;
-    width:100%;
-    transition: transform .08s, box-shadow .08s;
-  }
-  .track-btn:hover{ transform: translateY(-2px); }
+  .track-btn{font-size:18px;padding:14px 18px;border-radius:14px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;gap:10px;width:100%;transition: transform .08s, box-shadow .08s;}
   .track-btn .label{display:inline-block;line-height:1.1}
   .track-btn.active{ box-shadow: 0 6px 18px rgba(0,0,0,0.08); transform:none; }
-
   .abc .main-play{background:var(--abc-primary)}
   .abc .ctrl-btn{background:var(--abc-btn)}
   .abc .track-btn{background:var(--abc-btn);color:#fff;font-weight:700}
-
   .devo .main-play{background:var(--devo-primary)}
   .devo .ctrl-btn{background:var(--devo-primary)}
   .devo .track-btn{background:var(--devo-btn);color:#000;font-weight:700}
-
-  /* small icon at left */
   .track-icon{min-width:26px;text-align:center;font-weight:700}
-
-  /* reiniciar button */
   .reset-btn{margin-top:8px;padding:10px 12px;border-radius:10px;border:none;background:#dc3545;color:#fff;cursor:pointer}
-
   @media (max-width:900px){
     .content{gap:8px;padding:8px}
     .col{height:auto;min-height:300px;padding:8px}
@@ -117,12 +52,10 @@
     .main-play{font-size:18px;padding:14px;width:100%;min-height:60px}
     .track-btn{font-size:16px;padding:12px}
   }
-
   @media (max-width:420px){
     .content{flex-direction:row;gap:6px}
     .col{padding:6px;height:auto}
   }
-
   .msg{font-size:0.95rem;color:#444;text-align:center;padding:6px}
   .hidden{display:none}
   </style>
@@ -185,10 +118,10 @@
 /* --------------------------
   CONFIG
 ---------------------------*/
-const GHPAGES_BASE = "https://vida-abundante.github.io/playlist-audio/"; // trailing slash included
+const GHPAGES_BASE = "https://vida-abundante.github.io/playlist-audio/";
 const DEV_FOLDER = GHPAGES_BASE + "devocionales/";
 const DEVOCIONALES_JSON_URL = GHPAGES_BASE + "devocionales.json";
-const GITHUB_API_DEV_FOLDER = "https://api.github.com/repos/Vida-Abundante/playlist-audio/contents/devocionales"; // fallback listing
+const GITHUB_API_DEV_FOLDER = "https://api.github.com/repos/Vida-Abundante/playlist-audio/contents/devocionales";
 
 /* --------------------------
   ABC data (local)
@@ -219,34 +152,25 @@ function capitalize(word){
   if(!word) return '';
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }
-
-/* Weekday names Spanish (capitalized) */
 const WEEKDAY_ES = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
-
-/* Extract yyyy-mm-dd from filename like devocional_YYYY-MM-DD.mp3 */
 function extractDateFromDevFile(fileName){
   if(!fileName) return null;
   const m = fileName.match(/(\d{4})-(\d{2})-(\d{2})/);
   if(!m) return null;
   return { yyyy: m[1], mm:m[2], dd:m[3] };
 }
-
-/* build display "Viernes 28/11" using file (preferred) and fallback to title (28/11) */
 function buildDevDisplayText(fileName, titleFromJson){
   const d = extractDateFromDevFile(fileName);
   if(d){
-    const dt = new Date(`${d.yyyy}-${d.mm}-${d.dd}T12:00:00`); // midday to avoid TZ issues
+    const dt = new Date(`${d.yyyy}-${d.mm}-${d.dd}T12:00:00`);
     const weekday = WEEKDAY_ES[dt.getDay()] || '';
     const short = titleFromJson && titleFromJson.trim() ? titleFromJson : `${d.dd}/${d.mm}`;
     return `${weekday} ${short}`;
   } else {
-    // fallback: if title looks like dd/mm use it; else shorten filename
     if(titleFromJson && /^\d{1,2}\/\d{1,2}$/.test(titleFromJson.trim())) return `${titleFromJson.trim()}`;
     return titleFromJson || fileName;
   }
 }
-
-/* shorten dev filename to fallback nice text if title absent */
 function shortenDevoDisplayFromFile(fileName){
   if(!fileName) return fileName;
   let base = fileName.replace(/\.[^/.]+$/, "");
@@ -255,17 +179,13 @@ function shortenDevoDisplayFromFile(fileName){
   const nice = parts.slice(0,2).map(p=>capitalize(p.toLowerCase())).join(' ');
   return nice.length>20 ? nice.slice(0,18)+'…' : nice || base;
 }
-
-/* encode filename for URLs (preserve path separators if any) */
 function encodeFileName(name){
   return name.split('/').map(p => encodeURIComponent(p)).join('/');
 }
-
-/* decode and normalize */
 function cleanUrl(u){ try{ return decodeURIComponent(u.split('?')[0]); }catch(e){return u;} }
 
 /* --------------------------
-  Player class (with pauseOthers callback)
+  Player class
 ---------------------------*/
 class MirrorPlayer {
   constructor(opts){
@@ -279,7 +199,7 @@ class MirrorPlayer {
     this.sections = opts.sections || [];
     this.names = opts.names || [];
     this.base = opts.base || '';
-    this.pauseOthers = opts.pauseOthers || function(){}; // must pause other players
+    this.pauseOthers = opts.pauseOthers || function(){};
     this.mode = 'none';
     this.fullPlaylist = [];
     this.sectionEndIndices = [];
@@ -294,12 +214,10 @@ class MirrorPlayer {
 
   _buildFullPlaylist(){
     this.fullPlaylist = [];
-    this._originalNames = [];
     const ends=[]; let idx=-1;
     for(let s=0;s<this.sections.length;s++){
       for(let i=0;i<this.sections[s].length;i++){
         const fname = this.sections[s][i];
-        this._originalNames.push(fname);
         const url = this.base + encodeFileName(fname);
         this.fullPlaylist.push(url);
         idx++;
@@ -322,7 +240,6 @@ class MirrorPlayer {
     this.audio.addEventListener('pause', ()=> this._onPause());
     this.audio.addEventListener('timeupdate', ()=> this._updateTimeDisplay());
 
-    // ensure when play() is called we pause the other player(s)
     const origPlay = this.audio.play.bind(this.audio);
     const that = this;
     this.audio.play = function(){
@@ -331,7 +248,48 @@ class MirrorPlayer {
     };
   }
 
-  /* Toggle play/pause of current audio */
+  /* Utility: compute current section index and position from current src */
+  _computeFullIndexFromSrc(){
+    const srcClean = cleanUrl(this.audio.src || '');
+    for(let i=0;i<this.fullPlaylist.length;i++){
+      const p = cleanUrl(this.fullPlaylist[i]);
+      if(p === srcClean) return i;
+    }
+    return -1;
+  }
+
+  /* Utility: get readable label for current playing section/file */
+  _currentLabel(){
+    // prefer explicit dataset.section for section-mode
+    try{
+      if(this.audio.dataset.mode === 'section' && this.audio.dataset.section){
+        const sec = parseInt(this.audio.dataset.section,10);
+        const labelBase = (this.names && this.names[sec]) ? this.names[sec] : (`Sección ${sec+1}`);
+        // if section has multiples, show position
+        const list = JSON.parse(this.audio.dataset.list || "[]");
+        const idxInList = parseInt(this.audio.dataset.index || 0,10);
+        const pos = (list && list.length>1) ? ` (${idxInList+1} de ${list.length})` : '';
+        return `${labelBase}${pos}`;
+      } else {
+        // full mode or unknown: find fullIndex then map to section
+        const idx = this._computeFullIndexFromSrc();
+        if(idx>=0){
+          let acc=0;
+          for(let s=0;s<this.sections.length;s++){
+            const len = this.sections[s].length;
+            if(idx < acc + len){
+              const pos = (len>1) ? ` (${idx-acc+1} de ${len})` : '';
+              const name = (this.names && this.names[s]) ? this.names[s] : `Sección ${s+1}`;
+              return `${name}${pos}`;
+            }
+            acc += len;
+          }
+        }
+      }
+    }catch(e){}
+    return '';
+  }
+
   togglePlayPauseCurrent(){
     if(!this.audio.src) { this.startFullPlaylist(); return; }
     if(this.audio.paused) this.audio.play(); else this.audio.pause();
@@ -346,7 +304,6 @@ class MirrorPlayer {
       btn.className='track-btn';
       btn.setAttribute('data-section', s);
       const name = (this.names && this.names[s]) ? this.names[s] : `Sección ${s+1}`;
-      // structure: icon + label (centered)
       btn.innerHTML = `<span class="track-icon">▶</span><span class="label">${name}</span>`;
       btn.addEventListener('click', ()=> this.playSection(s));
       this.listContainer.appendChild(btn);
@@ -355,7 +312,7 @@ class MirrorPlayer {
   }
 
   _onPlay(){
-    // update state immediately so UI doesn't flicker
+    // update main button text ASAP
     this._updateNowPlaying();
     this._updateButtonsState();
     this._saveState();
@@ -373,56 +330,43 @@ class MirrorPlayer {
   }
 
   _updateNowPlaying(){
-    if(!this.timeEl) return;
-    if(!this.audio.src) { this.timeEl.textContent = '🎵 Reproduciendo: Nada'; return; }
-    try{
-      const clean = cleanUrl(this.audio.src || '');
-      const idx = this.fullPlaylist.findIndex(u => {
-        const a = decodeURIComponent(u.split('?')[0]);
-        return a === clean;
-      });
-      if(idx>=0){
-        // compute section + position
-        let secIdx = 0, acc=0;
-        for(let s=0;s<this.sections.length;s++){
-          const len = this.sections[s].length;
-          if(idx < acc + len) { secIdx = s; break; }
-          acc += len;
-        }
-        const sectionArray = this.sections[secIdx];
-        const posInSection = idx - acc;
-        const name = this.names && this.names[secIdx] ? this.names[secIdx] : ('Sección '+(secIdx+1));
-        const pos = sectionArray.length>1 ? ` (${posInSection+1} de ${sectionArray.length})` : '';
-        this.timeEl.textContent = `🎵 Reproduciendo: ${name}${pos} — ${secToMMSS(this.audio.currentTime||0)} / ${this.audio.duration && !isNaN(this.audio.duration)?secToMMSS(this.audio.duration):'--:--'}`;
-        return;
-      }
-    }catch(e){}
-    this.timeEl.textContent = `🎵 Reproduciendo`;
+    // Put "Pausar/Resumir <nombre>" in main button and keep small time below (optional)
+    const label = this._currentLabel();
+    if(this.mode==='none' || !this.audio.src){
+      if(this.mainBtn) this.mainBtn.textContent = '▶ Reproducir lista completa';
+      if(this.timeEl) this.timeEl.textContent = '🎵 Reproduciendo: Nada';
+      return;
+    }
+    // if paused -> Reanudar label, if playing -> Pausar label
+    if(this.mainBtn){
+      if(this.audio.paused) this.mainBtn.textContent = `▶ Reanudar ${label || ''}`.trim();
+      else this.mainBtn.textContent = `⏸ Pausar ${label || ''}`.trim();
+    }
+    // small time display under audio
+    if(this.timeEl){
+      const cur = secToMMSS(this.audio.currentTime||0);
+      const tot = this.audio.duration && !isNaN(this.audio.duration) ? secToMMSS(this.audio.duration) : '--:--';
+      this.timeEl.textContent = `🎵 Reproduciendo: ${label || ''} — ${cur} / ${tot}`;
+    }
   }
 
   _updateButtonsState(){
     if(!this.trackButtons) return;
     this.trackButtons.forEach((btn,i)=>{
-      const isActive = (this.audio.dataset.mode === 'section' || this.mode==='section') && parseInt(this.audio.dataset.section||-1) === i && !this.audio.paused && this.audio.src;
+      const isActive = (this.audio.dataset.mode === 'section' && parseInt(this.audio.dataset.section||-1)===i && !this.audio.paused && this.audio.src);
       const icon = btn.querySelector('.track-icon');
       if(icon) icon.textContent = isActive ? '⏸' : '▶';
       const label = btn.querySelector('.label');
       if(label) label.textContent = (this.names && this.names[i]) ? this.names[i] : ('Sección '+(i+1));
-      if(isActive) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
+      if(isActive) btn.classList.add('active'); else btn.classList.remove('active');
     });
 
-    if(this.mode==='none') this.mainBtn.textContent = '▶ Reproducir lista completa';
-    else if(this.mode==='full') this.mainBtn.textContent = this.audio.paused ? '▶ Reanudar lista completa' : '⏸ Pausar lista completa';
-    else if(this.mode==='section') this.mainBtn.textContent = this.audio.paused ? '▶ Reanudar' : '⏸ Pausar';
+    // update main button text via _updateNowPlaying
+    this._updateNowPlaying();
   }
 
   playTrackFromList(list,index){
-    const src = list[index];
-    // set dataset fields reliably
+    // ensure dataset fields before setting src
     this.audio.dataset.list = JSON.stringify(list);
     this.audio.dataset.index = index;
     try{ this.pauseOthers(); }catch(e){}
@@ -433,35 +377,26 @@ class MirrorPlayer {
     } else {
       this.audio.dataset.mode='section';
       this.mode = 'section';
-      // compute fullIndex for the chosen file
-      try{
-        const cleanSrc = decodeURIComponent(src.split('?')[0]);
-        const idx = this.fullPlaylist.findIndex(u => decodeURIComponent(u.split('?')[0]) === cleanSrc);
-        if(idx>=0) this.fullIndex = idx;
-      }catch(e){}
-    }
-    // set audio.src AFTER updating datasets so event handlers see them
-    this.audio.src = src;
-    // ensure dataset.section set if playing a section list
-    // if list is from a section, set dataset.section if present (playSection sets before calling here)
-    try{
-      // if dataset.section missing, try to determine it:
-      if(!this.audio.dataset.section || this.audio.dataset.section === '') {
-        // find which section contains this src
-        const clean = decodeURIComponent(src.split('?')[0]);
-        for(let s=0, acc=0; s<this.sections.length; s++){
+      // when playing a section, dataset.section should already be set by playSection, but ensure:
+      if(!this.audio.dataset.section) {
+        // attempt to discover section that matches
+        const cleanSrc = cleanUrl(list[index]);
+        for(let s=0;s<this.sections.length;s++){
           for(let j=0;j<this.sections[s].length;j++){
-            const candidate = this.base + encodeFileName(this.sections[s][j]);
-            if(decodeURIComponent(candidate.split('?')[0]) === clean){
-              this.audio.dataset.section = s;
-              break;
-            }
+            const candidate = cleanUrl(this.base + encodeFileName(this.sections[s][j]));
+            if(candidate === cleanSrc) { this.audio.dataset.section = s; break; }
           }
           if(this.audio.dataset.section) break;
         }
       }
-    }catch(e){}
+      // compute fullIndex for location
+      const clean = cleanUrl(list[index]);
+      for(let f=0; f<this.fullPlaylist.length; f++){
+        if(cleanUrl(this.fullPlaylist[f]) === clean) { this.fullIndex = f; break; }
+      }
+    }
 
+    this.audio.src = list[index];
     // start play
     this.audio.play().catch(()=>{});
     // update UI
@@ -497,36 +432,44 @@ class MirrorPlayer {
     this.mode='section';
     this.audio.dataset.mode='section';
     this.audio.dataset.section=sectionIdx;
-    // ensure dataset.index reset to 0 for the section list
     this.audio.dataset.index = 0;
     this.playTrackFromList(list,0);
   }
 
+  /* NEXT: robust - works inside section, goes to next section if at end; works in full mode */
   nextTrack(){
     const currentMode = this.audio.dataset.mode || (this.mode==='full'?'full':'section');
     if(currentMode==='full'){
-      // advance through full playlist
-      if(this.fullIndex < this.fullPlaylist.length-1){
-        const isEndOfSection = this.sectionEndIndices.includes(this.fullIndex);
-        if(isEndOfSection) {
-          // move to next file (which belongs to next section) after short pause
-          this._waitAndPlayFull(this.fullIndex+1);
-        } else {
-          this.playFullAt(this.fullIndex+1);
-        }
+      // compute most reliable current full index
+      let idx = this.fullIndex;
+      const detected = this._computeFullIndexFromSrc();
+      if(detected>=0) idx = detected;
+      if(idx < this.fullPlaylist.length - 1){
+        const next = idx + 1;
+        this.playFullAt(next);
       } else {
-        // Option A: stop at end and show "Nada"
         this.finishFullPlaylist();
       }
     } else {
-      // section mode: advance within current section
+      // section mode: advance within current section, else move to next section's first track if any
       const list = JSON.parse(this.audio.dataset.list||"[]");
-      let i = parseInt(this.audio.dataset.index||0);
-      if(i+1 < list.length) {
-        this.playTrackFromList(list,i+1);
+      let i = parseInt(this.audio.dataset.index||0,10);
+      if(i+1 < list.length){
+        this.playTrackFromList(list, i+1);
       } else {
-        // reached end of section -> finishSection (do not auto-loop)
-        this.finishSection();
+        // move to next section if exists
+        const sec = parseInt(this.audio.dataset.section || -1,10);
+        if(sec >= 0 && sec + 1 < this.sections.length){
+          // play next section first file
+          const nextSec = sec + 1;
+          const nextList = this.sections[nextSec].map(n=>this.base + encodeFileName(n));
+          this.audio.dataset.section = nextSec;
+          this.audio.dataset.index = 0;
+          this.playTrackFromList(nextList, 0);
+        } else {
+          // no next section: stop (finishSection)
+          this.finishSection();
+        }
       }
     }
   }
@@ -534,19 +477,23 @@ class MirrorPlayer {
   prevTrack(){
     const currentMode = this.audio.dataset.mode || (this.mode==='full'?'full':'section');
     if(currentMode==='full'){
-      if(this.fullIndex > 0) this.playFullAt(this.fullIndex-1);
+      let idx = this.fullIndex;
+      const detected = this._computeFullIndexFromSrc();
+      if(detected>=0) idx = detected;
+      if(idx > 0) this.playFullAt(idx-1);
     } else {
       const list = JSON.parse(this.audio.dataset.list||"[]");
-      let i = parseInt(this.audio.dataset.index||0);
+      let i = parseInt(this.audio.dataset.index||0,10);
       if(i>0) this.playTrackFromList(list,i-1);
       else {
-        const sec = parseInt(this.audio.dataset.section||0);
+        const sec = parseInt(this.audio.dataset.section||0,10);
         if(sec>0){
           const prevList = this.sections[sec-1].map(n=>this.base + encodeFileName(n));
           this.audio.dataset.mode='section';
           this.audio.dataset.section = sec-1;
           this.playTrackFromList(prevList, prevList.length-1);
         } else {
+          // fallback to previous in full playlist if possible
           if(this.fullIndex > 0) this.playFullAt(Math.max(0,this.fullIndex-1));
         }
       }
@@ -561,7 +508,6 @@ class MirrorPlayer {
   }
 
   finishFullPlaylist(){
-    // Option A: stop and show "Nada"
     this.mode='none';
     try{ this.audio.pause(); }catch(e){}
     this.audio.src='';
@@ -586,25 +532,37 @@ class MirrorPlayer {
   _onEnded(){
     const currentMode = this.audio.dataset.mode || (this.mode==='full'?'full':'section');
     if(currentMode==='full'){
-      const idx = this.fullIndex;
-      if(idx >= this.fullPlaylist.length-1) this.finishFullPlaylist();
+      const idx = this._computeFullIndexFromSrc();
+      const useIdx = idx >= 0 ? idx : this.fullIndex;
+      if(useIdx >= this.fullPlaylist.length-1) this.finishFullPlaylist();
       else {
-        const isEndOfSection = this.sectionEndIndices.includes(idx);
-        if(isEndOfSection) this._waitAndPlayFull(idx+1);
-        else this.playFullAt(idx+1);
+        const next = useIdx + 1;
+        // preserve 2s wait if end of section
+        const isEndOfSection = this.sectionEndIndices.includes(useIdx);
+        if(isEndOfSection) this._waitAndPlayFull(next);
+        else this.playFullAt(next);
       }
     } else {
       const list = JSON.parse(this.audio.dataset.list||"[]");
-      let i = parseInt(this.audio.dataset.index||0);
+      let i = parseInt(this.audio.dataset.index||0,10);
       if(i+1 < list.length) this.playTrackFromList(list,i+1);
-      else this.finishSection();
+      else {
+        // go to next section if exists
+        const sec = parseInt(this.audio.dataset.section||-1,10);
+        if(sec>=0 && sec+1 < this.sections.length){
+          const nextList = this.sections[sec+1].map(n=>this.base + encodeFileName(n));
+          this.audio.dataset.section = sec+1;
+          this.audio.dataset.index = 0;
+          this.playTrackFromList(nextList,0);
+        } else this.finishSection();
+      }
     }
   }
 
   _saveState(){
     try{
       const key = (this.container.id==='abcCol') ? 'abc_state' : 'devo_state';
-      const state = { mode: this.audio.dataset.mode || this.mode, index: parseInt(this.audio.dataset.index||0), time: this.audio.currentTime || 0, section: parseInt(this.audio.dataset.section||-1) };
+      const state = { mode: this.audio.dataset.mode || this.mode, index: parseInt(this.audio.dataset.index||0,10), time: this.audio.currentTime || 0, section: parseInt(this.audio.dataset.section||-1,10) };
       localStorage.setItem(key, JSON.stringify(state));
     } catch(e){}
   }
@@ -621,7 +579,6 @@ class MirrorPlayer {
         this.audio.dataset.index = this.fullIndex;
         this.audio.src = this.fullPlaylist[this.fullIndex] || '';
         this.audio.currentTime = st.time || 0;
-        // keep paused until user presses play
         this.audio.pause();
       } else if(st.mode==='section' && st.section>=0){
         this.mode='section';
@@ -660,12 +617,8 @@ function renderABClistButtons(){
 let devoPlayer, abcPlayer;
 function pauseBothExcept(which){
   try{
-    if(which !== 'devo' && window.devoPlayer && window.devoPlayer.audio && !window.devoPlayer.audio.paused){
-      window.devoPlayer.audio.pause();
-    }
-    if(which !== 'abc' && window.abcPlayer && window.abcPlayer.audio && !window.abcPlayer.audio.paused){
-      window.abcPlayer.audio.pause();
-    }
+    if(which !== 'devo' && window.devoPlayer && window.devoPlayer.audio && !window.devoPlayer.audio.paused) window.devoPlayer.audio.pause();
+    if(which !== 'abc' && window.abcPlayer && window.abcPlayer.audio && !window.abcPlayer.audio.paused) window.abcPlayer.audio.pause();
   }catch(e){}
 }
 
@@ -676,30 +629,22 @@ const devoMsg = document.getElementById('devoMsg');
 async function loadDevocionales(){
   devoMsg.textContent = 'Cargando devocionales…';
   try{
-    // 1) try JSON first
     const resp = await fetch(DEVOCIONALES_JSON_URL + '?nocache=' + Date.now(), {cache:'no-store'});
     let arr = null;
-    if(resp.ok){
-      arr = await resp.json();
-    } else {
-      // fallback: try listing the folder on GitHub
+    if(resp.ok) arr = await resp.json();
+    else {
       const fallback = await fetch(GITHUB_API_DEV_FOLDER, {cache:'no-store'});
       if(fallback.ok){
         const list = await fallback.json();
-        // map to {file, title}
         arr = list.filter(i=>i.type==='file' && i.name.toLowerCase().endsWith('.mp3')).map(i=>({ title: null, file: i.name }));
       }
     }
-
     if(!arr || arr.length===0){ devoMsg.textContent='No hay devocionales publicados.'; return; }
 
-    // newest first (reverse so newest appears on top)
+    // newest first
     const entries = arr.slice().reverse();
-
-    // build sections (each file is its own section) and display names (weekday + title)
     const sections = entries.map(e=>[e.file]);
     const displayNames = entries.map(e => {
-      // If JSON has title like "28/11" we use it to compute "Viernes 28/11"
       const shortFromFile = shortenDevoDisplayFromFile(e.file);
       const titleForJson = (e.title && typeof e.title === 'string' && e.title.trim()) ? e.title.trim() : (shortFromFile || '');
       return buildDevDisplayText(e.file, titleForJson);
@@ -707,7 +652,7 @@ async function loadDevocionales(){
 
     devoMsg.style.display='none';
 
-    // create devo player
+    // create players
     window.devoPlayer = new MirrorPlayer({
       container: document.getElementById('devoCol'),
       audio: document.getElementById('devoAudio'),
@@ -722,7 +667,6 @@ async function loadDevocionales(){
       pauseOthers: function(){ pauseBothExcept('devo'); }
     });
 
-    // create abc player (base is GHPAGES_BASE)
     window.abcPlayer = new MirrorPlayer({
       container: document.getElementById('abcCol'),
       audio: document.getElementById('abcAudio'),
@@ -737,7 +681,6 @@ async function loadDevocionales(){
       pauseOthers: function(){ pauseBothExcept('abc'); }
     });
 
-    // render ABC buttons (uses abcPlayer.playSection)
     renderABClistButtons();
 
   }catch(err){
@@ -746,7 +689,6 @@ async function loadDevocionales(){
   }
 }
 
-/* tries to load metadata of an mp3 by creating Audio and awaiting loadedmetadata or error */
 function checkAudioExists(url, timeout=5000){
   return new Promise(resolve=>{
     try{
@@ -765,49 +707,26 @@ function checkAudioExists(url, timeout=5000){
 /* start loading */
 loadDevocionales();
 
-/* --------------------------
-  App toggle / installation video behavior
----------------------------*/
+/* App toggle */
 const appToggle = document.getElementById('appToggle');
 const installArea = document.getElementById('installArea');
 let showingVideo=false;
-function isAppInstalled(){
-  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
-}
-function hideAppToggleIfInstalled(){
-  if(isAppInstalled()){
-    appToggle.style.display = 'none';
-  } else {
-    appToggle.style.display = 'inline-block';
-  }
-}
+function isAppInstalled(){ return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true; }
+function hideAppToggleIfInstalled(){ if(isAppInstalled()) appToggle.style.display = 'none'; else appToggle.style.display = 'inline-block'; }
 hideAppToggleIfInstalled();
-
 appToggle.addEventListener('click', ()=> {
   if(!showingVideo){
-    installArea.style.display='flex';
-    installArea.innerHTML = '';
-    const v = document.createElement('video');
-    v.src='InstruccionInstalar.mp4';
-    v.controls=true; v.autoplay=true; v.muted=true; v.loop=true;
-    v.style.width='90%'; v.style.maxWidth='720px'; v.id='appVideo';
-    installArea.appendChild(v);
-    appToggle.textContent='🔙 Ver como web';
-    showingVideo=true;
-    window.scrollTo({top:0,behavior:'smooth'});
+    installArea.style.display='flex'; installArea.innerHTML = '';
+    const v = document.createElement('video'); v.src='InstruccionInstalar.mp4'; v.controls=true; v.autoplay=true; v.muted=true; v.loop=true;
+    v.style.width='90%'; v.style.maxWidth='720px'; v.id='appVideo'; installArea.appendChild(v);
+    appToggle.textContent='🔙 Ver como web'; showingVideo=true; window.scrollTo({top:0,behavior:'smooth'});
   } else {
-    const vid = document.getElementById('appVideo');
-    if(vid){ vid.pause(); vid.src=''; vid.remove(); }
-    installArea.innerHTML='';
-    installArea.style.display='none';
-    appToggle.textContent='📱 Ver como aplicación';
-    showingVideo=false;
+    const vid = document.getElementById('appVideo'); if(vid){ vid.pause(); vid.src=''; vid.remove(); }
+    installArea.innerHTML=''; installArea.style.display='none'; appToggle.textContent='📱 Ver como aplicación'; showingVideo=false;
   }
 });
 
-/* --------------------------
-  Reiniciar buttons behavior
----------------------------*/
+/* Reiniciar */
 document.getElementById('devoReset').addEventListener('click', ()=> {
   if(!confirm('¿Estás seguro de que querés reiniciar el progreso de Devocionales?')) return;
   try{
@@ -818,7 +737,6 @@ document.getElementById('devoReset').addEventListener('click', ()=> {
     const btns = document.querySelectorAll('#devoList .track-btn'); btns.forEach(b=>{ b.classList.remove('active'); const ic=b.querySelector('.track-icon'); if(ic) ic.textContent='▶'; });
   }catch(e){}
 });
-
 document.getElementById('abcReset').addEventListener('click', ()=> {
   if(!confirm('¿Estás seguro de que querés reiniciar el progreso de ABC?')) return;
   try{
@@ -830,10 +748,6 @@ document.getElementById('abcReset').addEventListener('click', ()=> {
   }catch(e){}
 });
 
-/* ensure mutual exclusion also when clicking track buttons (safety) */
-document.addEventListener('click', (ev)=>{});
-
-/* final: make sure no horizontal scroll */
 document.documentElement.style.overflowX='hidden';
 document.body.style.overflowX='hidden';
 </script>
