@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mi Playlist – Vida Abundante</title>
+<meta property="og:title" content="Mi Playlist – Vida Abundante" />
+<meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
+<meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
+<meta name="theme-color" content="#fffafc" />
+<style>
+  :root{
+    --bg:#fffafc;
+    --text:#3a2a2a;
+    --abc-primary:#28a745;
+    --abc-btn:#007bff;
+    --devo-primary:#ff8a00;
+    --devo-btn:#ffd44d;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;overflow-x:hidden;}
+  .app{min-height:100%;display:flex;flex-direction:column;align-items:stretch}
+  header{padding:12px 16px;text-align:center}
+  header h1{margin:6px 0;font-size:1.05rem}
+  #appToggle{margin-top:8px;padding:8px 12px;border-radius:8px;border:none;background:#83bde3;color:#fff;cursor:pointer}
+  #installArea{display:none;padding:8px;display:flex;align-items:center;justify-content:center}
+  .content{flex:1;display:flex;gap:12px;padding:12px;box-sizing:border-box;align-items:stretch;justify-content:center}
+  .col{flex:1;display:flex;flex-direction:column;background:rgba(255,255,255,0.6);border-radius:12px;padding:12px;box-sizing:border-box;min-width:0;align-items:stretch;justify-content:flex-start;box-shadow:0 2px 8px rgba(0,0,0,0.06);height: calc(100vh - 190px);overflow:hidden;}
+  .col-inner{display:flex;flex-direction:column;align-items:center;height:100%;overflow:hidden}
+  .col-title{display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+  .col-title h2{margin:0;font-size:1rem}
+  .player-box{border-radius:10px;padding:12px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;background:linear-gradient(0deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02));box-shadow:inset 0 0 0 1px rgba(0,0,0,0.03);flex: 0 0 auto;width:100%;max-width:560px;}
+  .main-play{font-size:20px;padding:18px 18px;border-radius:14px;border:none;color:white;cursor:pointer;margin:12px 0;width:88%;max-width:520px;font-weight:700;box-shadow:0 6px 10px rgba(0,0,0,0.08);min-height:68px;}
+  .controls{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:6px}
+  .ctrl-btn{font-size:20px;padding:10px 14px;border-radius:12px;border:none;color:white;cursor:pointer}
+  .time{font-size:0.95rem;color:#222;margin-top:8px;text-align:center;min-height:20px}
+  .list{overflow:auto;display:flex;flex-direction:column;gap:12px;padding:6px 4px 6px 4px}
+  .track-btn{font-size:18px;padding:14px 18px;border-radius:14px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;gap:10px;width:100%;transition: transform .08s, box-shadow .08s;}
+  .track-btn .label{display:inline-block;line-height:1.1}
+  .track-btn.active{ box-shadow: 0 6px 18px rgba(0,0,0,0.08); transform:none; }
+  .abc .main-play{background:var(--abc-primary)}
+  .abc .ctrl-btn{background:var(--abc-btn)}
+  .abc .track-btn{background:var(--abc-btn);color:#fff;font-weight:700}
+  .devo .main-play{background:var(--devo-primary)}
+  .devo .ctrl-btn{background:var(--devo-primary)}
+  .devo .track-btn{background:var(--devo-btn);color:#000;font-weight:700}
+  .track-icon{min-width:26px;text-align:center;font-weight:700}
+  .reset-btn{margin-top:8px;padding:10px 12px;border-radius:10px;border:none;background:#dc3545;color:#fff;cursor:pointer}
+  @media (max-width:900px){
+    .content{gap:8px;padding:8px}
+    .col{height:auto;min-height:300px;padding:8px}
+    .player-box{margin-bottom:8px}
+    .main-play{font-size:18px;padding:14px;width:100%;min-height:60px}
+    .track-btn{font-size:16px;padding:12px}
+  }
+  @media (max-width:420px){
+    .content{flex-direction:row;gap:6px}
+    .col{padding:6px;height:auto}
+  }
+  .msg{font-size:0.95rem;color:#444;text-align:center;padding:6px}
+  .hidden{display:none}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Mi Playlist – Vida Abundante</h1>
+    <button id="appToggle" aria-controls="installArea">📱 Ver como aplicación</button>
+  </header>
+
+  <div id="installArea"></div>
+
+  <div class="content" role="main" aria-live="polite">
+    <!-- LEFT: DEVOCIONALES -->
+    <section id="devoCol" class="col devo" aria-label="Devocionales (izquierda)">
+      <div class="col-inner">
+        <div class="col-title"><h2>DEVOCIONALES</h2></div>
+
+        <div class="player-box" id="devoPlayerBox" aria-hidden="false">
+          <button id="devoMainPlay" class="main-play">▶ Reproducir lista completa</button>
+          <div class="controls">
+            <button id="devoPrev" class="ctrl-btn" aria-label="Anterior devocional">⏮</button>
+            <audio id="devoAudio" preload="metadata" controls style="width:78%"></audio>
+            <button id="devoNext" class="ctrl-btn" aria-label="Siguiente devocional">⏭</button>
+          </div>
+          <div class="time" id="devoTime">🎵 Reproduciendo: Nada</div>
+          <button id="devoReset" class="reset-btn" title="Reiniciar progreso devocionales">🔄 Reiniciar progreso</button>
+        </div>
+
+        <div class="list" id="devoList" aria-label="Lista Devocionales">
+          <div id="devoMsg" class="msg">Cargando devocionales…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: ABC -->
+    <section id="abcCol" class="col abc" aria-label="ABC (derecha)">
+      <div class="col-inner">
+        <div class="col-title"><h2>ABC</h2></div>
+
+        <div class="player-box" id="abcPlayerBox" aria-hidden="false">
+          <button id="abcMainPlay" class="main-play">▶ Reproducir lista completa</button>
+          <div class="controls">
+            <button id="abcPrev" class="ctrl-btn" aria-label="Anterior ABC">⏮</button>
+            <audio id="abcAudio" preload="metadata" controls style="width:78%"></audio>
+            <button id="abcNext" class="ctrl-btn" aria-label="Siguiente ABC">⏭</button>
+          </div>
+          <div class="time" id="abcTime">🎵 Reproduciendo: Nada</div>
+          <button id="abcReset" class="reset-btn" title="Reiniciar progreso ABC">🔄 Reiniciar progreso</button>
+        </div>
+
+        <div class="list" id="abcList" aria-label="Lista ABC"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+/* --------------------------
+  CONFIG
+---------------------------*/
+const GHPAGES_BASE = "https://vida-abundante.github.io/playlist-audio/";
+const DEV_FOLDER = GHPAGES_BASE + "devocionales/";
+const DEVOCIONALES_JSON_URL = GHPAGES_BASE + "devocionales.json";
+const GITHUB_API_DEV_FOLDER = "https://api.github.com/repos/Vida-Abundante/playlist-audio/contents/devocionales";
+
+/* --------------------------
+  ABC data (local)
+---------------------------*/
+const abcSections = [
+  ["Salvación.mp3"],
+  ["Pecado.mp3"],
+  ["La palabra 1.mp3","La palabra 2.mp3","La palabra 3.mp3"],
+  ["La oración 1.mp3","La oración 2.mp3","La oración 3.mp3","La oración 4.mp3","La oración 5.mp3"],
+  ["Espíritu Santo 1.mp3","Espíritu Santo 2.mp3","Espíritu Santo 3.mp3"],
+  ["Bautismo 1.mp3","Bautismo 2.mp3"],
+  ["Mayordomía 1.mp3","Mayordomía 2.mp3"],
+  ["Evangelismo.mp3"],
+  ["Visión de la iglesia.mp3"]
+];
+const abcNames = ["Salvación","Pecado","La Palabra","La Oración","Espíritu Santo","Bautismo","Mayordomía","Evangelismo","Visión de la iglesia"];
+
+/* --------------------------
+  Helpers
+---------------------------*/
+function secToMMSS(s){
+  s = Math.floor(s||0);
+  const mm = String(Math.floor(s/60)).padStart(2,'0');
+  const ss = String(s%60).padStart(2,'0');
+  return mm+':'+ss;
+}
+function capitalize(word){
+  if(!word) return '';
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+const WEEKDAY_ES = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+function extractDateFromDevFile(fileName){
+  if(!fileName) return null;
+  const m = fileName.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if(!m) return null;
+  return { yyyy: m[1], mm:m[2], dd:m[3] };
+}
+function buildDevDisplayText(fileName, titleFromJson){
+  const d = extractDateFromDevFile(fileName);
+  if(d){
+    const dt = new Date(`${d.yyyy}-${d.mm}-${d.dd}T12:00:00`);
+    const weekday = WEEKDAY_ES[dt.getDay()] || '';
+    const short = titleFromJson && titleFromJson.trim() ? titleFromJson : `${d.dd}/${d.mm}`;
+    return `${weekday} ${short}`;
+  } else {
+    if(titleFromJson && /^\d{1,2}\/\d{1,2}$/.test(titleFromJson.trim())) return `${titleFromJson.trim()}`;
+    return titleFromJson || fileName;
+  }
+}
+function shortenDevoDisplayFromFile(fileName){
+  if(!fileName) return fileName;
+  let base = fileName.replace(/\.[^/.]+$/, "");
+  base = base.replace(/[-]+/g, "_");
+  const parts = base.split(/[_\s]+/).filter(Boolean);
+  const nice = parts.slice(0,2).map(p=>capitalize(p.toLowerCase())).join(' ');
+  return nice.length>20 ? nice.slice(0,18)+'…' : nice || base;
+}
+function encodeFileName(name){
+  return name.split('/').map(p => encodeURIComponent(p)).join('/');
+}
+function cleanUrl(u){ try{ return decodeURIComponent(u.split('?')[0]); }catch(e){return u;} }
+
+/* --------------------------
+  Player class
+---------------------------*/
+class MirrorPlayer {
+  constructor(opts){
+    this.container = opts.container;
+    this.audio = opts.audio;
+    this.mainBtn = opts.mainBtn;
+    this.prevBtn = opts.prevBtn;
+    this.nextBtn = opts.nextBtn;
+    this.listContainer = opts.listContainer;
+    this.timeEl = opts.timeEl;
+    this.sections = opts.sections || [];
+    this.names = opts.names || [];
+    this.base = opts.base || '';
+    this.pauseOthers = opts.pauseOthers || function(){};
+    this.mode = 'none';
+    this.fullPlaylist = [];
+    this.sectionEndIndices = [];
+    this.fullIndex = 0;
+    this.waiting = false;
+
+    this._buildFullPlaylist();
+    this._wireEvents();
+    this._renderLists();
+    this._restoreState();
+  }
+
+  _buildFullPlaylist(){
+    this.fullPlaylist = [];
+    const ends=[]; let idx=-1;
+    for(let s=0;s<this.sections.length;s++){
+      for(let i=0;i<this.sections[s].length;i++){
+        const fname = this.sections[s][i];
+        const url = this.base + encodeFileName(fname);
+        this.fullPlaylist.push(url);
+        idx++;
+      }
+      ends.push(idx);
+    }
+    this.sectionEndIndices = ends;
+  }
+
+  _wireEvents(){
+    if(this.mainBtn) this.mainBtn.addEventListener('click', ()=> {
+      if(this.mode==='none') this.startFullPlaylist();
+      else this.togglePlayPauseCurrent();
+    });
+    if(this.prevBtn) this.prevBtn.addEventListener('click', ()=> this.prevTrack());
+    if(this.nextBtn) this.nextBtn.addEventListener('click', ()=> this.nextTrack());
+
+    this.audio.addEventListener('ended', ()=> this._onEnded());
+    this.audio.addEventListener('play', ()=> this._onPlay());
+    this.audio.addEventListener('pause', ()=> this._onPause());
+    this.audio.addEventListener('timeupdate', ()=> this._updateTimeDisplay());
+
+    const origPlay = this.audio.play.bind(this.audio);
+    const that = this;
+    this.audio.play = function(){
+      try{ that.pauseOthers(); }catch(e){}
+      return origPlay();
+    };
+  }
+
+  /* Utility: compute current section index and position from current src */
+  _computeFullIndexFromSrc(){
+    const srcClean = cleanUrl(this.audio.src || '');
+    for(let i=0;i<this.fullPlaylist.length;i++){
+      const p = cleanUrl(this.fullPlaylist[i]);
+      if(p === srcClean) return i;
+    }
+    return -1;
+  }
+
+  /* Utility: get readable label for current playing section/file */
+  _currentLabel(){
+    // prefer explicit dataset.section for section-mode
+    try{
+      if(this.audio.dataset.mode === 'section' && this.audio.dataset.section){
+        const sec = parseInt(this.audio.dataset.section,10);
+        const labelBase = (this.names && this.names[sec]) ? this.names[sec] : (`Sección ${sec+1}`);
+        // if section has multiples, show position
+        const list = JSON.parse(this.audio.dataset.list || "[]");
+        const idxInList = parseInt(this.audio.dataset.index || 0,10);
+        const pos = (list && list.length>1) ? ` (${idxInList+1} de ${list.length})` : '';
+        return `${labelBase}${pos}`;
+      } else {
+        // full mode or unknown: find fullIndex then map to section
+        const idx = this._computeFullIndexFromSrc();
+        if(idx>=0){
+          let acc=0;
+          for(let s=0;s<this.sections.length;s++){
+            const len = this.sections[s].length;
+            if(idx < acc + len){
+              const pos = (len>1) ? ` (${idx-acc+1} de ${len})` : '';
+              const name = (this.names && this.names[s]) ? this.names[s] : `Sección ${s+1}`;
+              return `${name}${pos}`;
+            }
+            acc += len;
+          }
+        }
+      }
+    }catch(e){}
+    return '';
+  }
+
+  togglePlayPauseCurrent(){
+    if(!this.audio.src) { this.startFullPlaylist(); return; }
+    if(this.audio.paused) this.audio.play(); else this.audio.pause();
+    this._updateButtonsState();
+  }
+
+  _renderLists(){
+    if(!this.listContainer) return;
+    this.listContainer.innerHTML = '';
+    for(let s=0;s<this.sections.length;s++){
+      const btn = document.createElement('button');
+      btn.className='track-btn';
+      btn.setAttribute('data-section', s);
+      const name = (this.names && this.names[s]) ? this.names[s] : `Sección ${s+1}`;
+      btn.innerHTML = `<span class="track-icon">▶</span><span class="label">${name}</span>`;
+      btn.addEventListener('click', ()=> this.playSection(s));
+      this.listContainer.appendChild(btn);
+    }
+    this.trackButtons = Array.from(this.listContainer.getElementsByClassName('track-btn'));
+  }
+
+  _onPlay(){
+    // update main button text ASAP
+    this._updateNowPlaying();
+    this._updateButtonsState();
+    this._saveState();
+  }
+  _onPause(){
+    this._updateButtonsState();
+    this._saveState();
+  }
+  _updateTimeDisplay(){
+    if(!this.timeEl) return;
+    const cur = secToMMSS(this.audio.currentTime||0);
+    const tot = this.audio.duration && !isNaN(this.audio.duration) ? secToMMSS(this.audio.duration) : '--:--';
+    if(this.audio.src) this.timeEl.textContent = `⏱ ${cur} / ${tot}`;
+    else this.timeEl.textContent = `🎵 Reproduciendo: Nada`;
+  }
+
+  _updateNowPlaying(){
+    // Put "Pausar/Resumir <nombre>" in main button and keep small time below (optional)
+    const label = this._currentLabel();
+    if(this.mode==='none' || !this.audio.src){
+      if(this.mainBtn) this.mainBtn.textContent = '▶ Reproducir lista completa';
+      if(this.timeEl) this.timeEl.textContent = '🎵 Reproduciendo: Nada';
+      return;
+    }
+    // if paused -> Reanudar label, if playing -> Pausar label
+    if(this.mainBtn){
+      if(this.audio.paused) this.mainBtn.textContent = `▶ Reanudar ${label || ''}`.trim();
+      else this.mainBtn.textContent = `⏸ Pausar ${label || ''}`.trim();
+    }
+    // small time display under audio
+    if(this.timeEl){
+      const cur = secToMMSS(this.audio.currentTime||0);
+      const tot = this.audio.duration && !isNaN(this.audio.duration) ? secToMMSS(this.audio.duration) : '--:--';
+      this.timeEl.textContent = `🎵 Reproduciendo: ${label || ''} — ${cur} / ${tot}`;
+    }
+  }
+
+  _updateButtonsState(){
+    if(!this.trackButtons) return;
+    this.trackButtons.forEach((btn,i)=>{
+      const isActive = (this.audio.dataset.mode === 'section' && parseInt(this.audio.dataset.section||-1)===i && !this.audio.paused && this.audio.src);
+      const icon = btn.querySelector('.track-icon');
+      if(icon) icon.textContent = isActive ? '⏸' : '▶';
+      const label = btn.querySelector('.label');
+      if(label) label.textContent = (this.names && this.names[i]) ? this.names[i] : ('Sección '+(i+1));
+      if(isActive) btn.classList.add('active'); else btn.classList.remove('active');
+    });
+
+    // update main button text via _updateNowPlaying
+    this._updateNowPlaying();
+  }
+
+  playTrackFromList(list,index){
+    // ensure dataset fields before setting src
+    this.audio.dataset.list = JSON.stringify(list);
+    this.audio.dataset.index = index;
+    try{ this.pauseOthers(); }catch(e){}
+    if(list === this.fullPlaylist) {
+      this.audio.dataset.mode = 'full';
+      this.mode = 'full';
+      this.fullIndex = index;
+    } else {
+      this.audio.dataset.mode='section';
+      this.mode = 'section';
+      // when playing a section, dataset.section should already be set by playSection, but ensure:
+      if(!this.audio.dataset.section) {
+        // attempt to discover section that matches
+        const cleanSrc = cleanUrl(list[index]);
+        for(let s=0;s<this.sections.length;s++){
+          for(let j=0;j<this.sections[s].length;j++){
+            const candidate = cleanUrl(this.base + encodeFileName(this.sections[s][j]));
+            if(candidate === cleanSrc) { this.audio.dataset.section = s; break; }
+          }
+          if(this.audio.dataset.section) break;
+        }
+      }
+      // compute fullIndex for location
+      const clean = cleanUrl(list[index]);
+      for(let f=0; f<this.fullPlaylist.length; f++){
+        if(cleanUrl(this.fullPlaylist[f]) === clean) { this.fullIndex = f; break; }
+      }
+    }
+
+    this.audio.src = list[index];
+    // start play
+    this.audio.play().catch(()=>{});
+    // update UI
+    this._updateNowPlaying();
+    this._updateButtonsState();
+    this._saveState();
+  }
+
+  startFullPlaylist(resume=false){
+    this.mode='full';
+    if(!resume) this.fullIndex=0;
+    this.playFullAt(this.fullIndex);
+  }
+  playFullAt(index){
+    this.fullIndex = index;
+    if(index < 0) index = 0;
+    if(index > this.fullPlaylist.length-1){ this.finishFullPlaylist(); return; }
+    this.playTrackFromList(this.fullPlaylist,this.fullIndex);
+    this.audio.dataset.mode='full';
+    this.audio.dataset.index=this.fullIndex;
+    this._updateButtonsState();
+  }
+
+  playSection(sectionIdx){
+    const list = this.sections[sectionIdx].map(n=>this.base + encodeFileName(n));
+    const isSameSection = (this.audio.dataset.mode==='section' && parseInt(this.audio.dataset.section||-1)===sectionIdx);
+    const isPlaying = !this.audio.paused && !this.audio.ended && this.audio.src;
+    if(isSameSection){
+      if(isPlaying) this.audio.pause(); else this.audio.play();
+      this._updateButtonsState();
+      return;
+    }
+    this.mode='section';
+    this.audio.dataset.mode='section';
+    this.audio.dataset.section=sectionIdx;
+    this.audio.dataset.index = 0;
+    this.playTrackFromList(list,0);
+  }
+
+  /* NEXT: robust - works inside section, goes to next section if at end; works in full mode */
+  nextTrack(){
+    const currentMode = this.audio.dataset.mode || (this.mode==='full'?'full':'section');
+    if(currentMode==='full'){
+      // compute most reliable current full index
+      let idx = this.fullIndex;
+      const detected = this._computeFullIndexFromSrc();
+      if(detected>=0) idx = detected;
+      if(idx < this.fullPlaylist.length - 1){
+        const next = idx + 1;
+        this.playFullAt(next);
+      } else {
+        this.finishFullPlaylist();
+      }
+    } else {
+      // section mode: advance within current section, else move to next section's first track if any
+      const list = JSON.parse(this.audio.dataset.list||"[]");
+      let i = parseInt(this.audio.dataset.index||0,10);
+      if(i+1 < list.length){
+        this.playTrackFromList(list, i+1);
+      } else {
+        // move to next section if exists
+        const sec = parseInt(this.audio.dataset.section || -1,10);
+        if(sec >= 0 && sec + 1 < this.sections.length){
+          // play next section first file
+          const nextSec = sec + 1;
+          const nextList = this.sections[nextSec].map(n=>this.base + encodeFileName(n));
+          this.audio.dataset.section = nextSec;
+          this.audio.dataset.index = 0;
+          this.playTrackFromList(nextList, 0);
+        } else {
+          // no next section: stop (finishSection)
+          this.finishSection();
+        }
+      }
+    }
+  }
+
+  prevTrack(){
+    const currentMode = this.audio.dataset.mode || (this.mode==='full'?'full':'section');
+    if(currentMode==='full'){
+      let idx = this.fullIndex;
+      const detected = this._computeFullIndexFromSrc();
+      if(detected>=0) idx = detected;
+      if(idx > 0) this.playFullAt(idx-1);
+    } else {
+      const list = JSON.parse(this.audio.dataset.list||"[]");
+      let i = parseInt(this.audio.dataset.index||0,10);
+      if(i>0) this.playTrackFromList(list,i-1);
+      else {
+        const sec = parseInt(this.audio.dataset.section||0,10);
+        if(sec>0){
+          const prevList = this.sections[sec-1].map(n=>this.base + encodeFileName(n));
+          this.audio.dataset.mode='section';
+          this.audio.dataset.section = sec-1;
+          this.playTrackFromList(prevList, prevList.length-1);
+        } else {
+          // fallback to previous in full playlist if possible
+          if(this.fullIndex > 0) this.playFullAt(Math.max(0,this.fullIndex-1));
+        }
+      }
+    }
+  }
+
+  _waitAndPlayFull(nextIdx){
+    if(this.waiting) return;
+    this.waiting = true;
+    if(this.timeEl) this.timeEl.textContent = '⏸ Esperando 2s...';
+    setTimeout(()=> { this.waiting = false; this.playFullAt(nextIdx); },2000);
+  }
+
+  finishFullPlaylist(){
+    this.mode='none';
+    try{ this.audio.pause(); }catch(e){}
+    this.audio.src='';
+    this.audio.dataset.mode='';
+    this.audio.dataset.index='';
+    this.audio.dataset.section='';
+    this.fullIndex = 0;
+    this._updateButtonsState();
+    this._updateNowPlaying();
+  }
+  finishSection(){
+    this.mode='none';
+    try{ this.audio.pause(); }catch(e){}
+    this.audio.src='';
+    this.audio.dataset.mode='';
+    this.audio.dataset.section='';
+    this.audio.dataset.index='';
+    this._updateButtonsState();
+    this._updateNowPlaying();
+  }
+
+  _onEnded(){
+    const currentMode = this.audio.dataset.mode || (this.mode==='full'?'full':'section');
+    if(currentMode==='full'){
+      const idx = this._computeFullIndexFromSrc();
+      const useIdx = idx >= 0 ? idx : this.fullIndex;
+      if(useIdx >= this.fullPlaylist.length-1) this.finishFullPlaylist();
+      else {
+        const next = useIdx + 1;
+        // preserve 2s wait if end of section
+        const isEndOfSection = this.sectionEndIndices.includes(useIdx);
+        if(isEndOfSection) this._waitAndPlayFull(next);
+        else this.playFullAt(next);
+      }
+    } else {
+      const list = JSON.parse(this.audio.dataset.list||"[]");
+      let i = parseInt(this.audio.dataset.index||0,10);
+      if(i+1 < list.length) this.playTrackFromList(list,i+1);
+      else {
+        // go to next section if exists
+        const sec = parseInt(this.audio.dataset.section||-1,10);
+        if(sec>=0 && sec+1 < this.sections.length){
+          const nextList = this.sections[sec+1].map(n=>this.base + encodeFileName(n));
+          this.audio.dataset.section = sec+1;
+          this.audio.dataset.index = 0;
+          this.playTrackFromList(nextList,0);
+        } else this.finishSection();
+      }
+    }
+  }
+
+  _saveState(){
+    try{
+      const key = (this.container.id==='abcCol') ? 'abc_state' : 'devo_state';
+      const state = { mode: this.audio.dataset.mode || this.mode, index: parseInt(this.audio.dataset.index||0,10), time: this.audio.currentTime || 0, section: parseInt(this.audio.dataset.section||-1,10) };
+      localStorage.setItem(key, JSON.stringify(state));
+    } catch(e){}
+  }
+
+  _restoreState(){
+    try{
+      const key = (this.container.id==='abcCol') ? 'abc_state' : 'devo_state';
+      const st = JSON.parse(localStorage.getItem(key) || 'null');
+      if(!st) { this._updateButtonsState(); return; }
+      if(st.mode==='full'){
+        this.mode='full';
+        this.fullIndex = st.index || 0;
+        this.audio.dataset.mode='full';
+        this.audio.dataset.index = this.fullIndex;
+        this.audio.src = this.fullPlaylist[this.fullIndex] || '';
+        this.audio.currentTime = st.time || 0;
+        this.audio.pause();
+      } else if(st.mode==='section' && st.section>=0){
+        this.mode='section';
+        const list = this.sections[st.section].map(n=>this.base + encodeFileName(n));
+        this.audio.dataset.mode='section';
+        this.audio.dataset.section = st.section;
+        this.audio.dataset.list = JSON.stringify(list);
+        this.audio.dataset.index = st.index || 0;
+        this.audio.src = list[this.audio.dataset.index] || '';
+        this.audio.currentTime = st.time || 0;
+        this.audio.pause();
+      }
+      this._updateButtonsState();
+      this._updateNowPlaying();
+    }catch(e){}
+  }
+}
+
+/* --------------------------
+  Init players and loading devo list
+---------------------------*/
+const abcListEl = document.getElementById('abcList');
+function renderABClistButtons(){
+  abcListEl.innerHTML='';
+  for(let i=0;i<abcNames.length;i++){
+    const btn = document.createElement('button');
+    btn.className='track-btn';
+    btn.innerHTML = `<span class="track-icon">▶</span><span class="label">${abcNames[i]}</span>`;
+    btn.addEventListener('click', ()=> {
+      try{ window.abcPlayer.playSection(i); } catch(e){ console.error(e); }
+    });
+    abcListEl.appendChild(btn);
+  }
+}
+
+let devoPlayer, abcPlayer;
+function pauseBothExcept(which){
+  try{
+    if(which !== 'devo' && window.devoPlayer && window.devoPlayer.audio && !window.devoPlayer.audio.paused) window.devoPlayer.audio.pause();
+    if(which !== 'abc' && window.abcPlayer && window.abcPlayer.audio && !window.abcPlayer.audio.paused) window.abcPlayer.audio.pause();
+  }catch(e){}
+}
+
+/* load devocionales.json and verify files exist; fallback to GitHub folder listing */
+const devoListContainer = document.getElementById('devoList');
+const devoMsg = document.getElementById('devoMsg');
+
+async function loadDevocionales(){
+  devoMsg.textContent = 'Cargando devocionales…';
+  try{
+    const resp = await fetch(DEVOCIONALES_JSON_URL + '?nocache=' + Date.now(), {cache:'no-store'});
+    let arr = null;
+    if(resp.ok) arr = await resp.json();
+    else {
+      const fallback = await fetch(GITHUB_API_DEV_FOLDER, {cache:'no-store'});
+      if(fallback.ok){
+        const list = await fallback.json();
+        arr = list.filter(i=>i.type==='file' && i.name.toLowerCase().endsWith('.mp3')).map(i=>({ title: null, file: i.name }));
+      }
+    }
+    if(!arr || arr.length===0){ devoMsg.textContent='No hay devocionales publicados.'; return; }
+
+    // newest first
+    const entries = arr.slice().reverse();
+    const sections = entries.map(e=>[e.file]);
+    const displayNames = entries.map(e => {
+      const shortFromFile = shortenDevoDisplayFromFile(e.file);
+      const titleForJson = (e.title && typeof e.title === 'string' && e.title.trim()) ? e.title.trim() : (shortFromFile || '');
+      return buildDevDisplayText(e.file, titleForJson);
+    });
+
+    devoMsg.style.display='none';
+
+    // create players
+    window.devoPlayer = new MirrorPlayer({
+      container: document.getElementById('devoCol'),
+      audio: document.getElementById('devoAudio'),
+      mainBtn: document.getElementById('devoMainPlay'),
+      prevBtn: document.getElementById('devoPrev'),
+      nextBtn: document.getElementById('devoNext'),
+      listContainer: document.getElementById('devoList'),
+      timeEl: document.getElementById('devoTime'),
+      sections: sections,
+      names: displayNames,
+      base: DEV_FOLDER,
+      pauseOthers: function(){ pauseBothExcept('devo'); }
+    });
+
+    window.abcPlayer = new MirrorPlayer({
+      container: document.getElementById('abcCol'),
+      audio: document.getElementById('abcAudio'),
+      mainBtn: document.getElementById('abcMainPlay'),
+      prevBtn: document.getElementById('abcPrev'),
+      nextBtn: document.getElementById('abcNext'),
+      listContainer: document.getElementById('abcList'),
+      timeEl: document.getElementById('abcTime'),
+      sections: abcSections,
+      names: abcNames,
+      base: GHPAGES_BASE,
+      pauseOthers: function(){ pauseBothExcept('abc'); }
+    });
+
+    renderABClistButtons();
+
+  }catch(err){
+    devoMsg.textContent = 'Error cargando devocionales: ' + (err.message || err);
+    console.error(err);
+  }
+}
+
+function checkAudioExists(url, timeout=5000){
+  return new Promise(resolve=>{
+    try{
+      const a = new Audio();
+      let done=false;
+      const t = setTimeout(()=> { if(!done){ done=true; resolve(false); try{ a.src=''; }catch(e){} } }, timeout);
+      a.addEventListener('loadedmetadata', ()=> { if(!done){ done=true; clearTimeout(t); resolve(true); a.src=''; } });
+      a.addEventListener('error', ()=> { if(!done){ done=true; clearTimeout(t); resolve(false); a.src=''; } });
+      a.preload='metadata';
+      a.src = url;
+      try { a.load(); } catch(e){}
+    }catch(e){ resolve(false); }
+  });
+}
+
+/* start loading */
+loadDevocionales();
+
+/* App toggle */
+const appToggle = document.getElementById('appToggle');
+const installArea = document.getElementById('installArea');
+let showingVideo=false;
+function isAppInstalled(){ return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true; }
+function hideAppToggleIfInstalled(){ if(isAppInstalled()) appToggle.style.display = 'none'; else appToggle.style.display = 'inline-block'; }
+hideAppToggleIfInstalled();
+appToggle.addEventListener('click', ()=> {
+  if(!showingVideo){
+    installArea.style.display='flex'; installArea.innerHTML = '';
+    const v = document.createElement('video'); v.src='InstruccionInstalar.mp4'; v.controls=true; v.autoplay=true; v.muted=true; v.loop=true;
+    v.style.width='90%'; v.style.maxWidth='720px'; v.id='appVideo'; installArea.appendChild(v);
+    appToggle.textContent='🔙 Ver como web'; showingVideo=true; window.scrollTo({top:0,behavior:'smooth'});
+  } else {
+    const vid = document.getElementById('appVideo'); if(vid){ vid.pause(); vid.src=''; vid.remove(); }
+    installArea.innerHTML=''; installArea.style.display='none'; appToggle.textContent='📱 Ver como aplicación'; showingVideo=false;
+  }
+});
+
+/* Reiniciar */
+document.getElementById('devoReset').addEventListener('click', ()=> {
+  if(!confirm('¿Estás seguro de que querés reiniciar el progreso de Devocionales?')) return;
+  try{
+    localStorage.removeItem('devo_state');
+    if(window.devoPlayer){ window.devoPlayer.finishFullPlaylist(); window.devoPlayer.finishSection(); }
+    document.getElementById('devoTime').textContent = '🎵 Reproduciendo: Nada';
+    document.getElementById('devoMainPlay').textContent = '▶ Reproducir lista completa';
+    const btns = document.querySelectorAll('#devoList .track-btn'); btns.forEach(b=>{ b.classList.remove('active'); const ic=b.querySelector('.track-icon'); if(ic) ic.textContent='▶'; });
+  }catch(e){}
+});
+document.getElementById('abcReset').addEventListener('click', ()=> {
+  if(!confirm('¿Estás seguro de que querés reiniciar el progreso de ABC?')) return;
+  try{
+    localStorage.removeItem('abc_state');
+    if(window.abcPlayer){ window.abcPlayer.finishFullPlaylist(); window.abcPlayer.finishSection(); }
+    document.getElementById('abcTime').textContent = '🎵 Reproduciendo: Nada';
+    document.getElementById('abcMainPlay').textContent = '▶ Reproducir lista completa';
+    const btns = document.querySelectorAll('#abcList .track-btn'); btns.forEach(b=>{ b.classList.remove('active'); const ic=b.querySelector('.track-icon'); if(ic) ic.textContent='▶'; });
+  }catch(e){}
+});
+
+document.documentElement.style.overflowX='hidden';
+document.body.style.overflowX='hidden';
+</script>
+</body>
+</html>
