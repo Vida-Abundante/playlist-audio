@@ -8,11 +8,12 @@
   "icons": [
     {
       "src": "PortadaCuadrada.png",
-      "sizes": "1316x1316",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
 }
+
 
 
 
