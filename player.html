@@ -751,5 +751,12 @@ document.getElementById('abcReset').addEventListener('click', ()=> {
 document.documentElement.style.overflowX='hidden';
 document.body.style.overflowX='hidden';
 </script>
+
+  <script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
 </body>
 </html>
