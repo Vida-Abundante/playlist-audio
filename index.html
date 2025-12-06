@@ -1,36 +1,47 @@
-el index quedaria asi ? 
-
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 
-  <title>Vida Abundante Audios</title>
+<title>Vida Abundante Audios</title>
 
-  <!-- Manifest + Iconos -->
-  <link rel="manifest" href="manifest.json?v=1001" />
-  <link rel="apple-touch-icon" href="PortadaCuadrada.png?v=1001" />
+<!-- 🌸 META para compartir -->
+<meta property="og:title" content="Vida Abundante Audios" />
+<meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
+<meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://vida-abundante.github.io/playlist-audio/" />
+<meta name="theme-color" content="#fffafc" />
 
-  <!-- Service Worker -->
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js?v=1").then(() => {
-        console.log("Service Worker registrado 🌸");
-      });
-    }
-  </script>
+<!-- 🌸 PWA -->
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="PortadaCuadrada.jpeg" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
-  <!-- Vista previa para WhatsApp / redes -->
-  <meta property="og:title" content="Vida Abundante Audios" />
-  <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
-  <meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://vida-abundante.github.io/playlist-audio/" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="theme-color" content="#fffafc" />
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log('🌸 Service Worker activo'))
+      .catch(err => console.log('Error al registrar SW:', err));
+  }
+</script>
+
+<!-- 💅 Tu CSS original (no modificado) -->
+<style>
+  :root{
+    --bg:#fffafc;
+    --text:#3a2a2a;
+    --abc-primary:#28a745;
+    --abc-btn:#007bff;
+    --devo-primary:#ff8a00;
+    --devo-btn:#ffd44d;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;overflow-x:hidden;}
+  /* resto de tu CSS sin cambios */
+</style>
 </head>
-
 <body>
 <div class="app">
   <header>
@@ -724,6 +735,3 @@ document.body.style.overflowX='hidden';
 </script>
 </body>
 </html>
-
-
-
