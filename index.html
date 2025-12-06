@@ -4,6 +4,18 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Mi Playlist – Vida Abundante</title>
+  <link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="PortadaCuadrada.png" />
+
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+  }
+</script>
+
+<meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
+<meta name="twitter:card" content="summary_large_image" />
+
 <meta property="og:title" content="Mi Playlist – Vida Abundante" />
 <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
 <meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
@@ -753,3 +765,4 @@ document.body.style.overflowX='hidden';
 </script>
 </body>
 </html>
+
