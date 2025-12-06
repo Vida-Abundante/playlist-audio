@@ -7,10 +7,9 @@
   "theme_color": "#fffafc",
   "icons": [
     {
-      "src": "PortadaCuadrada.png",
+      "src": "PortadaCuadrada.jpeg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpeg"
     }
   ]
 }
-
