@@ -1,77 +1,36 @@
+el index quedaria asi ? 
+
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Vida Abundante Audios</title>
-  <link rel="manifest" href="manifest.json?v=2" />
-<link rel="apple-touch-icon" href="PortadaCuadrada.png" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js");
-  }
-</script>
+  <title>Vida Abundante Audios</title>
 
-<meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
-<meta name="twitter:card" content="summary_large_image" />
+  <!-- Manifest + Iconos -->
+  <link rel="manifest" href="manifest.json?v=1001" />
+  <link rel="apple-touch-icon" href="PortadaCuadrada.png?v=1001" />
 
-<meta property="og:title" content="Vida Abundante Audios" />
-<meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
-<meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
-<meta name="theme-color" content="#fffafc" />
-<style>
-  :root{
-    --bg:#fffafc;
-    --text:#3a2a2a;
-    --abc-primary:#28a745;
-    --abc-btn:#007bff;
-    --devo-primary:#ff8a00;
-    --devo-btn:#ffd44d;
-  }
-  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:"Poppins",sans-serif;overflow-x:hidden;}
-  .app{min-height:100%;display:flex;flex-direction:column;align-items:stretch}
-  header{padding:12px 16px;text-align:center}
-  header h1{margin:6px 0;font-size:1.05rem}
-  #appToggle{margin-top:8px;padding:8px 12px;border-radius:8px;border:none;background:#83bde3;color:#fff;cursor:pointer}
-  #installArea{display:none;padding:8px;display:flex;align-items:center;justify-content:center}
-  .content{flex:1;display:flex;gap:12px;padding:12px;box-sizing:border-box;align-items:stretch;justify-content:center}
-  .col{flex:1;display:flex;flex-direction:column;background:rgba(255,255,255,0.6);border-radius:12px;padding:12px;box-sizing:border-box;min-width:0;align-items:stretch;justify-content:flex-start;box-shadow:0 2px 8px rgba(0,0,0,0.06);height: calc(100vh - 190px);overflow:hidden;}
-  .col-inner{display:flex;flex-direction:column;align-items:center;height:100%;overflow:hidden}
-  .col-title{display:flex;align-items:center;justify-content:center;margin-bottom:8px}
-  .col-title h2{margin:0;font-size:1rem}
-  .player-box{border-radius:10px;padding:12px;margin-bottom:12px;display:flex;flex-direction:column;align-items:center;background:linear-gradient(0deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02));box-shadow:inset 0 0 0 1px rgba(0,0,0,0.03);flex: 0 0 auto;width:100%;max-width:560px;}
-  .main-play{font-size:20px;padding:18px 18px;border-radius:14px;border:none;color:white;cursor:pointer;margin:12px 0;width:88%;max-width:520px;font-weight:700;box-shadow:0 6px 10px rgba(0,0,0,0.08);min-height:68px;}
-  .controls{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:6px}
-  .ctrl-btn{font-size:20px;padding:10px 14px;border-radius:12px;border:none;color:white;cursor:pointer}
-  .time{font-size:0.95rem;color:#222;margin-top:8px;text-align:center;min-height:20px}
-  .list{overflow:auto;display:flex;flex-direction:column;gap:12px;padding:6px 4px 6px 4px}
-  .track-btn{font-size:18px;padding:14px 18px;border-radius:14px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;gap:10px;width:100%;transition: transform .08s, box-shadow .08s;}
-  .track-btn .label{display:inline-block;line-height:1.1}
-  .track-btn.active{ box-shadow: 0 6px 18px rgba(0,0,0,0.08); transform:none; }
-  .abc .main-play{background:var(--abc-primary)}
-  .abc .ctrl-btn{background:var(--abc-btn)}
-  .abc .track-btn{background:var(--abc-btn);color:#fff;font-weight:700}
-  .devo .main-play{background:var(--devo-primary)}
-  .devo .ctrl-btn{background:var(--devo-primary)}
-  .devo .track-btn{background:var(--devo-btn);color:#000;font-weight:700}
-  .track-icon{min-width:26px;text-align:center;font-weight:700}
-  .reset-btn{margin-top:8px;padding:10px 12px;border-radius:10px;border:none;background:#dc3545;color:#fff;cursor:pointer}
-  @media (max-width:900px){
-    .content{gap:8px;padding:8px}
-    .col{height:auto;min-height:300px;padding:8px}
-    .player-box{margin-bottom:8px}
-    .main-play{font-size:18px;padding:14px;width:100%;min-height:60px}
-    .track-btn{font-size:16px;padding:12px}
-  }
-  @media (max-width:420px){
-    .content{flex-direction:row;gap:6px}
-    .col{padding:6px;height:auto}
-  }
-  .msg{font-size:0.95rem;color:#444;text-align:center;padding:6px}
-  .hidden{display:none}
-  </style>
+  <!-- Service Worker -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js?v=1").then(() => {
+        console.log("Service Worker registrado 🌸");
+      });
+    }
+  </script>
+
+  <!-- Vista previa para WhatsApp / redes -->
+  <meta property="og:title" content="Vida Abundante Audios" />
+  <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
+  <meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vida-abundante.github.io/playlist-audio/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#fffafc" />
 </head>
+
 <body>
 <div class="app">
   <header>
