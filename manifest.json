@@ -1,12 +1,10 @@
 {
   "name": "Vida Abundante Audios",
   "short_name": "VA Audios",
-  "start_url": "index.html",
-  "scope": "./",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#fffafc",
   "theme_color": "#fffafc",
-  "description": "Escuchá los audios de enseñanza de la Iglesia Cristiana Vida Abundante.",
   "icons": [
     {
       "src": "PortadaCuadrada.png",
