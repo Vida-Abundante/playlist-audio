@@ -19,7 +19,32 @@ if ("serviceWorker" in navigator) {
   });
 }
 </script>
+</script>
+function isAppInstalled() {
+  // Modo PWA real (al abrir desde el icono)
+  const standalone = window.matchMedia('(display-mode: standalone)').matches 
+    || window.navigator.standalone === true;
 
+  // App ya instalada previamente (detectamos service worker activo)
+  const hasSW = navigator.serviceWorker && navigator.serviceWorker.controller;
+
+  return standalone || hasSW;
+}
+
+function updateInstallButtonVisibility() {
+  const appToggle = document.getElementById("appToggle");
+  if (!appToggle) return;
+
+  if (isAppInstalled()) {
+    appToggle.style.display = "none";
+  } else {
+    appToggle.style.display = "inline-block";
+  }
+}
+
+window.addEventListener("load", updateInstallButtonVisibility);
+<script>
+  
 <!-- iPhone/iPad soporte -->
 <link rel="apple-touch-icon" href="PortadaCuadrada.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -775,4 +800,5 @@ document.body.style.overflowX='hidden';
 </script>
 </body>
 </html>
+
 
