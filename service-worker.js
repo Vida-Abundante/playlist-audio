@@ -1,3 +1,4 @@
+// --- Forzar actualización inmediata del Service Worker ---
 self.addEventListener("install", (event) => {
   console.log("Service Worker instalado 💗");
   self.skipWaiting();
@@ -8,7 +9,7 @@ self.addEventListener("activate", (event) => {
   clients.claim();
 });
 
-// Cache simple para que la PWA funcione offline
+// --- Cache simple para funcionamiento offline ---
 self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.open("va-cache").then((cache) =>
@@ -16,6 +17,7 @@ self.addEventListener("fetch", (event) => {
         return (
           resp ||
           fetch(event.request).then((response) => {
+            // Solo cachea archivos del repo de GitHub Pages
             if (
               event.request.url.startsWith("https://vida-abundante.github.io/")
             ) {
