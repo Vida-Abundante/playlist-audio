@@ -3,62 +3,89 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-
   <title>Vida Abundante Audios</title>
 
-  <!-- Vista previa para WhatsApp / redes -->
+  <!-- Vista previa redes -->
   <meta property="og:title" content="Vida Abundante Audios" />
-  <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
-  <meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://vida-abundante.github.io/playlist-audio/" />
+  <meta property="og:description" content="Escucha devocionales, ABC bíblico y más." />
+  <meta property="og:image" content="icons/icon-512.png" />
+  <meta name="theme-color" content="#ffffff" />
 
-  <!-- PWA -->
+  <!-- MANIFEST -->
   <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="PortadaCuadrada.png" />
-  <meta name="theme-color" content="#fffafc" />
+
+  <!-- ICONO -->
+  <link rel="icon" href="icons/icon-192.png" type="image/png" />
+  <link rel="apple-touch-icon" href="icons/icon-512.png" />
 
   <style>
     body {
       margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: #fffafc;
+      font-family: Arial, sans-serif;
+      background: #ffffff;
+    }
+
+    #installButton {
+      display: none;
+      background: #007bff;
+      color: #fff;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 20px auto;
+      display: block;
+    }
+
+    .container {
       text-align: center;
-      padding: 2rem;
+      padding-top: 20px;
     }
 
-    h1 {
-      font-size: 1.8rem;
-      margin-top: 2rem;
-      color: #444;
-    }
-
-    .loader {
-      margin-top: 2rem;
-      font-size: 1.1rem;
-      opacity: 0.7;
+    iframe {
+      width: 100%;
+      height: calc(100vh - 40px);
+      border: none;
     }
   </style>
 </head>
-
 <body>
 
-  <h1>Vida Abundante Audios</h1>
-  <div class="loader">Cargando...</div>
+  <div class="container">
+    <button id="installButton">📱 Ver como aplicación</button>
+  </div>
+
+  <!-- ENTRAR DIRECTO A LA PLAYLIST -->
+  <iframe src="https://vida-abundante.github.io/playlist-audio"></iframe>
 
   <script>
-    // Entra automáticamente al reproductor
-    window.addEventListener("DOMContentLoaded", () => {
-      window.location.href = "player.html";
+    let deferredPrompt;
+    const installButton = document.getElementById("installButton");
+
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installButton.style.display = "block";
     });
 
-    // Registrar service worker
-    if ("serviceWorker" in navigator) {
-     navigator.serviceWorker.register("service-worker.js");
-    }
+    installButton.addEventListener("click", async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+
+      if (outcome === "accepted") {
+        installButton.style.display = "none";
+      }
+
+      deferredPrompt = null;
+    });
+
+    // Detectar si está instalada (ocultar botón)
+    window.addEventListener("appinstalled", () => {
+      installButton.style.display = "none";
+    });
   </script>
 
 </body>
 </html>
-
-
