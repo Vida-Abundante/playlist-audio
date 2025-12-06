@@ -3,89 +3,93 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Vida Abundante Audios</title>
+  <title>Mi Playlist – Vida Abundante</title>
 
-  <!-- Vista previa redes -->
-  <meta property="og:title" content="Vida Abundante Audios" />
-  <meta property="og:description" content="Escucha devocionales, ABC bíblico y más." />
-  <meta property="og:image" content="icons/icon-512.png" />
-  <meta name="theme-color" content="#ffffff" />
+  <!-- Vista previa para WhatsApp / redes -->
+  <meta property="og:title" content="Mi Playlist – Vida Abundante" />
+  <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
+  <meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vida-abundante.github.io/playlist-audio/" />
 
-  <!-- MANIFEST -->
+  <!-- PWA -->
   <link rel="manifest" href="manifest.json" />
-
-  <!-- ICONO -->
-  <link rel="icon" href="icons/icon-192.png" type="image/png" />
-  <link rel="apple-touch-icon" href="icons/icon-512.png" />
+  <link rel="apple-touch-icon" href="PortadaCuadrada.png" />
+  <meta name="theme-color" content="#fffafc" />
 
   <style>
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #ffffff;
-    }
-
-    #installButton {
-      display: none;
-      background: #007bff;
-      color: #fff;
-      padding: 12px 18px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      cursor: pointer;
-      margin: 20px auto;
-      display: block;
-    }
-
-    .container {
+      font-family: "Poppins", sans-serif;
+      background: #fffafc;
       text-align: center;
-      padding-top: 20px;
+      padding: 1rem;
     }
 
-    iframe {
-      width: 100%;
-      height: calc(100vh - 40px);
-      border: none;
+    #installBox {
+      display: none;
+      margin-top: 1rem;
+      background: white;
+      padding: 1.3rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    video {
+      width: 240px;
+      border-radius: 12px;
+      margin-top: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+    }
+
+    .btn {
+      background:#007bff;
+      color:white;
+      padding:14px;
+      border-radius:10px;
+      border:none;
+      cursor:pointer;
+      margin-top:1.2rem;
+      font-size:1rem;
     }
   </style>
 </head>
+
 <body>
 
-  <div class="container">
-    <button id="installButton">📱 Ver como aplicación</button>
+  <h2>📱 ¿Querés instalar la App?</h2>
+  <button class="btn" id="openInstall">Agregar a pantalla de inicio</button>
+
+  <div id="installBox">
+    <h3>Abrí el menú ( ⋮ ) y elegí “Agregar a pantalla de inicio”</h3>
+    <video src="InstruccionInstalar.mp4" autoplay muted loop playsinline></video>
   </div>
 
-  <!-- ENTRAR DIRECTO A LA PLAYLIST -->
-  <iframe src="https://vida-abundante.github.io/playlist-audio"></iframe>
+  <button class="btn" onclick="location.href='player.html'">Entrar al reproductor</button>
 
   <script>
-    let deferredPrompt;
-    const installButton = document.getElementById("installButton");
+    let deferredPrompt = null;
 
-    window.addEventListener("beforeinstallprompt", (e) => {
+    // Captura el evento de instalación
+    window.addEventListener("beforeinstallprompt", e => {
       e.preventDefault();
       deferredPrompt = e;
-      installButton.style.display = "block";
     });
 
-    installButton.addEventListener("click", async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
+    document.getElementById("openInstall").addEventListener("click", () => {
+      const box = document.getElementById("installBox");
+      box.style.display = "block";
 
-      if (outcome === "accepted") {
-        installButton.style.display = "none";
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt = null;
       }
-
-      deferredPrompt = null;
     });
 
-    // Detectar si está instalada (ocultar botón)
-    window.addEventListener("appinstalled", () => {
-      installButton.style.display = "none";
-    });
+    // Registrar service worker
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
   </script>
-
 </body>
 </html>
