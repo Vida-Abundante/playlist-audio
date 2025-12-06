@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Mi Playlist – Vida Abundante</title>
+
+  <title>Vida Abundante Audios</title>
 
   <!-- Vista previa para WhatsApp / redes -->
-  <meta property="og:title" content="Mi Playlist – Vida Abundante" />
+  <meta property="og:title" content="Vida Abundante Audios" />
   <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
   <meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
   <meta property="og:type" content="website" />
@@ -23,67 +24,32 @@
       font-family: "Poppins", sans-serif;
       background: #fffafc;
       text-align: center;
-      padding: 1rem;
+      padding: 2rem;
     }
 
-    #installBox {
-      display: none;
-      margin-top: 1rem;
-      background: white;
-      padding: 1.3rem;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    h1 {
+      font-size: 1.8rem;
+      margin-top: 2rem;
+      color: #444;
     }
 
-    video {
-      width: 240px;
-      border-radius: 12px;
-      margin-top: 1rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.15);
-    }
-
-    .btn {
-      background:#007bff;
-      color:white;
-      padding:14px;
-      border-radius:10px;
-      border:none;
-      cursor:pointer;
-      margin-top:1.2rem;
-      font-size:1rem;
+    .loader {
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      opacity: 0.7;
     }
   </style>
 </head>
 
 <body>
 
-  <h2>📱 ¿Querés instalar la App?</h2>
-  <button class="btn" id="openInstall">Agregar a pantalla de inicio</button>
-
-  <div id="installBox">
-    <h3>Abrí el menú ( ⋮ ) y elegí “Agregar a pantalla de inicio”</h3>
-    <video src="InstruccionInstalar.mp4" autoplay muted loop playsinline></video>
-  </div>
-
-  <button class="btn" onclick="location.href='player.html'">Entrar al reproductor</button>
+  <h1>Vida Abundante Audios</h1>
+  <div class="loader">Cargando...</div>
 
   <script>
-    let deferredPrompt = null;
-
-    // Captura el evento de instalación
-    window.addEventListener("beforeinstallprompt", e => {
-      e.preventDefault();
-      deferredPrompt = e;
-    });
-
-    document.getElementById("openInstall").addEventListener("click", () => {
-      const box = document.getElementById("installBox");
-      box.style.display = "block";
-
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt = null;
-      }
+    // Entra automáticamente al reproductor
+    window.addEventListener("DOMContentLoaded", () => {
+      window.location.href = "player.html";
     });
 
     // Registrar service worker
@@ -91,5 +57,6 @@
       navigator.serviceWorker.register("service-worker.js");
     }
   </script>
+
 </body>
 </html>
