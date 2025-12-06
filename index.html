@@ -8,6 +8,28 @@
 <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
 <meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
 <meta name="theme-color" content="#fffafc" />
+  <!-- PWA -->
+<link rel="manifest" href="manifest.json">
+
+<!-- Service Worker -->
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(err => console.log("SW fail:", err));
+  });
+}
+</script>
+
+<!-- iPhone/iPad soporte -->
+<link rel="apple-touch-icon" href="PortadaCuadrada.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Vida Abundante Audios">
+
+<!-- WhatsApp / redes preview -->
+<meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.png">
+<meta property="og:image:width" content="1600">
+<meta property="og:image:height" content="1600">
+<meta name="twitter:card" content="summary_large_image">
 <style>
   :root{
     --bg:#fffafc;
@@ -753,3 +775,4 @@ document.body.style.overflowX='hidden';
 </script>
 </body>
 </html>
+
