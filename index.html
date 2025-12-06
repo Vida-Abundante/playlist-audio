@@ -6,7 +6,7 @@
 <title>Vida Abundante Audios</title>
 <meta property="og:title" content="Vida Abundante Audios" />
 <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
-<meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.png" />
+<meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
 <meta name="theme-color" content="#fffafc" />
   <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -15,7 +15,7 @@
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("service-worker.js").catch(err => console.log("SW fail:", err));
+    navigator.serviceWorker.register("sw.js").catch(err => console.log("SW fail:", err));
   });
 }
 </script>
@@ -85,7 +85,7 @@ if ("serviceWorker" in navigator) {
 <body>
 <div class="app">
   <header>
-    <h1>Mi Playlist – Vida Abundante</h1>
+    <h1>Vida Abundante Audios</h1>
     <button id="appToggle" aria-controls="installArea">📱 Ver como aplicación</button>
   </header>
 
@@ -775,6 +775,5 @@ document.body.style.overflowX='hidden';
 </script>
 </body>
 </html>
-
 
 
