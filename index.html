@@ -733,9 +733,32 @@ loadDevocionales();
 const appToggle = document.getElementById('appToggle');
 const installArea = document.getElementById('installArea');
 let showingVideo=false;
-function isAppInstalled(){ return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true; }
-function hideAppToggleIfInstalled(){ if(isAppInstalled()) appToggle.style.display = 'none'; else appToggle.style.display = 'inline-block'; }
-hideAppToggleIfInstalled();
+/* Detectar si la PWA está instalada (Chrome, iOS, Android, etc.) */
+function isAppInstalled() {
+  // Modo standalone (cuando abrís desde el ícono)
+  const standalone = window.matchMedia('(display-mode: standalone)').matches 
+    || window.navigator.standalone === true;
+
+  // La app ya está instalada (service worker activo)
+  const hasSW = navigator.serviceWorker && navigator.serviceWorker.controller;
+
+  return standalone || hasSW;
+}
+
+/* Mostrar/ocultar el botón según corresponda */
+function updateInstallButtonVisibility() {
+  const appToggle = document.getElementById("appToggle");
+  if (!appToggle) return;
+
+  if (isAppInstalled()) {
+    appToggle.style.display = "none";
+  } else {
+    appToggle.style.display = "inline-block";
+  }
+}
+
+/* Ejecutar cuando carga la página */
+window.addEventListener("load", updateInstallButtonVisibility);
 appToggle.addEventListener('click', ()=> {
   if(!showingVideo){
     installArea.style.display='flex'; installArea.innerHTML = '';
@@ -775,5 +798,6 @@ document.body.style.overflowX='hidden';
 </script>
 </body>
 </html>
+
 
 
