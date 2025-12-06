@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Mi Playlist – Vida Abundante</title>
-<meta property="og:title" content="Mi Playlist – Vida Abundante" />
+<title>Vida Abundante Audios</title>
+<meta property="og:title" content="Vida Abundante Audios" />
 <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
 <meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.png" />
 <meta name="theme-color" content="#fffafc" />
@@ -15,7 +15,7 @@
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(err => console.log("SW fail:", err));
+    navigator.serviceWorker.register("service-worker.js").catch(err => console.log("SW fail:", err));
   });
 }
 </script>
@@ -775,5 +775,6 @@ document.body.style.overflowX='hidden';
 </script>
 </body>
 </html>
+
 
 
