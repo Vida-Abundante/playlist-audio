@@ -6,7 +6,7 @@
 <title>Mi Playlist – Vida Abundante</title>
 <meta property="og:title" content="Mi Playlist – Vida Abundante" />
 <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
-<meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
+<meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.png" />
 <meta name="theme-color" content="#fffafc" />
   <!-- PWA -->
 <link rel="manifest" href="manifest.json">
@@ -15,7 +15,7 @@
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("service-worker.js").catch(err => console.log("SW fail:", err));
+    navigator.serviceWorker.register("sw.js").catch(err => console.log("SW fail:", err));
   });
 }
 </script>
@@ -773,8 +773,6 @@ document.getElementById('abcReset').addEventListener('click', ()=> {
 document.documentElement.style.overflowX='hidden';
 document.body.style.overflowX='hidden';
 </script>
-
-  
 </body>
 </html>
 
