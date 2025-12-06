@@ -8,14 +8,6 @@
 <meta property="og:description" content="Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante" />
 <meta property="og:image" content="https://vida-abundante.github.io/playlist-audio/PortadaCuadrada.jpeg" />
 <meta name="theme-color" content="#fffafc" />
-
-<!-- ===== PWA: manifest + apple-touch-icon (NO tocar) ===== -->
-<link rel="manifest" href="manifest.json" />
-<link rel="apple-touch-icon" href="PortadaCuadrada.png" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<!-- ===================================================== -->
-
 <style>
   :root{
     --bg:#fffafc;
@@ -121,74 +113,6 @@
     </section>
   </div>
 </div>
-
-<!-- ============================
-  PWA install & share helper
-  (ADICIONES NO INVASIVAS: se ejecuta antes del <script> grande)
-  ============================ -->
-<script>
-/* Register SW (no cambia tu lógica) */
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(()=>{ /* no bloquear si falla */ });
-}
-
-/* Install prompt handling + Share fallback (WhatsApp) */
-let deferredInstallPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredInstallPrompt = e;
-  // show compact install/share UI in #installArea
-  const ia = document.getElementById('installArea');
-  ia.style.display = 'flex';
-  ia.style.gap = '8px';
-  ia.style.flexWrap = 'wrap';
-  ia.innerHTML = `
-    <button id="btnInstall" style="padding:10px 12px;border-radius:10px;border:none;background:#4caf50;color:#fff;cursor:pointer">📥 Instalar</button>
-    <button id="btnShare" style="padding:10px 12px;border-radius:10px;border:none;background:#1976d2;color:#fff;cursor:pointer">🔗 Compartir</button>
-    <button id="btnWhats" style="padding:10px 12px;border-radius:10px;border:none;background:#25D366;color:#fff;cursor:pointer">💬 WhatsApp</button>
-  `;
-
-  document.getElementById('btnInstall').addEventListener('click', async () => {
-    if(!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    const choice = await deferredInstallPrompt.userChoice;
-    console.log('Install choice', choice);
-    deferredInstallPrompt = null;
-  });
-
-  document.getElementById('btnShare').addEventListener('click', shareApp);
-  document.getElementById('btnWhats').addEventListener('click', shareWhatsApp);
-});
-
-/* Share using Web Share API if available, else fallback to WhatsApp */
-async function shareApp(){
-  const shareData = {
-    title: 'Mi Playlist – Vida Abundante',
-    text: 'Escuchá los audios de enseñanza de la Iglesia Cristiana de la Vida Abundante',
-    url: 'https://vida-abundante.github.io/playlist-audio/'
-  };
-  if(navigator.share){
-    try { await navigator.share(shareData); return; } catch(e){ console.warn('share failed', e); }
-  }
-  // fallback: open whatsapp web with text
-  shareWhatsApp();
-}
-
-function shareWhatsApp(){
-  // WhatsApp uses the OG image when sharing a URL, so we share the link (OG image is already set)
-  const text = 'Mi Playlist – Vida Abundante - Escuchá los audios: https://vida-abundante.github.io/playlist-audio/';
-  const url = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(text);
-  window.open(url, '_blank');
-}
-
-/* When app is installed, show confirmation */
-window.addEventListener('appinstalled', () => {
-  console.log('PWA instalada');
-  const ia = document.getElementById('installArea');
-  if(ia) ia.innerHTML = "<div style='padding:8px'>✔ Aplicación instalada</div>";
-});
-</script>
-<!-- ========================= end PWA helper ========================= -->
 
 <script>
 /* --------------------------
