@@ -1,6 +1,6 @@
 {
-  "name": "Vida Abundante Audios",
-  "short_name": "Vida Abundante Audios",
+  "name": "Audios - Vida Abundante",
+  "short_name": "Audios - Vida Abundante",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#fffafc",
@@ -18,3 +18,4 @@
     }
   ]
 }
+
