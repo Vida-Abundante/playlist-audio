@@ -7,15 +7,16 @@
   "theme_color": "#fffafc",
   "icons": [
     {
-      "src": "PortadaCuadrada.png",
+      "src": "PortadaCuadrada2.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "PortadaCuadrada.png",
+      "src": "PortadaCuadrada2.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ]
 }
+
 
