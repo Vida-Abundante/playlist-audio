@@ -7,17 +7,18 @@
   "theme_color": "#fffafc",
   "icons": [
     {
-      "src": "arbol.png",
+      "src": "bol.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "arbol.png",
+      "src": "bol.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ]
 }
+
 
 
 
