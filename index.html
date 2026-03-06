@@ -44,14 +44,29 @@ if ("serviceWorker" in navigator) {
     --shadow: 0 2px 10px rgba(0,0,0,0.08);
   }
 
-  html,body{
-    height:100%;
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:"Poppins",sans-serif;
-    overflow:hidden; /* ✅ una pantalla */
-  }
+html,body{
+  height:100%;
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Poppins",sans-serif;
+  overflow:hidden; /* mantenemos una pantalla */
+}
+
+/* ✅ IMPORTANTE: permitir que el contenedor principal pueda "encoger"
+   así la lista toma altura y scrollea */
+.view,
+.screen{
+  min-height: 0;
+}
+
+/* ✅ asegúrate que la lista SIEMPRE scrollee */
+.list{
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
   .app{
     min-height:100%;
@@ -984,3 +999,4 @@ document.getElementById('abcReset').addEventListener('click', ()=> {
 </script>
 </body>
 </html>
+
