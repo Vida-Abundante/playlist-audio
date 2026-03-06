@@ -467,15 +467,20 @@ function extractDateFromDevFile(fileName){
 }
 function buildDevDisplayText(fileName, titleFromJson){
   const d = extractDateFromDevFile(fileName);
-  if(d){
+
+  if (d) {
     const dt = new Date(`${d.yyyy}-${d.mm}-${d.dd}T12:00:00`);
-    const weekday = WEEKDAY_ES[dt.getDay()] || '';
-    const short = titleFromJson && titleFromJson.trim() ? titleFromJson : `${d.dd}/${d.mm}`;
-    return `${weekday} ${short}`;
-  } else {
-    if(titleFromJson && /^\d{1,2}\/\d{1,2}$/.test(titleFromJson.trim())) return `${titleFromJson.trim()}`;
-    return titleFromJson || fileName;
+    const weekday = WEEKDAY_ES[dt.getDay()] || "";
+    const yy = String(d.yyyy).slice(-2);
+    return `${weekday} ${d.dd}/${d.mm}/${yy}`;
   }
+
+  // fallback si no encuentra fecha en el nombre del archivo
+  if (titleFromJson && /^\d{1,2}\/\d{1,2}(?:\/\d{2})?$/.test(titleFromJson.trim())) {
+    return titleFromJson.trim();
+  }
+
+  return titleFromJson || fileName;
 }
 function shortenDevoDisplayFromFile(fileName){
   if(!fileName) return fileName;
@@ -900,7 +905,7 @@ async function loadDevocionales(){
     }
     if(!arr || arr.length===0){ devoMsg.textContent='No hay devocionales publicados.'; return; }
 
-    const entries = arr.slice().reverse();
+    const entries = arr.slice();
     const sections = entries.map(e=>[e.file]);
     const displayNames = entries.map(e => {
       const shortFromFile = shortenDevoDisplayFromFile(e.file);
@@ -1009,6 +1014,7 @@ document.getElementById('abcReset').addEventListener('click', ()=> {
 </script>
 </body>
 </html>
+
 
 
 
