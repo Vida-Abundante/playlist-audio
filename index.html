@@ -145,8 +145,11 @@ html,body{
     align-items:center;
     justify-content:center;
     text-align:center;
+    flex-direction:column;   /* 🔥 clave */
     box-shadow: var(--shadow);
     transition: transform .08s;
+    padding:18px;            /* le da aire */
+    gap:6px;                 /* espacio entre título y subtítulo */
   }
   .menu-btn:active{ transform: scale(0.99); }
 
